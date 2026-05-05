@@ -1,9 +1,30 @@
 V- Search & rescue
     - Bot valt uit en andere bots gaan naar die bot toe, of beacon
+    - Bij het uitvallen geeft het een laatste signaal en elke bot berekent hiermee hoever het is vanaf zichzelf.
+
+    - Architectuur: Aggregation?
+
+    - Communicatie opties
+        1. Elke robot stuurt zijn huidige positie en de afstand naar een centrale server. Deze voegt de informatie samen en vormt de positie van de uitgevallen bot en stuurt deze naar alle bots.
+           De navigatie van de huidige positie van een bot naar de doel positie wordt door hemzelf bepaald.
+        2. 
+
+    - Extra features ideëen
+        - Wanneer een bot is aangekomen bij de uitgevallen bot, tikt het die bot aan, stopt, zet zijn licht aan en stuurt het een signaal naar de server. Wanneer alle bots dit hebben gedaan, stuurt de server een OK signaal terug.
+        
 
 /- Object Verplaatsen
+    - Architectuur: Collective transport
+    - Communicatie: Centralized architecture
+        Er is een centrale server die verbonden is met de bots en een camera die erboven hangt. Wanneer een richting aangegeven wordt, stuurt de server de bots aan om een positie aan te nemen aan de rand van het object.
+        Met de camera wordt er bijgehouden of het object in de juiste richting beweegt. Als dit niet zo is, dan wordt de bot die het meeste invloed heeft om deze afwijking tegen te gaan aangestuurd om van positie te veranderen of (minder) krachtig gemaakt.
+
 ?- Vormen (/letters) creëren
-/- Drones kamikaze
+    - Architectuur: Pattern formation
+    - Communicatie: Centralized architecture
+        Er hangt een camera boven de bots. Deze is verbonden aan een centrale server en deze server heeft een aantal presets met vormen waarin het de posities die bots moeten hebben weet.
+        Wanneer een vorm wordt gekozen, wordt er gekeken welke bots het dichtste zijn bij welke posities in het figuur en hier worden de bots naartoe gestuurd.
+    
 /- Pacman in onbekend terrein
 
 
