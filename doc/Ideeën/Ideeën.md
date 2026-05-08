@@ -1,12 +1,12 @@
-# V - Search & Rescue
+## V - Search & Rescue
 
 - Een bot valt uit en andere bots gaan naar deze bot toe of naar een beacon.
 - Bij het uitvallen stuurt de bot een laatste signaal uit. Elke andere bot berekent hiermee de afstand tot de uitgevallen bot.
 
-## Architectuur
+### Architectuur
 - Aggregation?
 
-## Communicatieopties
+### Communicatieopties
 
 1. Elke robot stuurt zijn huidige positie en de afstand tot de uitgevallen bot naar een centrale server.  
    De server combineert deze informatie, bepaalt de positie van de uitgevallen bot en stuurt deze positie naar alle bots terug.  
@@ -16,7 +16,7 @@
    Elke bot berekent zelfstandig de positie van de uitgevallen bot op basis van ontvangen signalen en gedeelde afstanden.  
    Daarna coördineren de bots onderling welke bots naar de locatie gaan.
 
-## Extra feature-ideeën
+### Extra feature-ideeën
 
 - Wanneer een bot aankomt bij de uitgevallen bot:
   - tikt hij deze aan;
@@ -28,12 +28,12 @@
 
 ---
 
-# Object Verplaatsen
+## Object Verplaatsen
 
-## Architectuur
+### Architectuur
 - Collective Transport
 
-## Communicatie
+### Communicatie
 - Centralized Architecture
 
 Er is een centrale server verbonden met alle bots en een camera die boven het speelveld hangt.
@@ -49,12 +49,12 @@ Als het object afwijkt van de gewenste richting:
 
 ---
 
-# Vormen / Letters Creëren
+## Vormen / Letters Creëren
 
-## Architectuur
+### Architectuur
 - Pattern Formation
 
-## Communicatie
+### Communicatie
 - Centralized Architecture
 
 Er hangt een camera boven de bots die verbonden is met een centrale server.
@@ -68,9 +68,9 @@ Wanneer een vorm wordt gekozen:
 
 ---
 
-# Pacman in Onbekend Terrein
+## Pacman in Onbekend Terrein
 
-## Mogelijke onderdelen
+### Mogelijke onderdelen
 - Mapping
 - Exploration
 - Obstacle avoidance
