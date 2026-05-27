@@ -1,0 +1,32 @@
+#VRML_SIM R2023b utf8
+# Describe the functionality of your PROTO here.
+
+EXTERNPROTO "C:/Users/marijn/Documents/GitHub/Autonomous-Systems/ASWebotsV2/protos/chariot.proto"
+
+PROTO MyProto [
+  field SFVec3f translation 0 0 0
+  field SFRotation rotation 0 0 1 0
+  field SFString name "chariot"
+  field SFString controller "<generic>"
+  field MFString controllerArgs [ ]
+  field SFString customData ""
+  field SFBool supervisor FALSE
+  field SFBool synchronization TRUE
+  field SFBool selfCollision FALSE
+  field SFBool staticBase TRUE
+
+]
+{
+  chariot {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    controller IS controller
+    controllerArgs IS controllerArgs
+    customData IS customData
+    supervisor IS supervisor
+    synchronization IS synchronization
+    selfCollision IS selfCollision
+    staticBase IS staticBase
+  }
+}
