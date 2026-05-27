@@ -3,3 +3,5 @@ Inlog: ubuntu-1075475
 Wachtwoord: X45dpDq44C  
 
 FormingFormsAS
+
+mqtt: myuser, {serverpasswd}
