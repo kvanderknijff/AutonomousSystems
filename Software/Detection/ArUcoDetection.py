@@ -24,8 +24,7 @@ def videoProcessing(file: str, record: bool, camera: bool):
         fps = capture.get(cv2.CAP_PROP_FPS)
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height))
-        """, isColor=False)"""
+        out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height), isColor=False)
 
     while True:
         try:
@@ -38,7 +37,7 @@ def videoProcessing(file: str, record: bool, camera: bool):
             if camera:
                 frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
                 
-            #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             corners, markerIDs, rejected = detector.detectMarkers(frame)
 
@@ -81,5 +80,5 @@ def videoProcessing(file: str, record: bool, camera: bool):
 
     cv2.destroyAllWindows()  
 
-#videoProcessing("http://145.137.63.51:8080/video", record=True, camera=True)
-videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False)
+videoProcessing("http://145.137.57.80:8080/video", record=True, camera=True)
+#videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False)
