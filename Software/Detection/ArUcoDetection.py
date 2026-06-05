@@ -1,12 +1,12 @@
 import cv2
 import math
+import numpy as np
+
+dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+detector = cv2.aruco.ArucoDetector(dictionary)
 
 def videoProcessing(file: str, record: bool, camera: bool):
     capture = cv2.VideoCapture(file)
-
-    dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
-
-    detector = cv2.aruco.ArucoDetector(dictionary)
 
     if not capture.isOpened():
         print("Error: Could not open video.")
@@ -31,35 +31,11 @@ def videoProcessing(file: str, record: bool, camera: bool):
             if not ret:
                 print("End of video")
                 break
-
+            
             if camera:
                 frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
                 
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-            corners, markerIDs, rejected = detector.detectMarkers(frame)
-
-            if markerIDs is not None:
-                for corner, markerID in zip(corners, markerIDs):
-                    corner = corner.reshape(4, 2)
-                    corner = corner.astype(int)
-
-                    topLeft, topRight, bottomRight, bottomLeft = corner
-
-                    centerX = (topLeft[0] + bottomRight[0]) // 2
-                    centerY = (topLeft[1] + bottomRight[1]) // 2
-
-                    center = (centerX, centerY)
-                    cv2.circle(frame, center, 5, (0, 0, 255), -1)
-
-                    topMiddleX = (topLeft[0] + topRight[0]) // 2
-                    topMiddleY = (topLeft[1] + topRight[1]) // 2
-                    
-                    direction = math.degrees(math.atan2(topMiddleY - centerY, topMiddleX - centerX))
-                    cv2.putText(frame, f"dir: {direction}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)
-                    
-                    cv2.putText(frame, f"id: {markerID[0]}", tuple(topLeft), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)
-
+            arUcoInformation, frame = arUcoDetection(frame)
             cv2.imshow("Video", frame)
 
             if record:
@@ -68,8 +44,8 @@ def videoProcessing(file: str, record: bool, camera: bool):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         
-        except:
-            print("Program ran into an exception")
+        except Exception as e:
+            print("Program ran into an exception: ", e)
 
     capture.release()
     
@@ -77,7 +53,39 @@ def videoProcessing(file: str, record: bool, camera: bool):
         out.release()
 
     cv2.destroyAllWindows()
+    
+def arUcoDetection(frame: np.ndarray):
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    corners, markerIDs, rejected = detector.detectMarkers(frame)
+    
+    information = []
+
+    if markerIDs is not None:
+        for corner, markerID in zip(corners, markerIDs):
+            corner = corner.reshape(4, 2)
+            corner = corner.astype(int)
+
+            topLeft, topRight, bottomRight, bottomLeft = corner
+
+            centerX = (topLeft[0] + bottomRight[0]) // 2
+            centerY = (topLeft[1] + bottomRight[1]) // 2
+
+            center = (centerX, centerY)
+            cv2.circle(frame, center, 5, (0, 0, 255), -1)
+
+            topMiddleX = (topLeft[0] + topRight[0]) // 2
+            topMiddleY = (topLeft[1] + topRight[1]) // 2
+            
+            direction = math.degrees(math.atan2(topMiddleY - centerY, topMiddleX - centerX))
+            cv2.putText(frame, f"dir: {direction}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)
+            
+            cv2.putText(frame, f"id: {markerID[0]}", tuple(topLeft), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)
+            
+            information.append([int(markerID[0]), center, direction])
+            
+    return information, frame
 
 if __name__ == "__main__":
-    videoProcessing("http://145.137.57.80:8080/video", record=True, camera=True)
-    #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False)
+    #videoProcessing("http://145.137.57.80:8080/video", record=True, camera=True)
+    videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False)
