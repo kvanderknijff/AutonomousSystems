@@ -1,9 +1,7 @@
 import cv2
-import numpy as np
 import math
 
 def videoProcessing(file: str, record: bool, camera: bool):
-
     capture = cv2.VideoCapture(file)
 
     dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
@@ -71,14 +69,15 @@ def videoProcessing(file: str, record: bool, camera: bool):
                 break
         
         except:
-            print("Exception")
+            print("Program ran into an exception")
 
     capture.release()
     
     if record:
         out.release()
 
-    cv2.destroyAllWindows()  
+    cv2.destroyAllWindows()
 
-videoProcessing("http://145.137.57.80:8080/video", record=True, camera=True)
-#videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False)
+if __name__ == "__main__":
+    videoProcessing("http://145.137.57.80:8080/video", record=True, camera=True)
+    #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False)
