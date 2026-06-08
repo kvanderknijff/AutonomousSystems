@@ -71,15 +71,16 @@ def ledDetection(frameBGR: np.ndarray):
     frameRB = cv2.subtract(frameR, frameB)
 
     # BLUE
-    ret, frameBG = cv2.threshold(frameBG, 60, 255, cv2.THRESH_BINARY)
+    ret, frameBG = cv2.threshold(frameBG, 37, 255, cv2.THRESH_BINARY)
     blueLedPositions, blueLedframeRGB = detect_pix(frameBG, frameRGB, "Blue", cv2.RETR_TREE)
     ledPositions.append(blueLedPositions)
-
+    
+    """
     # RED
     ret, frameRB = cv2.threshold(frameRB, 60, 255, cv2.THRESH_BINARY)
     redLedPositions, frameRGB = detect_pix(frameRB, frameRGB, "Red", cv2.RETR_TREE)
     ledPositions.append(redLedPositions)
-
+    
     # GREEN
     lowerGreen = np.array([40, 50, 50])
     upperGreen = np.array([85, 255, 255])
@@ -93,6 +94,7 @@ def ledDetection(frameBGR: np.ndarray):
     maskW = cv2.inRange(frameHSV, lowerWhite, upperWhite)
     whiteLedPositions, frameRGB = detect_pix(maskW, frameRGB, "White", cv2.RETR_EXTERNAL)
     ledPositions.append(whiteLedPositions)
+    """
 
     return ledPositions, frameRGB
 
@@ -129,20 +131,20 @@ def videoProcessing(file: str, record: bool, camera: bool):
             arUcoInformation, arUcoFrame = arUcoDetection(frame)
             """
             arUcoInformation =
-            [[id1, center1, dir1],[id2,center2,dir2]]
+            [[id1, center1, dir1],[id2,center2,dir2],...]
             """
             ledPositions, frameRGB = ledDetection(frame)
             """
             ledPositions =
-            [[[blueled1x,blueled1y],[blueled2x,blueled2y]]
-            [[redled1x,redled1y],[redled2x,redled2y]]
-            [[greenled1x,greenled1y],[greenled2x,greenled2y]]
-            [[whiteled1x,whiteled1y],[whiteled2x,whiteled2y]]]
+            [[[blueled1x,blueled1y],[blueled2x,blueled2y],...]
+            [[redled1x,redled1y],[redled2x,redled2y],...]
+            [[greenled1x,greenled1y],[greenled2x,greenled2y],...]
+            [[whiteled1x,whiteled1y],[whiteled2x,whiteled2y],...]]
             """
 
-            cv2.imshow("frame", frame)
+            cv2.imshow("frame", frameRGB)
             if record:
-                out.write(frame)
+                out.write(frameRGB)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -158,4 +160,4 @@ def videoProcessing(file: str, record: bool, camera: bool):
 if __name__ == "__main__":
     #videoProcessing("http://192.168.1.108:8080/video", record=True, camera=True)
     #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False)
-    videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/leds test/led_lightson_openwindow.mp4", record=True, camera=False)
+    videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/leds test/led_lightson_openwindow.mp4", record=False, camera=False)
