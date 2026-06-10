@@ -36,19 +36,22 @@ def arUcoDetection(frame: np.ndarray):
 
     return information, frame
 
-def detect_pix (frame: np.ndarray, frameRGB: np.ndarray, color: str, method: int):
+def detect_pix (frame: np.ndarray, frameRGB: np.ndarray, color: str, colorCode: tuple, method: int):
     """
     Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam
     """
     ledPositions = []
+
     Contours, hierarchy = cv2.findContours(frame, method, cv2.CHAIN_APPROX_SIMPLE)
+
     for contour in Contours:
         area = cv2.contourArea(contour)
-        if area > 500:
+        if area > 400:
             x, y, w, h = cv2.boundingRect(contour)
             ledPositions.append((x + 0.5 * w, y + 0.5* h))
-            cv2.rectangle(frameRGB, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            print(color, np.round(x+(w/2)),np.round(y+(h/2)))
+
+            cv2.rectangle(frameRGB, (x, y), (x + w, y + h), colorCode, 2)
+            print(color, np.round(x + (w / 2)),np.round(y + (h / 2)))
 
     if not ledPositions:
         ledPositions.append((-1,-1))
@@ -59,7 +62,6 @@ def ledDetection(frameBGR: np.ndarray):
     """
     Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam
     """
-    
     ledPositions = []
 
     frameRGB = cv2.cvtColor(frameBGR, cv2.COLOR_BGR2RGB)
@@ -72,22 +74,22 @@ def ledDetection(frameBGR: np.ndarray):
 
     # BLUE
     ret, frameBG = cv2.threshold(frameBG, 37, 255, cv2.THRESH_BINARY)
-    blueLedPositions, blueLedframeRGB = detect_pix(frameBG, frameRGB, "Blue", cv2.RETR_TREE)
+    blueLedPositions, blueLedframeRGB = detect_pix(frameBG, frameRGB, "Blue", (0, 0, 255), cv2.RETR_TREE)
     ledPositions.append(blueLedPositions)
     
-    """
-    # RED
+    # RED    - moet intenser
     ret, frameRB = cv2.threshold(frameRB, 60, 255, cv2.THRESH_BINARY)
-    redLedPositions, frameRGB = detect_pix(frameRB, frameRGB, "Red", cv2.RETR_TREE)
+    redLedPositions, frameRGB = detect_pix(frameRB, frameRGB, "Red", (255, 0, 0), cv2.RETR_TREE)
     ledPositions.append(redLedPositions)
     
     # GREEN
-    lowerGreen = np.array([40, 50, 50])
-    upperGreen = np.array([85, 255, 255])
+    lowerGreen = np.array([35, 40, 40]) #np.array([40, 50, 50])
+    upperGreen = np.array([95, 255, 255]) #np.array([85, 255, 255])
     maskG = cv2.inRange(frameHSV, lowerGreen, upperGreen)
-    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, "Green", cv2.RETR_EXTERNAL)
+    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, "Green", (0, 255, 0), cv2.RETR_EXTERNAL)
     ledPositions.append(greenLedPositions)
 
+    """
     # WHITE
     lowerWhite = np.array([0, 0, 200])
     upperWhite = np.array([180, 120, 255])
@@ -96,7 +98,8 @@ def ledDetection(frameBGR: np.ndarray):
     ledPositions.append(whiteLedPositions)
     """
 
-    return ledPositions, frameRGB
+    outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
+    return ledPositions, outputFrame
 
 def videoProcessing(file: str, record: bool, camera: bool):
     capture = cv2.VideoCapture(file)
@@ -158,6 +161,6 @@ def videoProcessing(file: str, record: bool, camera: bool):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    #videoProcessing("http://192.168.1.108:8080/video", record=True, camera=True)
+    videoProcessing("http://145.137.58.237:8080/video", record=True, camera=True)
     #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False)
-    videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/leds test/led_lightson_openwindow.mp4", record=False, camera=False)
+    #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/leds test/led_lightson_openwindow.mp4", record=False, camera=False)
