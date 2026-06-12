@@ -89,7 +89,7 @@ De server stuurt nu puur rijcommando's via `Robots/Data/{MAC}/Commands`.
 
 ### Positie & Camera Updates
 * **Topic:** `Robots/Data/Positions`
-* **Formaat:** `[ArUco_ID, x_positie, y_positie, oriëntatie_in_graden, led_status]`
+* **Formaat:** `[ArUco_ID, x_position, y_position, orientation, led_status]`
 * **Payloads:**
   * `[1, 544, 234, 90, "connecting"]` *(LED is geel)*
   * `[1, 550, 240, 92, "connected"]` *(LED is groen)*
