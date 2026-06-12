@@ -107,7 +107,7 @@ def ledDetection(frameBGR: np.ndarray):
     outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
     return ledPositions, outputFrame
 
-def linkLedToChariot(arUcoInformation, ledPositions, maxAllowedDistance):
+def linkLedToChariot(arUcoInformation: list, ledPositions: list, maxAllowedDistance: int):
     """
     Assuming two ArUco's are not directly next to eachother
 
@@ -136,7 +136,7 @@ def linkLedToChariot(arUcoInformation, ledPositions, maxAllowedDistance):
 
     return chariotInformation
 
-def sendChariotInformation(chariotInformation):
+def sendChariotInformation(chariotInformation: list):
     for chariot in chariotInformation:
         message = {
             "ArUco_ID": chariot[0], 
