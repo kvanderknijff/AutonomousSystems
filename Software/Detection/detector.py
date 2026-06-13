@@ -10,14 +10,16 @@ detector = cv2.aruco.ArucoDetector(dictionary)
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         client.subscribe(mqttTopic)
+        print("Subscribed to mqtt topic: " + mqttTopic)
     else:
         print("Couldn't connect to mqtt topic")
 
 mqttClientId = "Camera"
-mqttPort = 1883
-mqttBroker = "145.24.237.88" # verbergen?
+mqttPort = 8883
+mqttBroker = "145.24.237.88"
 mqttTopic = "Robots/Data/Positions"
 client = mqtt_client.Client(client_id=mqttClientId)
+client.username_pw_set(username="myuser", password="FormingFormsAS")
 client.on_connect = on_connect
 
 def arUcoDetection(frame: np.ndarray):
@@ -51,7 +53,7 @@ def arUcoDetection(frame: np.ndarray):
 
     return information, frame
 
-def detect_pix (frame: np.ndarray, frameRGB: np.ndarray, color: str, colorCode: tuple, method: int):
+def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method: int):
     """
     Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam
     """
@@ -63,13 +65,11 @@ def detect_pix (frame: np.ndarray, frameRGB: np.ndarray, color: str, colorCode: 
         area = cv2.contourArea(contour)
         if area > 400:
             x, y, w, h = cv2.boundingRect(contour)
-            ledPositions.append((x + 0.5 * w, y + 0.5* h))
-
+            ledPositions.append([x + 0.5 * w, y + 0.5* h])
             cv2.rectangle(frameRGB, (x, y), (x + w, y + h), colorCode, 2)
-            print(color, np.round(x + (w / 2)),np.round(y + (h / 2)))
 
     if not ledPositions:
-        ledPositions.append((-1,-1))
+        ledPositions.append([-1,-1])
 
     return ledPositions, frameRGB
 
@@ -87,33 +87,31 @@ def ledDetection(frameBGR: np.ndarray):
     frameBG = cv2.subtract(frameB, frameG)
     frameRB = cv2.subtract(frameR, frameB)
 
-    # BLUE
     ret, frameBG = cv2.threshold(frameBG, 37, 255, cv2.THRESH_BINARY)
-    blueLedPositions, blueLedframeRGB = detect_pix(frameBG, frameRGB, "Blue", (0, 0, 255), cv2.RETR_TREE)
+    blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE)
     ledPositions.append(blueLedPositions)
     
-    # RED
     ret, frameRB = cv2.threshold(frameRB, 60, 255, cv2.THRESH_BINARY)
-    redLedPositions, frameRGB = detect_pix(frameRB, frameRGB, "Red", (255, 0, 0), cv2.RETR_TREE)
+    redLedPositions, frameRGB = detect_pix(frameRB, frameRGB, (255, 0, 0), cv2.RETR_TREE)
     ledPositions.append(redLedPositions)
 
-    # GREEN
     lowerGreen = np.array([35, 40, 40])
     upperGreen = np.array([95, 255, 255])
     maskG = cv2.inRange(frameHSV, lowerGreen, upperGreen)
-    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, "Green", (0, 255, 0), cv2.RETR_EXTERNAL)
+    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL)
     ledPositions.append(greenLedPositions)
 
     outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
     return ledPositions, outputFrame
 
-def linkLedToChariot(arUcoInformation: list, ledPositions: list, maxAllowedDistance: int):
+def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarray):
     """
     Assuming two ArUco's are not directly next to eachother
 
     Could cause a problem if two chariots are directly next to eachother 
     and the led of one chariot is assigned to both
     """
+    maxAllowedDistance = 25
     chariotInformation = []
 
     for chariot in arUcoInformation:
@@ -132,23 +130,26 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, maxAllowedDista
                     elif colorIndex == 2: # Green LED
                         status = "Connected"
                     bestDistance = distance
+
+                    cv2.line(frame, chariot[1], led, (255, 0, 0), 3)
+
         chariotInformation.append([chariot[0], chariot[1], chariot[2], status])
 
-    return chariotInformation
+    return chariotInformation, frame
 
 def sendChariotInformation(chariotInformation: list):
     for chariot in chariotInformation:
         message = {
-            "ArUco_ID": chariot[0], 
-            "x_position": chariot[1][0],
-            "y_position": chariot[1][1],
-            "orientation": chariot[2],
-            "led_status": chariot[3]
+            "ArUco_ID": int(chariot[0]), 
+            "x_position": int(chariot[1][0]),
+            "y_position": int(chariot[1][1]),
+            "orientation": float(chariot[2]),
+            "led_status": str(chariot[3])
         }
         message_json = json.dumps(message)
         client.publish(mqttTopic, message_json)
 
-def videoProcessing(file: str, record: bool, camera: bool):
+def videoProcessing(file: str, record: bool, camera: bool, type: str) -> None:
     capture = cv2.VideoCapture(file)
 
     if not capture.isOpened():
@@ -165,7 +166,11 @@ def videoProcessing(file: str, record: bool, camera: bool):
         fps = capture.get(cv2.CAP_PROP_FPS)
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height)) #, isColor=False)
+        if type == "aruco":
+            out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height), isColor=False)
+        else:
+            out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height))
+
 
     while True:
         try:
@@ -180,12 +185,26 @@ def videoProcessing(file: str, record: bool, camera: bool):
 
             arUcoInformation, arUcoFrame = arUcoDetection(frame)
             ledPositions, ledFrame = ledDetection(frame)
-            chariotInformation = linkLedToChariot(arUcoInformation, ledPositions, 25)
-            sendChariotInformation(chariotInformation)
+            chariotInformation, linkingFrame = linkLedToChariot(arUcoInformation, ledPositions, frame)
+            if chariotInformation:
+                sendChariotInformation(chariotInformation)
 
-            cv2.imshow("frame", frame)
-            if record:
-                out.write(frame)
+            if type == "aruco":
+                cv2.imshow("Frames", arUcoFrame)
+                if record:
+                    out.write(arUcoFrame)
+            elif type == "leds":
+                cv2.imshow("Frames", ledFrame)
+                if record:
+                    out.write(ledFrame)
+            elif type == "linking":
+                cv2.imshow("Frames", linkingFrame)
+                if record:
+                    out.write(linkingFrame)
+            else:
+                cv2.imshow("Frames", frame)
+                if record:
+                    out.write(frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -202,6 +221,6 @@ if __name__ == "__main__":
     client.connect(mqttBroker, mqttPort)
     client.loop_start()
 
-    videoProcessing("http://145.137.58.237:8080/video", record=True, camera=True)
-    #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False)
-    #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/leds test/led_lightson_openwindow.mp4", record=False, camera=False)
+    #videoProcessing("http://192.168.1.108:8080/video", record=True, camera=True, type="linking")
+    #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False, type="aruco")
+    #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/leds test/led_lightson_openwindow.mp4", record=False, camera=False, type="leds")
