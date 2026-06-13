@@ -1,30 +1,13 @@
-# Central dictionary to store all robots:
-#  
-# A central database in Python's memory
-# The Key is a string (ID), the Value is the Robot object
-# active_robots: dict[str, Robot] = {}
-#
-# def process_incoming_message(robot_id: str, x: float, y: float, direction: float) -> None:
-#     global active_robots
-#
-#     if robot_id in active_robots:
-#         # The robot already exists! We only update the X, Y, and direction
-#         active_robots[robot_id].update_position(x, y, direction)
-#         print(f"Robot {robot_id} updated to X:{x}, Y:{y}")
-#     else:
-#         # This is a new robot (e.g., number 5 that just turned on). 
-#         # We create a new object and store it.
-#         new_robot_object = Robot(robot_id, x, y, direction)
-#         active_robots[robot_id] = new_robot_object
-#         print(f"New robot {robot_id} registered!")
-# --------------------------------------------------------------------------------
-
+import logging
 import math
 from typing import Callable
+from avoidance import calculate_apf_heading  # Import APF algorithm
 
-# Type alias for mypy: expects robot IDs, center X/Y, and returns mapped target coordinates
-FormationStrategy = Callable[[list[str], float, float], dict[str, tuple[float, float]]]
+# Set to logging.DEBUG for development, logging.WARNING for production
+logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 
+# Type alias: maps active robot positions to their optimal formation targets
+FormationStrategy = Callable[[dict[str, tuple[float, float]], float, float], dict[str, tuple[float, float]]]
 
 class Robot:
     def __init__(self, robot_id: str, x: float, y: float, direction: float) -> None:
@@ -33,122 +16,150 @@ class Robot:
         self.y: float = y
         self.direction: float = direction
 
-        # Target coordinates (Optional[float] allows None when idle)
+        # Goal coordinates assigned by the formation strategy
         self.target_x: float | None = None
         self.target_y: float | None = None
 
     def update_position(self, x: float, y: float, direction: float) -> None:
-        """Update the coordinates of this specific robot."""
+        """Update the current state vectors of the robot."""
         self.x = x
         self.y = y
         self.direction = direction
 
     def set_target(self, target_x: float, target_y: float) -> None:
-        """Set a new target destination for the path planner to process."""
+        """Assign a new goal coordinate to navigate towards."""
         self.target_x = target_x
         self.target_y = target_y
 
     def clear_target(self) -> None:
-        """Clear the target when the robot has reached its destination."""
+        """Reset targets when destination is reached or mission is aborted."""
         self.target_x = None
         self.target_y = None
 
     @property
     def has_target(self) -> bool:
-        """Helper property to quickly check if the robot needs routing."""
+        """Check if the robot currently has an active target assigned."""
         return self.target_x is not None and self.target_y is not None
 
 
 class RobotManager:
-    # VOEG HIER de parameter toe tussen de haakjes, inclusief de type hint en de defaultwaarde (= None)
     def __init__(self, on_command_calculated: Callable[[str, str], None] | None = None) -> None:
-        # This is the central database in Python's memory for all robots
+        # Central memory database for tracking all discovered fleet states
         self.active_robots: dict[str, Robot] = {}
 
-        # Sla de binnengekomen parameter op in het object
+        # Network pipeline callback function (e.g., linked to MQTT publish)
         self.on_command_calculated: Callable[[str, str], None] | None = on_command_calculated
 
 
-
     def process_incoming_message(self, robot_id: str, x: float, y: float, direction: float) -> None:
-        """This function is called as soon as MQTT data arrives."""
+        """Process incoming state updates from telemetry feed."""
+
+        # The robot already exists, update the position
         if robot_id in self.active_robots:
-            # The robot already exists, update the position
             self.active_robots[robot_id].update_position(x, y, direction)
-            print(f"Robot {robot_id} updated to X:{x}, Y:{y}, Direction:{direction}")
+            logging.debug(f"[MANAGER] Updated: {robot_id} @ ({x:.1f}, {y:.1f})")
+        
+        # New robot detected, create a new object
         else:
-            # New robot detected, create a new object
             new_robot = Robot(robot_id, x, y, direction)
             self.active_robots[robot_id] = new_robot
-            print(f"New robot {robot_id} registered at X:{x}, Y:{y}")
+            logging.debug(f"[MANAGER] Registered: {robot_id} @ ({x:.1f}, {y:.1f})")
+
 
     def apply_formation(self, formation_strategy: FormationStrategy, center_x: float, center_y: float) -> None:
-        """Gathers all online robots and maps targets using the provided strategy."""
-        robot_ids = list(self.active_robots.keys())
-        if not robot_ids:
-            print("No active robots available for formation assignment.")
+        """Map active robots to structural shape coordinates using the provided strategy."""
+        
+        if not self.active_robots:
+            logging.warning("[FORMATION] Request denied: No active robots online.")
             return
         
-        # Execute the injected strategy (Dependency Injection)
-        calculated_targets = formation_strategy(robot_ids, center_x, center_y)
+        # Extract current position vectors for optimization input
+        current_positions: dict[str, tuple[float, float]] = {
+            robot_id: (robot.x, robot.y) for robot_id, robot in self.active_robots.items()
+        }
 
-        # Assign targets to our tracking state
+        # Compute optimal coordinate matching
+        calculated_targets = formation_strategy(current_positions, center_x, center_y)
+
+        # Assign targets to the tracking state
+        logging.debug(f"\n--- Applying Formation Strategy around ({center_x:.1f}, {center_y:.1f}) ---")
         for robot_id, (target_x, target_y) in calculated_targets.items():
             if robot_id in self.active_robots:
                 self.active_robots[robot_id].set_target(target_x, target_y)
-                print(f"Formation target set for {robot_id} -> Target X: {target_x:.1f}, Y: {target_y:.1f}")
+                logging.debug(f"[FORMATION] Set: {robot_id} -> Target ({target_x:.1f}, {target_y:.1f})")
+
 
     def execute_path_planning(self) -> None:
-        """Calculate advanced navigation commands including positioning, rotations, and turning arcs."""
+        """Run loop over active fleet to compute reactive collision-free motion commands."""
         if not self.active_robots:
             return
         
-        print(f"\n--- Start Path Planning Cycle ({len(self.active_robots)} robots active) ---")
+        logging.debug(f"\n--- Start Path Planning Cycle ({len(self.active_robots)} robots active) ---")
         for robot_id, robot in self.active_robots.items():
             # robot.x, robot.y, and robot.direction are always the newest values here!
 
+            # Enforce active safety stop on idle hardware
             if not robot.has_target:
-                print(f"Robot {robot_id} has no target. Standing by.")
+                logging.debug(f"[PLANNER] {robot_id} | Idle -> STOP")
+                if self.on_command_calculated:
+                    self.on_command_calculated(robot_id, "STOP")
                 continue
 
             assert robot.target_x is not None
             assert robot.target_y is not None
 
-            # 1. Calculate vectors and distance
+            # 1. Calculate distance vector to target
             dx: float = robot.target_x - robot.x
             dy: float = robot.target_y - robot.y
             distance: float = math.hypot(dx, dy)
 
-            # 2. Arrival validation (Deadband / Threshold of 2.0 units)
+            # 2. Arrival deadband validation
             if distance < 2.0:
-                print(f"Robot {robot_id} has arrived at destination! Clearing target.")
+                logging.debug(f"[PLANNER] {robot_id} | Arrived -> STOP")
                 robot.clear_target()
                 if self.on_command_calculated:
                     self.on_command_calculated(robot_id, "STOP")
                 continue
 
-            # 3. Heading calculations
-            target_heading_deg: float = math.degrees(math.atan2(dy, dx))
+            # 3. Gather coordinate positions of external neighbors for APF
+            other_robots_positions: list[tuple[float, float]] = [
+                (other.x, other.y) for other_id, other in self.active_robots.items() if other_id != robot_id
+            ]
+
+            # 4. Compute modified heading using Artificial Potential Fields
+            # This incorporates repulsive fields from neighboring robots dynamically
+            target_heading_deg: float = calculate_apf_heading(
+                current_x=robot.x,
+                current_y=robot.y,
+                target_x=robot.target_x,
+                target_y=robot.target_y,
+                other_robots_positions=other_robots_positions,
+                influence_radius=30.0  # Safe distance threshold
+            )
+
+            # 5. Delta calculation and normalization to [-180, 180]
             heading_error: float = target_heading_deg - robot.direction
             heading_error = (heading_error + 180) % 360 - 180  # Normalize to [-180, 180]
 
-            # 4. Advanced Threshold Controller (Rotate vs Turn vs Forward)
+            # 6. Advanced Threshold Controller (Rotate vs Turn vs Forward)
             curve_threshold: float = 10.0   # Small errors -> Drive straight with micro-adjustments
             rotate_threshold: float = 45.0  # Large errors -> Pivot on the spot first
 
-            if heading_error > rotate_threshold:
-                calculated_command = "LeftRotate"
-            elif heading_error < -rotate_threshold:
-                calculated_command = "RightRotate"
-            elif heading_error > curve_threshold:
-                calculated_command = "LeftTurn"
-            elif heading_error < -curve_threshold:
-                calculated_command = "RightTurn"
+            # Dynamic controller scaling: override rotations when closing in on targets
+            if distance < 10.0:
+                if heading_error > curve_threshold:         calculated_command = "LeftTurn"
+                elif heading_error < -curve_threshold:      calculated_command = "RightTurn"
+                else:                                       calculated_command = "Forward"
             else:
-                calculated_command = "Forward"
+                if heading_error > rotate_threshold:        calculated_command = "LeftRotate"
+                elif heading_error < -rotate_threshold:     calculated_command = "RightRotate"
+                elif heading_error > curve_threshold:       calculated_command = "LeftTurn"
+                elif heading_error < -curve_threshold:      calculated_command = "RightTurn"
+                else:                                       calculated_command = "Forward"
 
-            print(f"[{robot_id}] Dist: {distance:.1f} | Error Angle: {heading_error:.1f}° -> Action: {calculated_command}")
+            logging.debug(f"[PLANNER] {robot_id} | Dist: {distance:.1f} | Error: {heading_error:.1f}° -> {calculated_command}")
             
-            # Send the command back via the callback if it is registered
+            # Send the command back through the callback if it is registered
+            # Fire data pipeline callback trigger
             if self.on_command_calculated:
                 self.on_command_calculated(robot_id, calculated_command)
