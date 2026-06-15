@@ -7,7 +7,9 @@ import json
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 detector = cv2.aruco.ArucoDetector(dictionary)
 
-def on_connect(client, userdata, flags, rc):
+maxAllowedDistanceMarkerToLed = 50
+
+def on_connect(client, userdata, flags, rc) -> None:
     if rc == 0:
         client.subscribe(mqttTopic)
         print("Subscribed to mqtt topic: " + mqttTopic)
@@ -22,7 +24,7 @@ client = mqtt_client.Client(client_id=mqttClientId)
 client.username_pw_set(username="myuser", password="FormingFormsAS")
 client.on_connect = on_connect
 
-def arUcoDetection(frame: np.ndarray):
+def arUcoDetection(frame: np.ndarray) -> tuple[list, np.ndarray]:
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     corners, markerIDs, rejected = detector.detectMarkers(frame)
@@ -51,9 +53,12 @@ def arUcoDetection(frame: np.ndarray):
             cv2.putText(frame, f"dir: {direction}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
             information.append([int(markerID[0]), center, direction])
 
+    for marker in information:
+        cv2.circle(frame, marker[1], maxAllowedDistanceMarkerToLed, (0, 255, 0), 2)
+
     return information, frame
 
-def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method: int):
+def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method: int) -> tuple[list, np.ndarray]:
     """
     Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam
     """
@@ -63,7 +68,7 @@ def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method
 
     for contour in Contours:
         area = cv2.contourArea(contour)
-        if area > 400:
+        if area > 250:
             x, y, w, h = cv2.boundingRect(contour)
             ledPositions.append([x + 0.5 * w, y + 0.5* h])
             cv2.rectangle(frameRGB, (x, y), (x + w, y + h), colorCode, 2)
@@ -73,7 +78,7 @@ def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method
 
     return ledPositions, frameRGB
 
-def ledDetection(frameBGR: np.ndarray):
+def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     """
     Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam
     """
@@ -104,19 +109,18 @@ def ledDetection(frameBGR: np.ndarray):
     outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
     return ledPositions, outputFrame
 
-def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarray):
+def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarray) -> tuple[list, np.ndarray]:
     """
     Assuming two ArUco's are not directly next to eachother
 
     Could cause a problem if two chariots are directly next to eachother 
     and the led of one chariot is assigned to both
     """
-    maxAllowedDistance = 25
     chariotInformation = []
 
     for chariot in arUcoInformation:
         status = "Off"
-        bestDistance = maxAllowedDistance + 1
+        bestDistance = maxAllowedDistanceMarkerToLed + 1
         for colorIndex, ledColor in enumerate(ledPositions):
             for led in ledColor:
                 if led == (-1,-1):
@@ -131,13 +135,13 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
                         status = "Connected"
                     bestDistance = distance
 
-                    cv2.line(frame, chariot[1], led, (255, 0, 0), 3)
+                    cv2.line(frame, (int(chariot[1][0]),int(chariot[1][1])), (int(led[0]),int(led[1])), (255, 0, 0), 3)
 
         chariotInformation.append([chariot[0], chariot[1], chariot[2], status])
 
     return chariotInformation, frame
 
-def sendChariotInformation(chariotInformation: list):
+def sendChariotInformation(chariotInformation: list) -> None:
     for chariot in chariotInformation:
         message = {
             "ArUco_ID": int(chariot[0]), 
@@ -170,7 +174,6 @@ def videoProcessing(file: str, record: bool, camera: bool, type: str) -> None:
             out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height), isColor=False)
         else:
             out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height))
-
 
     while True:
         try:
@@ -221,6 +224,6 @@ if __name__ == "__main__":
     client.connect(mqttBroker, mqttPort)
     client.loop_start()
 
-    #videoProcessing("http://192.168.1.108:8080/video", record=True, camera=True, type="linking")
+    videoProcessing("http://145.137.56.111:8080/video", record=True, camera=True, type="leds")
     #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False, type="aruco")
     #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/leds test/led_lightson_openwindow.mp4", record=False, camera=False, type="leds")
