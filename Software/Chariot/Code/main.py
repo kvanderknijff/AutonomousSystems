@@ -3,7 +3,9 @@ import network
 import time
 from umqtt.simple import MQTTClient
 from machine import Pin, PWM, ADC
-from poly_fit_3rd import polyfit3,eval_poly3
+#from poly_fit_3rd import polyfit3,eval_poly3
+
+
 
 BUILT_IN_LED=25 # Built in led
 FLED=20 # Front led Red
@@ -30,10 +32,6 @@ except:
     pwd=None
 
 
-topics = [
-        "chariot/#",
-    ]
-
 #       Reverse - Idle - Forward
 # Left  3050    - 4900 - 6550
 # Right 6550    - 4900 - 3050
@@ -44,6 +42,13 @@ fled = Pin(FLED, Pin.OUT)
 bled = Pin(BLED, Pin.OUT)
 bled.value(False)
 fled.value(False)
+
+# connection status
+# 0 = not connected 
+# 1 = requested connection
+# 2 = connecting
+# 3 = connected
+state = 0
 
 #setus up servos
 LeftMotor = PWM(Pin(PWM_LM))
@@ -58,9 +63,10 @@ Lsensor = machine.Pin(EN_L, machine.Pin.IN, machine.Pin.PULL_DOWN)
 Rsensor = machine.Pin(EN_R, machine.Pin.IN, machine.Pin.PULL_DOWN)
 
 # loads the local page content
-page = open("main.html", "r")
-html = page.read()
-page.close()
+# page = open("main.html", "r")
+# html = page.read()
+# page.close()
+
 
 def connect_to_network():
     global is_connected
@@ -72,7 +78,12 @@ def connect_to_network():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     print("Hostname set to: "+str(network.hostname()))
-
+    
+    mac = wlan.config('mac')
+    global mac_str
+    mac_str = ':'.join('{:02X}'.format(b) for b in mac)
+    print("MAC address:", mac_str)
+    
     time0=time.time()
     wlan.connect(ssid, pwd)
     while 1:
@@ -104,8 +115,7 @@ def connect_to_network():
     print("Listening to port 80\n")
     s.listen(1)
     fled.value(True)
-    
-    
+
 def serve_pagina():
     global s # the socket
     global is_connected # connection status
@@ -189,7 +199,7 @@ def serve_pagina():
 # Right          6550  - 4900 - 3050
 
 
-def move(motor, speed):
+def moveMotor(motor, speed):
     print("Moving motor: ",motor," with speed: ",speed);
     if motor == "right":
         RightMotor.duty_u16(speed)
@@ -201,210 +211,84 @@ def stopMotors():
     LeftMotor.duty_u16(4900)
     RightMotor.duty_u16(4900)
 
-def test():
-    print("Testing motors")
-
-    move("left", 8200)
-    move("right", 1500)
-
-    duur = 5  # seconden
-    start = time.time()
-
-    leftCount = 0
-    rightCount = 0
-
-    prevLeft = Lsensor.value()
-    prevRight = Rsensor.value()
-
-    while time.time() - start < duur:
-
-        currentLeft = Lsensor.value()
-        currentRight = Rsensor.value()
-
-        # Rising edge links
-        if prevLeft == 0 and currentLeft == 1:
-            leftCount += 1
-
-        # Rising edge rechts
-        if prevRight == 0 and currentRight == 1:
-            rightCount += 1
-
-        prevLeft = currentLeft
-        prevRight = currentRight
-
-        time.sleep(0.001)  # sneller samplen
-
-    print("Left encoder pulses:", leftCount)
-    print("Right encoder pulses:", rightCount)
-
-    stopMotors()
-
-def test_count(target_count=10):
-    print(f"Driving until both encoders reach {target_count} pulses")
-
-    leftCount = 0
-    rightCount = 0
-
-    prevLeft = Lsensor.value()
-    prevRight = Rsensor.value()
-
-    move("left", 7000)
-    move("right", 2000)
-
-    leftDone = False
-    rightDone = False
-
-    while not (leftDone and rightDone):
-
-        currentLeft = Lsensor.value()
-        currentRight = Rsensor.value()
-
-        # Rising edge links
-        if not leftDone and prevLeft == 0 and currentLeft == 1:
-            leftCount += 1
-
-            if leftCount >= target_count:
-                move("left", 4900)   # stop linker motor
-                leftDone = True
-                print("Left target reached")
-
-        # Rising edge rechts
-        if not rightDone and prevRight == 0 and currentRight == 1:
-            rightCount += 1
-
-            if rightCount >= target_count:
-                move("right", 4900)  # stop rechter motor
-                rightDone = True
-                print("Right target reached")
-
-        prevLeft = currentLeft
-        prevRight = currentRight
-
-        time.sleep_ms(1)
-
-    stopMotors()
-
-    print("Finished")
-    print("Left count :", leftCount)
-    print("Right count:", rightCount)
+def move(command):
+    if command == "FW":
+        moveMotor("left", 5300)
+        moveMotor("right", 4495)
+    elif command == "BW":
+        moveMotor("left", 4400)
+        moveMotor("right", 5300)
+    elif command == "TL":
+        moveMotor("left", 5300)
+        moveMotor("right", 4000)
+    elif command == "TR":
+        moveMotor("left", 5500)
+        moveMotor("right", 4400)
+    elif command == "RL":
+        moveMotor("left", 4500)
+        moveMotor("right", 4500)
+    elif command == "RR":
+        moveMotor("left", 5300)
+        moveMotor("right", 5300)
+    elif command == "SS":
+        stopMotors()
 
 
 #------------------------------------------------
-def measure_rpm(sensor, duration=1.0):
-    """Meet RPM via rising edges (10 slots per wheel)."""
-    count = 0
-    prev = sensor.value()
-
-    start = time.ticks_ms()
-
-    while time.ticks_diff(time.ticks_ms(), start) < duration * 1000:
-        cur = sensor.value()
-
-        if prev == 0 and cur == 1:
-            count += 1
-
-        prev = cur
-        time.sleep_ms(1)
-
-    rotations = count / 10  # 10 slots per wheel
-    rpm = (rotations / duration) * 60
-    return rpm
-
-
-def find_pwm_for_rpm(
-    motor,
-    sensor,
-    target_rpm,
-    pwm_start=5000,
-    step=200,
-    tolerance=2.0,
-    max_iter=15
-):
-    """
-    Zoekt PWM die dicht bij target RPM komt.
-    """
-
-    pwm = pwm_start
-
-    best_pwm = pwm
-    best_error = 9999
-
-    for i in range(max_iter):
-
-        motor.duty_u16(pwm)
-        time.sleep(1.0)  # stabilisatie
-
-        rpm = measure_rpm(sensor, duration=1.0)
-
-        error = target_rpm - rpm
-
-        print(f"PWM={pwm}  RPM={rpm:.2f}  error={error:.2f}")
-
-        # best match bewaren
-        if abs(error) < abs(best_error):
-            best_error = error
-            best_pwm = pwm
-
-        # goed genoeg?
-        if abs(error) <= tolerance:
-            break
-
-        # richting bepalen
-        if error > 0:
-            pwm += step   # te langzaam → meer PWM
-        else:
-            pwm -= step   # te snel → minder PWM
-
-        step = max(20, step // 2)  # steeds fijner zoeken
-
-    motor.duty_u16(5000)  # stop
-
-    print("\nBEST RESULT:")
-    print("PWM:", best_pwm)
-    print("RPM error:", best_error)
-
-    return best_pwm
 #------------------------------------------------
-
-
 
 
 def mqtt_callback(topic, msg):
-    print(
-        "MQTT:",
-        topic.decode(),
-        "->",
-        msg.decode()
-    )
+    topic = topic.decode()
+    msg = msg.decode()
+    global state
+    print("MQTT:", topic, "->", msg)
 
-    if topic == b"chariot/move/right":
-        move("right", int(msg.decode()))
-    elif topic == b"chariot/move/left":
-        move("left", int(msg.decode()))
-    elif topic == b"chariot/move/forward":
-        move("left", 6550)
-        move("right", 3050)
-    elif topic == b"chariot/move/reverse":
-        move("left", 3050)
-        move("right", 6550)
-    elif topic == b"chariot/stop":
+    if topic == f"Robots/Control/{mac_str}/Status":
+        if msg == "checking":
+            print("Request received... waiting for connection to MQTT broker")
+            # Led op geel
+            state = 2 # connecting
+            time.sleep(0.1)
+
+        elif msg == "connected":
+            print("Connection to MQTT broker established")
+            # Led op groen
+            state = 3 # connected
+            time.sleep(0.1)
+
+        else:
+            print("Unknown status message received:", msg)
+
+
+    elif topic == f"Robots/Control/{mac_str}/Commands":
+        # if state == 3:  # only process commands if connected
+            move(msg)
+        # else:
+        #     print("Received command but not connected to MQTT broker. Ignoring command.")
+
+
+    # ----- Test topics -----
+    elif topic == "chariot/move/right":
+        moveMotor("right", int(msg))
+    elif topic == "chariot/move/left":
+        moveMotor("left", int(msg))
+    elif topic == "chariot/move/forward":
+        moveMotor("left", 6550)
+        moveMotor("right", 3050)
+    elif topic == "chariot/move/reverse":
+        moveMotor("left", 3050)
+        moveMotor("right", 6550)
+    elif topic == "chariot/stop":
         stopMotors()
-    elif topic == b"chariot/test":
-        test_count()
-    elif topic == b"chariot/calcpwm":
-        print(find_pwm_for_rpm(
-            LeftMotor,
-            Lsensor,
-            target_rpm=int(msg.decode())
-        ))
-
-        print(find_pwm_for_rpm(
-            RightMotor,
-            Rsensor,
-            target_rpm=int(msg.decode())
-        ))
+    elif topic == "chariot/test":
+        print("Left")
+        print(pwm_to_rps_map("left", step=50))
+        print("Right")
+        print(pwm_to_rps_map("right", step=50))
     else:
-        print("Received message on unknown topic:", topic.decode())
+        print("Received message on unknown topic:", topic)
+
 
 def mqtt_connect_and_subscribe(
         broker_ip,
@@ -437,20 +321,37 @@ def mqtt_connect_and_subscribe(
     return client
 
 
+#------------------------------------------------
+#                   Init
+#------------------------------------------------
 
 stopMotors()
-
 connect_to_network()
 
-mqtt_client = mqtt_connect_and_subscribe(
+topics = [
+    "chariot/#",
+    f"Robots/Control/{mac_str}/Status",
+    f"Robots/Control/{mac_str}/Commands"
+]
+
+mqtt_client = mqtt_connect_and_subscribe( # Connect to MQTT broker and subscribe to topics
     broker_ip=mqtt_ip,
     username=mqtt_username,
     password=mqtt_password,
     port=mqtt_port
 )
 
+mqtt_client.publish( # Publish mac adress to the broker to indicate that this device is connecting
+    "Robots/Control/Connecting",
+    mac_str
+)
+print("Requested connection to MQTT broker with client ID:", mac_str)
+state = 1
+
+#------------------------------------------------
+#                   Main loop
+#------------------------------------------------
 
 while True:
     mqtt_client.check_msg()
     time.sleep_ms(10)
-#serve_pagina() # Blocking
