@@ -43,7 +43,6 @@ Dit document legt uit hoe de camera, de server en de robots met elkaar praten vi
 De robot start op en stuurt zijn MAC-adres naar het centrale aanmeldtopic.
 * **Topic:** `Robots/Control/Connecting`
 * **Payload:** `[MAC]`
-* **Actie robot:** De robot zet zijn fysieke LED-lampje direct op **Geel** (Connecting).
 
 ### Stap 2: De server checkt de robot (Control & Data)
 De server hoort het verzoek en laat de robot weten dat hij in de wachtrij staat.
