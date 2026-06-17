@@ -24,12 +24,13 @@ client = mqtt_client.Client(client_id=mqttClientId)
 client.username_pw_set(username="myuser", password="FormingFormsAS")
 client.on_connect = on_connect
 
-def arUcoDetection(frame: np.ndarray) -> tuple[list, np.ndarray]:
+def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     corners, markerIDs, rejected = detector.detectMarkers(frame)
-    
-    information = []
+
+    chariotArucoInformation = []
+    cornerArucoInformation = []
 
     if markerIDs is not None:
         for corner, markerID in zip(corners, markerIDs):
@@ -44,19 +45,24 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, np.ndarray]:
             centerY = (topLeft[1] + bottomRight[1]) // 2
 
             center = (centerX, centerY)
-            cv2.circle(frame, center, 5, (0, 0, 255), -1)
-
-            topMiddleX = (topLeft[0] + topRight[0]) // 2
-            topMiddleY = (topLeft[1] + topRight[1]) // 2
             
-            direction = math.degrees(math.atan2(topMiddleY - centerY, topMiddleX - centerX))
-            cv2.putText(frame, f"dir: {direction}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
-            information.append([int(markerID[0]), center, direction])
+            if markerID >= 1 and markerID <= 4:
+                cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
-    for marker in information:
+                topMiddleX = (topLeft[0] + topRight[0]) // 2
+                topMiddleY = (topLeft[1] + topRight[1]) // 2
+                
+                direction = math.degrees(math.atan2(topMiddleY - centerY, topMiddleX - centerX))
+                cv2.putText(frame, f"dir: {direction}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
+                
+                chariotArucoInformation.append([int(markerID[0]), center, direction])
+            elif markerID >= 5 and markerID <= 8:
+                cornerArucoInformation.append([int(markerID[0]), center])
+
+    for marker in chariotArucoInformation:
         cv2.circle(frame, marker[1], maxAllowedDistanceMarkerToLed, (0, 255, 0), 2)
 
-    return information, frame
+    return chariotArucoInformation, cornerArucoInformation, frame
 
 def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method: int) -> tuple[list, np.ndarray]:
     """
@@ -64,9 +70,9 @@ def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method
     """
     ledPositions = []
 
-    Contours, hierarchy = cv2.findContours(frame, method, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(frame, method, cv2.CHAIN_APPROX_SIMPLE)
 
-    for contour in Contours:
+    for contour in contours:
         area = cv2.contourArea(contour)
         if area > 250:
             x, y, w, h = cv2.boundingRect(contour)
@@ -92,15 +98,11 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     frameBG = cv2.subtract(frameB, frameG)
     frameRB = cv2.subtract(frameR, frameB)
 
-    ret, frameBG = cv2.threshold(frameBG, 37, 255, cv2.THRESH_BINARY)
+    ret, frameBG = cv2.threshold(frameBG, 37, 255, cv2.THRESH_BINARY) # thresh (2e) lager
     blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE)
     ledPositions.append(blueLedPositions)
-    
-    ret, frameRB = cv2.threshold(frameRB, 60, 255, cv2.THRESH_BINARY)
-    redLedPositions, frameRGB = detect_pix(frameRB, frameRGB, (255, 0, 0), cv2.RETR_TREE)
-    ledPositions.append(redLedPositions)
 
-    lowerGreen = np.array([35, 40, 40])
+    lowerGreen = np.array([35, 40, 40]) # dit lager
     upperGreen = np.array([95, 255, 255])
     maskG = cv2.inRange(frameHSV, lowerGreen, upperGreen)
     greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL)
@@ -128,10 +130,8 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
                 distance = math.dist(chariot[1], led)
                 if distance < bestDistance:
                     if colorIndex == 0: # Blue LED
-                        status = "Available"
-                    elif colorIndex == 1: # Red LED
                         status = "Connecting"
-                    elif colorIndex == 2: # Green LED
+                    elif colorIndex == 1: # Green LED
                         status = "Connected"
                     bestDistance = distance
 
@@ -149,6 +149,16 @@ def sendChariotInformation(chariotInformation: list) -> None:
             "y_position": int(chariot[1][1]),
             "orientation": float(chariot[2]),
             "led_status": str(chariot[3])
+        }
+        message_json = json.dumps(message)
+        client.publish(mqttTopic, message_json)
+
+def sendCornerInformation(cornerInformation: list) -> None:
+    for corner in cornerInformation:
+        message = {
+            "ArUco_ID": int(corner[0]), 
+            "x_position": int(corner[1][0]),
+            "y_position": int(corner[1][1]),
         }
         message_json = json.dumps(message)
         client.publish(mqttTopic, message_json)
@@ -186,11 +196,18 @@ def videoProcessing(file: str, record: bool, camera: bool, type: str) -> None:
             if camera:
                 frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
 
-            arUcoInformation, arUcoFrame = arUcoDetection(frame)
+            arUcoInformation, cornerInformation, arUcoFrame = arUcoDetection(frame)
             ledPositions, ledFrame = ledDetection(frame)
             chariotInformation, linkingFrame = linkLedToChariot(arUcoInformation, ledPositions, frame)
+            
             if chariotInformation:
                 sendChariotInformation(chariotInformation)
+            else:
+                print("No chariot information to send")
+            if cornerInformation:
+                sendCornerInformation(cornerInformation)
+            else:
+                print("No corner information to send")
 
             if type == "aruco":
                 cv2.imshow("Frames", arUcoFrame)
@@ -224,6 +241,18 @@ if __name__ == "__main__":
     client.connect(mqttBroker, mqttPort)
     client.loop_start()
 
-    videoProcessing("http://145.137.56.111:8080/video", record=True, camera=True, type="leds")
-    #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/aruco test/arucoturntest.mp4", record=False, camera=False, type="aruco")
-    #videoProcessing("C:/Vakken TI/Jaar 3/TINLAB - Autonomous Systems/Object detection AS/leds test/led_lightson_openwindow.mp4", record=False, camera=False, type="leds")
+    """
+    videoProcessing() parameters:
+    - record: do you want to save the shown frames to output.mp4
+        - Yes: True
+        - No: False
+    - camera: are the inputted frames coming form a camera
+        - Yes: True
+        - No: False (e.g. .mp4 file)
+    - type: which video do you want to see
+        - "aruco": Show the detection of ArUco markers along with its information, orientation and area for LED linking
+        - "leds": Show the detection of leds
+        - "linking": Show which ArUco markers are linked to which leds
+    """
+    cameraSource = "http://145.137.60.230:8080/video"
+    videoProcessing(cameraSource, record=True, camera=True, type="aruco")
