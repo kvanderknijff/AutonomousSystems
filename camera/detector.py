@@ -98,11 +98,11 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     frameBG = cv2.subtract(frameB, frameG)
     frameRB = cv2.subtract(frameR, frameB)
 
-    ret, frameBG = cv2.threshold(frameBG, 37, 255, cv2.THRESH_BINARY) # thresh (2e) lager
+    ret, frameBG = cv2.threshold(frameBG, 60, 255, cv2.THRESH_BINARY) # thresh (2e) lager
     blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE)
     ledPositions.append(blueLedPositions)
 
-    lowerGreen = np.array([35, 40, 40]) # dit lager
+    lowerGreen = np.array([35, 40, 40])
     upperGreen = np.array([95, 255, 255])
     maskG = cv2.inRange(frameHSV, lowerGreen, upperGreen)
     greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL)
@@ -119,10 +119,12 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
     and the led of one chariot is assigned to both
     """
     chariotInformation = []
+    textHeight = 40
 
     for chariot in arUcoInformation:
         status = "Off"
         bestDistance = maxAllowedDistanceMarkerToLed + 1
+        textHeight += 40
         for colorIndex, ledColor in enumerate(ledPositions):
             for led in ledColor:
                 if led == (-1,-1):
@@ -135,9 +137,8 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
                         status = "Connected"
                     bestDistance = distance
 
-                    cv2.line(frame, (int(chariot[1][0]),int(chariot[1][1])), (int(led[0]),int(led[1])), (255, 0, 0), 3)
-
         chariotInformation.append([chariot[0], chariot[1], chariot[2], status])
+        cv2.putText(frame, f"Chariot {chariot[0]} :  {status}", (40, textHeight), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
     return chariotInformation, frame
 
@@ -254,5 +255,5 @@ if __name__ == "__main__":
         - "leds": Show the detection of leds
         - "linking": Show which ArUco markers are linked to which leds
     """
-    cameraSource = "http://145.137.60.230:8080/video"
-    videoProcessing(cameraSource, record=True, camera=True, type="aruco")
+    cameraSource = "http://145.137.58.182:8080/video"
+    videoProcessing(cameraSource, record=True, camera=True, type="linking")
