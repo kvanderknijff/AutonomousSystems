@@ -1,16 +1,12 @@
-import sys
+# test_path_planner.py
 import time
 
-# TI Fix: Append the subfolder 'code2' to the Python path so imports can find it
-# This allows test_path_planner to sit one folder higher up
-sys.path.append("./code2")
-
-# Now we can import the logger and the core files from the subfolder safely
+# Clean, native local imports since all files share the same directory
 from test_logger import setup_file_logger
 import formations
 from path_planner import RobotManager
 
-# Initialize the file logger to capture all debug streams into /testData/
+# Initialize the file logger to capture all debug streams into /dataOutput/
 setup_file_logger()
 
 def mock_mqtt_publisher(robot_id: str, command: str) -> None:
@@ -65,7 +61,6 @@ def simulate_until_formation_complete(frame_delay: float = 0.01) -> None:
                 )
                 
         if not robots_moving:
-            # Note: This print uses python's normal print, so it stays in the terminal
             print(f"--> Formation successfully completed in {frame_count} frames!")
             break
             
@@ -84,6 +79,9 @@ manager.process_incoming_message("robot_4", 90.0, 90.0, 270.0)
 print("\n--- Step 2: Web App Requests PLUS Formation ---")
 trigger_web_formation("plus", cx=50.0, cy=50.0)
 simulate_until_formation_complete()
+
+print("Sleep for 10s");
+time.sleep(10);
 
 print("\n--- Step 3: Robot 5 Joins, Web App Requests LINE Formation ---")
 manager.process_incoming_message("robot_5", 0.0, 0.0, 0.0)
