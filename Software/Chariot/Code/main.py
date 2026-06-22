@@ -3,6 +3,7 @@ import network
 import time
 from umqtt.simple import MQTTClient
 from machine import Pin, PWM, ADC
+from robot_config import ROBOTS
 #from poly_fit_3rd import polyfit3,eval_poly3
 
 
@@ -79,17 +80,12 @@ def connect_to_network():
     wlan.active(True)
     print("Hostname set to: "+str(network.hostname()))
     
-    mac = wlan.config('mac')
-    global mac_str
-    mac_str = ':'.join('{:02X}'.format(b) for b in mac)
-    print("MAC address:", mac_str)
-    
     time0=time.time()
     wlan.connect(ssid, pwd)
     while 1:
         if(wlan.isconnected()):
             is_connected=True
-            print("\nConnected!\n")
+            print("\nConnected to "+str(ssid)+"!\n")
             built_in_led.value(True)
             break
         else:
@@ -100,7 +96,12 @@ def connect_to_network():
                 print("Connection could not be established")
                 break
     sta_if = network.WLAN(network.STA_IF)
-    print(sta_if.ifconfig()[0]) # prints the IP on the serial
+    mac = wlan.config('mac')
+    global mac_str
+    mac_str = ':'.join('{:02X}'.format(b) for b in mac)
+    print("MAC address:", mac_str)
+
+    print("IP address:", sta_if.ifconfig()[0]) # prints the IP on the serial
 
     global s # the socket...
     
@@ -212,26 +213,19 @@ def stopMotors():
     RightMotor.duty_u16(4900)
 
 def move(command):
-    if command == "FW":
-        moveMotor("left", 5300)
-        moveMotor("right", 4495)
-    elif command == "BW":
-        moveMotor("left", 4400)
-        moveMotor("right", 5300)
-    elif command == "TL":
-        moveMotor("left", 5300)
-        moveMotor("right", 4000)
-    elif command == "TR":
-        moveMotor("left", 5500)
-        moveMotor("right", 4400)
-    elif command == "RL":
-        moveMotor("left", 4500)
-        moveMotor("right", 4500)
-    elif command == "RR":
-        moveMotor("left", 5300)
-        moveMotor("right", 5300)
-    elif command == "SS":
+
+    if command == "SS":
         stopMotors()
+        return
+
+    if command not in MOTOR_CFG:
+        print("Unknown command:", command)
+        return
+
+    left_pwm, right_pwm = MOTOR_CFG[command]
+
+    moveMotor("left", left_pwm)
+    moveMotor("right", right_pwm)
 
 
 #------------------------------------------------
@@ -327,6 +321,12 @@ def mqtt_connect_and_subscribe(
 
 stopMotors()
 connect_to_network()
+
+if mac_str in ROBOTS:
+    MOTOR_CFG = ROBOTS[mac_str]
+    print("Loaded motor config for", mac_str)
+else:
+    raise Exception("No motor configuration found for MAC: " + mac_str)
 
 topics = [
     "chariot/#",
