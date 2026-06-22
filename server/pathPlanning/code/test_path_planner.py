@@ -9,9 +9,11 @@ from path_planner import RobotManager
 # Initialize the file logger to capture all debug streams into /dataOutput/
 setup_file_logger()
 
-def mock_mqtt_publisher(robot_id: str, command: str) -> None:
+def mock_mqtt_publisher(robot_id: str, payload: str, topic_type: str) -> None:
     """Mock callback mimicking network transmissions via the MQTT broker."""
+    # We accept 3 arguments now: id, the command/status, and where it needs to go
     pass
+
 
 # 1. Instantiate core coordinator
 manager = RobotManager(on_command_calculated=mock_mqtt_publisher)

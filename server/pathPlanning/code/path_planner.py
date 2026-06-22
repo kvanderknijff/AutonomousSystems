@@ -6,6 +6,7 @@ from avoidance import calculate_apf_heading  # Import APF algorithm
 logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 
 # Type alias: maps active robot positions to their optimal formation targets
+RobotCommandCallback = Callable[[str, str, str], None]
 FormationStrategy = Callable[[dict[str, tuple[float, float]], float, float], dict[str, tuple[float, float]]]
 
 class Robot:
@@ -46,12 +47,12 @@ class Robot:
 
 
 class RobotManager:
-    def __init__(self, on_command_calculated: Callable[[str, str], None] | None = None) -> None:
+    def __init__(self, on_command_calculated: RobotCommandCallback | None = None) -> None:
         # Central memory database for tracking all discovered fleet states
         self.active_robots: dict[str, Robot] = {}
-
-        # Network pipeline callback function (e.g., linked to MQTT publish)
-        self.on_command_calculated: Callable[[str, str], None] | None = on_command_calculated
+        
+        # Link the 3-argument callback to the manager object
+        self.on_command_calculated: RobotCommandCallback | None = on_command_calculated
 
 
     def _filter_live_robots(self, timeout_threshold: float = 2.0) -> dict[str, Robot]:
@@ -65,6 +66,11 @@ class RobotManager:
                         live_pool[robot_id] = robot
                     else:
                         logging.warning(f"[MANAGER] Robot {robot_id} timed out. Disconnected from active pool.")
+                        if self.on_command_calculated:
+                            # Arguments: (robot_id, payload, topic_type)
+                            self.on_command_calculated(robot_id, " DISCONNECTED", "status")
+
+                        robot.clear_target() # Clear tracking state
 
                 return live_pool
 
@@ -112,7 +118,7 @@ class RobotManager:
 
     def execute_path_planning(self) -> None:
         """Run loop over active fleet to compute reactive collision-free motion commands."""
-        # Filter our tracking loop so we don't process or run APF logic on offline bots
+        # 1. Get the current online pool
         live_robots = self._filter_live_robots(timeout_threshold=2.0)
         
         
@@ -121,13 +127,12 @@ class RobotManager:
         
         logging.debug(f"\n--- Start Path Planning Cycle ({len(self.active_robots)} robots active) ---")
         for robot_id, robot in self.active_robots.items():
-            # robot.x, robot.y, and robot.direction are always the newest values here!
 
             # Enforce active safety stop on idle hardware
             if not robot.has_target:
                 logging.debug(f"[PLANNER] {robot_id} | Idle -> STOP")
                 if self.on_command_calculated:
-                    self.on_command_calculated(robot_id, "STOP")
+                    self.on_command_calculated(robot_id, "STOP", "commands")
                 continue
 
             assert robot.target_x is not None
@@ -143,7 +148,7 @@ class RobotManager:
                 logging.debug(f"[PLANNER] {robot_id} | Arrived -> STOP")
                 robot.clear_target()
                 if self.on_command_calculated:
-                    self.on_command_calculated(robot_id, "STOP")
+                    self.on_command_calculated(robot_id, "STOP", "commands")
                 continue
 
             # 3. Gather coordinate positions of external neighbors for APF
@@ -172,8 +177,8 @@ class RobotManager:
 
             # Dynamic controller scaling: override rotations when closing in on targets
             if distance < 10.0:
-                if heading_error > curve_threshold:         calculated_command = "LeftTurn"
-                elif heading_error < -curve_threshold:      calculated_command = "RightTurn"
+                if heading_error > curve_threshold:         calculated_command = "LeftRotate"
+                elif heading_error < -curve_threshold:      calculated_command = "RightRotate"
                 else:                                       calculated_command = "Forward"
             else:
                 if heading_error > rotate_threshold:        calculated_command = "LeftRotate"
@@ -187,4 +192,4 @@ class RobotManager:
             # Send the command back through the callback if it is registered
             # Fire data pipeline callback trigger
             if self.on_command_calculated:
-                self.on_command_calculated(robot_id, calculated_command)
+                self.on_command_calculated(robot_id, calculated_command, "commands")
