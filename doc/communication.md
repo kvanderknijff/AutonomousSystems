@@ -83,6 +83,8 @@ De server stuurt nu puur rijcommando's via `Robots/Data/{MAC}/Commands`.
 * **Payloads:** 
   * `[checking]` *(Controlefase gestart)*
   * `[connected]` *(Handshake succesvol afgerond)*
+  * `[disconnected]` *(Server verbreekt verbinding met robot)*
+
 
 ## 2. Data Topics (Operatie)
 

@@ -1,13 +1,13 @@
 import socket
 import network
 import time
+import machine
 from umqtt.simple import MQTTClient
 from machine import Pin, PWM, ADC
 from robot_config import ROBOTS
 #from poly_fit_3rd import polyfit3,eval_poly3
 
-
-
+DISCONNECT_TIMEOUT = 3000 # milliseconds
 BUILT_IN_LED=25 # Built in led
 FLED=20 # Front led Red
 BLED=21 # Back led Green
@@ -32,10 +32,6 @@ except:
     ssid=None
     pwd=None
 
-
-#       Reverse - Idle - Forward
-# Left  3050    - 4900 - 6550
-# Right 6550    - 4900 - 3050
 
 # initial state definition
 built_in_led = machine.Pin("LED", machine.Pin.OUT)
@@ -68,6 +64,9 @@ Rsensor = machine.Pin(EN_R, machine.Pin.IN, machine.Pin.PULL_DOWN)
 # html = page.read()
 # page.close()
 
+#------------------------------------------------
+#               Network
+#------------------------------------------------
 
 def connect_to_network():
     global is_connected
@@ -95,6 +94,7 @@ def connect_to_network():
             if(time.time()-time0>10):
                 print("Connection could not be established")
                 break
+
     sta_if = network.WLAN(network.STA_IF)
     mac = wlan.config('mac')
     global mac_str
@@ -116,6 +116,7 @@ def connect_to_network():
     print("Listening to port 80\n")
     s.listen(1)
     fled.value(True)
+
 
 def serve_pagina():
     global s # the socket
@@ -195,9 +196,9 @@ def serve_pagina():
         print("No connection is present. No web pagina is being server")
 
 
-# PWM signals  Reverse - Idle - Forward
-# Left 	         3050  - 4900 - 6550
-# Right          6550  - 4900 - 3050
+#------------------------------------------------
+#               Motor control
+#------------------------------------------------
 
 
 def moveMotor(motor, speed):
@@ -229,8 +230,8 @@ def move(command):
 
 
 #------------------------------------------------
+#               MQTT handling
 #------------------------------------------------
-
 
 def mqtt_callback(topic, msg):
     topic = topic.decode()
@@ -251,15 +252,22 @@ def mqtt_callback(topic, msg):
             state = 3 # connected
             time.sleep(0.1)
 
+        elif msg == "disconnected":
+            print("Connection to MQTT broker lost")
+            stopMotors()
+            state = 0 # disconnected
+            time.sleep(0.1)
+            machine.reset() # Reset the device to try to reconnect
+
         else:
             print("Unknown status message received:", msg)
 
 
     elif topic == f"Robots/Control/{mac_str}/Commands":
-        # if state == 3:  # only process commands if connected
+        if state == 3:  # only process commands if connected
             move(msg)
-        # else:
-        #     print("Received command but not connected to MQTT broker. Ignoring command.")
+        else:
+            print("Received command but not connected to MQTT broker. Ignoring command.")
 
 
     # ----- Test topics -----
