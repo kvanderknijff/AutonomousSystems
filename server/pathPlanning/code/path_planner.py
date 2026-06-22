@@ -1,5 +1,4 @@
-import logging
-import math
+import logging, time, math
 from typing import Callable
 from avoidance import calculate_apf_heading  # Import APF algorithm
 
@@ -16,6 +15,9 @@ class Robot:
         self.y: float = y
         self.direction: float = direction
 
+        # Epoch timestamp to track telemetry heartbeats for timeout protection
+        self.last_update_time: float = time.time()
+
         # Goal coordinates assigned by the formation strategy
         self.target_x: float | None = None
         self.target_y: float | None = None
@@ -25,6 +27,7 @@ class Robot:
         self.x = x
         self.y = y
         self.direction = direction
+        self.last_update_time = time.time() # Reset timmeout clock
 
     def set_target(self, target_x: float, target_y: float) -> None:
         """Assign a new goal coordinate to navigate towards."""
@@ -51,6 +54,21 @@ class RobotManager:
         self.on_command_calculated: Callable[[str, str], None] | None = on_command_calculated
 
 
+    def _filter_live_robots(self, timeout_threshold: float = 2.0) -> dict[str, Robot]:
+                """Internal helper to filter out dead or disconnected hardware profiles."""
+                current_time = time.time()
+                live_pool: dict[str, Robot] = {}
+
+                for robot_id, robot in self.active_robots.items():
+                    # If a robot hasn't streamed telemetry within the threshold, it is dropped       
+                    if current_time - robot.last_update_time <= timeout_threshold:
+                        live_pool[robot_id] = robot
+                    else:
+                        logging.warning(f"[MANAGER] Robot {robot_id} timed out. Disconnected from active pool.")
+
+                return live_pool
+
+
     def process_incoming_message(self, robot_id: str, x: float, y: float, direction: float) -> None:
         """Process incoming state updates from telemetry feed."""
 
@@ -68,7 +86,10 @@ class RobotManager:
 
     def apply_formation(self, formation_strategy: FormationStrategy, center_x: float, center_y: float) -> None:
         """Map active robots to structural shape coordinates using the provided strategy."""
-        
+        # Filter out timed-out robots first so Hungarian optimizer only computes online hardware
+        live_robots = self._filter_live_robots(timeout_threshold=2.0)
+
+
         if not self.active_robots:
             logging.warning("[FORMATION] Request denied: No active robots online.")
             return
@@ -91,6 +112,10 @@ class RobotManager:
 
     def execute_path_planning(self) -> None:
         """Run loop over active fleet to compute reactive collision-free motion commands."""
+        # Filter our tracking loop so we don't process or run APF logic on offline bots
+        live_robots = self._filter_live_robots(timeout_threshold=2.0)
+        
+        
         if not self.active_robots:
             return
         

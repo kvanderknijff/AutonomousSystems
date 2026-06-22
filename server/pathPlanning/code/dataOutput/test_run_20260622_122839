@@ -1,0 +1,1897 @@
+[MANAGER] Registered: robot_1 @ (10.0, 10.0)
+[MANAGER] Registered: robot_2 @ (20.0, 50.0)
+[MANAGER] Registered: robot_3 @ (80.0, 10.0)
+[MANAGER] Registered: robot_4 @ (90.0, 90.0)
+
+--- Applying Formation Strategy around (50.0, 50.0) ---
+[FORMATION] Set: robot_1 -> Target (50.0, 30.0)
+[FORMATION] Set: robot_2 -> Target (50.0, 50.0)
+[FORMATION] Set: robot_3 -> Target (70.0, 50.0)
+[FORMATION] Set: robot_4 -> Target (50.0, 70.0)
+[MANAGER] Updated: robot_1 @ (11.0, 11.0)
+[MANAGER] Updated: robot_2 @ (21.0, 50.0)
+[MANAGER] Updated: robot_3 @ (79.0, 11.0)
+[MANAGER] Updated: robot_4 @ (89.0, 89.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 43.4 | Error: 24.0° -> LeftTurn
+[PLANNER] robot_2 | Dist: 29.0 | Error: -92.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 40.0 | Error: -79.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 43.4 | Error: -66.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (12.0, 12.0)
+[MANAGER] Updated: robot_2 @ (22.0, 50.0)
+[MANAGER] Updated: robot_3 @ (78.0, 12.0)
+[MANAGER] Updated: robot_4 @ (88.0, 88.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 42.0 | Error: 21.3° -> LeftTurn
+[PLANNER] robot_2 | Dist: 28.0 | Error: -94.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 38.8 | Error: -82.1° -> RightRotate
+[PLANNER] robot_4 | Dist: 42.0 | Error: -68.7° -> RightRotate
+[MANAGER] Updated: robot_1 @ (13.0, 13.0)
+[MANAGER] Updated: robot_2 @ (23.0, 50.0)
+[MANAGER] Updated: robot_3 @ (77.0, 13.0)
+[MANAGER] Updated: robot_4 @ (87.0, 87.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 40.7 | Error: 18.7° -> LeftTurn
+[PLANNER] robot_2 | Dist: 27.0 | Error: -96.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 37.7 | Error: -85.3° -> RightRotate
+[PLANNER] robot_4 | Dist: 40.7 | Error: -71.3° -> RightRotate
+[MANAGER] Updated: robot_1 @ (14.0, 14.0)
+[MANAGER] Updated: robot_2 @ (24.0, 50.0)
+[MANAGER] Updated: robot_3 @ (76.0, 14.0)
+[MANAGER] Updated: robot_4 @ (86.0, 86.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 39.4 | Error: 16.0° -> LeftTurn
+[PLANNER] robot_2 | Dist: 26.0 | Error: -98.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 36.5 | Error: -88.5° -> RightRotate
+[PLANNER] robot_4 | Dist: 39.4 | Error: -74.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (15.0, 15.0)
+[MANAGER] Updated: robot_2 @ (25.0, 50.0)
+[MANAGER] Updated: robot_3 @ (75.0, 15.0)
+[MANAGER] Updated: robot_4 @ (85.0, 85.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 38.1 | Error: 13.2° -> LeftTurn
+[PLANNER] robot_2 | Dist: 25.0 | Error: -100.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 35.4 | Error: -91.9° -> RightRotate
+[PLANNER] robot_4 | Dist: 38.1 | Error: -76.8° -> RightRotate
+[MANAGER] Updated: robot_1 @ (16.0, 16.0)
+[MANAGER] Updated: robot_2 @ (26.0, 50.0)
+[MANAGER] Updated: robot_3 @ (74.0, 16.0)
+[MANAGER] Updated: robot_4 @ (84.0, 84.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 36.8 | Error: 10.4° -> LeftTurn
+[PLANNER] robot_2 | Dist: 24.0 | Error: -102.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 34.2 | Error: -95.3° -> RightRotate
+[PLANNER] robot_4 | Dist: 36.8 | Error: -79.6° -> RightRotate
+[MANAGER] Updated: robot_1 @ (17.0, 17.0)
+[MANAGER] Updated: robot_2 @ (27.0, 50.0)
+[MANAGER] Updated: robot_3 @ (73.0, 17.0)
+[MANAGER] Updated: robot_4 @ (83.0, 83.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 35.5 | Error: 7.5° -> Forward
+[PLANNER] robot_2 | Dist: 23.0 | Error: -104.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 33.1 | Error: -98.8° -> RightRotate
+[PLANNER] robot_4 | Dist: 35.5 | Error: -82.5° -> RightRotate
+[MANAGER] Updated: robot_1 @ (18.0, 18.0)
+[MANAGER] Updated: robot_2 @ (28.0, 50.0)
+[MANAGER] Updated: robot_3 @ (72.0, 18.0)
+[MANAGER] Updated: robot_4 @ (82.0, 82.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 34.2 | Error: 4.6° -> Forward
+[PLANNER] robot_2 | Dist: 22.0 | Error: -106.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 32.1 | Error: -102.4° -> RightRotate
+[PLANNER] robot_4 | Dist: 34.2 | Error: -85.4° -> RightRotate
+[MANAGER] Updated: robot_1 @ (19.0, 19.0)
+[MANAGER] Updated: robot_2 @ (29.0, 50.0)
+[MANAGER] Updated: robot_3 @ (71.0, 19.0)
+[MANAGER] Updated: robot_4 @ (81.0, 81.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 32.9 | Error: 1.5° -> Forward
+[PLANNER] robot_2 | Dist: 21.0 | Error: -108.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 31.0 | Error: -106.2° -> RightRotate
+[PLANNER] robot_4 | Dist: 32.9 | Error: -88.5° -> RightRotate
+[MANAGER] Updated: robot_1 @ (20.0, 20.0)
+[MANAGER] Updated: robot_2 @ (30.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 20.0)
+[MANAGER] Updated: robot_4 @ (80.0, 80.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 31.6 | Error: -1.6° -> Forward
+[PLANNER] robot_2 | Dist: 20.0 | Error: -110.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 30.0 | Error: -110.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 31.6 | Error: -91.6° -> RightRotate
+[MANAGER] Updated: robot_1 @ (21.0, 21.0)
+[MANAGER] Updated: robot_2 @ (31.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 21.0)
+[MANAGER] Updated: robot_4 @ (79.0, 79.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 30.4 | Error: -4.8° -> Forward
+[PLANNER] robot_2 | Dist: 19.0 | Error: -112.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 29.0 | Error: -112.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 30.4 | Error: -94.8° -> RightRotate
+[MANAGER] Updated: robot_1 @ (22.0, 22.0)
+[MANAGER] Updated: robot_2 @ (32.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 22.0)
+[MANAGER] Updated: robot_4 @ (78.0, 78.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 29.1 | Error: -8.1° -> Forward
+[PLANNER] robot_2 | Dist: 18.0 | Error: -114.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 28.0 | Error: -114.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 29.1 | Error: -98.1° -> RightRotate
+[MANAGER] Updated: robot_1 @ (23.0, 23.0)
+[MANAGER] Updated: robot_2 @ (33.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 23.0)
+[MANAGER] Updated: robot_4 @ (77.0, 77.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 27.9 | Error: -11.5° -> RightTurn
+[PLANNER] robot_2 | Dist: 17.0 | Error: -116.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 27.0 | Error: -116.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 27.9 | Error: -101.5° -> RightRotate
+[MANAGER] Updated: robot_1 @ (24.0, 24.0)
+[MANAGER] Updated: robot_2 @ (34.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 24.0)
+[MANAGER] Updated: robot_4 @ (76.0, 76.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 26.7 | Error: -15.0° -> RightTurn
+[PLANNER] robot_2 | Dist: 16.0 | Error: -118.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 26.0 | Error: -118.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 26.7 | Error: -105.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (25.0, 25.0)
+[MANAGER] Updated: robot_2 @ (35.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 25.0)
+[MANAGER] Updated: robot_4 @ (75.0, 75.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 25.5 | Error: -18.7° -> RightTurn
+[PLANNER] robot_2 | Dist: 15.0 | Error: -120.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 25.0 | Error: -120.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 25.5 | Error: -108.7° -> RightRotate
+[MANAGER] Updated: robot_1 @ (26.0, 26.0)
+[MANAGER] Updated: robot_2 @ (36.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 26.0)
+[MANAGER] Updated: robot_4 @ (74.0, 74.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 24.3 | Error: -22.6° -> RightTurn
+[PLANNER] robot_2 | Dist: 14.0 | Error: -122.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 24.0 | Error: -122.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 24.3 | Error: -112.5° -> RightRotate
+[MANAGER] Updated: robot_1 @ (27.0, 27.0)
+[MANAGER] Updated: robot_2 @ (37.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 27.0)
+[MANAGER] Updated: robot_4 @ (73.0, 73.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 23.2 | Error: -26.6° -> RightTurn
+[PLANNER] robot_2 | Dist: 13.0 | Error: -123.9° -> RightRotate
+[PLANNER] robot_3 | Dist: 23.0 | Error: -124.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 23.2 | Error: -116.6° -> RightRotate
+[MANAGER] Updated: robot_1 @ (28.0, 28.0)
+[MANAGER] Updated: robot_2 @ (38.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 28.0)
+[MANAGER] Updated: robot_4 @ (72.0, 72.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 22.1 | Error: -30.9° -> RightTurn
+[PLANNER] robot_2 | Dist: 12.0 | Error: -125.9° -> RightRotate
+[PLANNER] robot_3 | Dist: 22.0 | Error: -126.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 22.1 | Error: -120.8° -> RightRotate
+[MANAGER] Updated: robot_1 @ (29.0, 29.0)
+[MANAGER] Updated: robot_2 @ (39.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 29.0)
+[MANAGER] Updated: robot_4 @ (71.0, 71.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 21.0 | Error: -35.4° -> RightTurn
+[PLANNER] robot_2 | Dist: 11.0 | Error: -127.9° -> RightRotate
+[PLANNER] robot_3 | Dist: 21.0 | Error: -128.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 21.0 | Error: -125.3° -> RightRotate
+[MANAGER] Updated: robot_1 @ (30.0, 30.0)
+[MANAGER] Updated: robot_2 @ (40.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 30.0)
+[MANAGER] Updated: robot_4 @ (70.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 20.0 | Error: -40.1° -> RightTurn
+[PLANNER] robot_2 | Dist: 10.0 | Error: -129.9° -> RightRotate
+[PLANNER] robot_3 | Dist: 20.0 | Error: -130.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 20.0 | Error: -130.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (31.0, 30.0)
+[MANAGER] Updated: robot_2 @ (41.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 31.0)
+[MANAGER] Updated: robot_4 @ (69.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 19.0 | Error: -42.1° -> RightTurn
+[PLANNER] robot_2 | Dist: 9.0 | Error: -131.9° -> RightTurn
+[PLANNER] robot_3 | Dist: 19.0 | Error: -132.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 19.0 | Error: -132.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (32.0, 30.0)
+[MANAGER] Updated: robot_2 @ (42.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 32.0)
+[MANAGER] Updated: robot_4 @ (68.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 18.0 | Error: -44.1° -> RightTurn
+[PLANNER] robot_2 | Dist: 8.0 | Error: -133.9° -> RightTurn
+[PLANNER] robot_3 | Dist: 18.0 | Error: -134.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 18.0 | Error: -134.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (33.0, 30.0)
+[MANAGER] Updated: robot_2 @ (43.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 33.0)
+[MANAGER] Updated: robot_4 @ (67.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 17.0 | Error: -46.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 7.0 | Error: -135.9° -> RightTurn
+[PLANNER] robot_3 | Dist: 17.0 | Error: -136.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 17.0 | Error: -136.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (34.0, 30.0)
+[MANAGER] Updated: robot_2 @ (44.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 34.0)
+[MANAGER] Updated: robot_4 @ (66.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 16.0 | Error: -48.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 6.0 | Error: -137.9° -> RightTurn
+[PLANNER] robot_3 | Dist: 16.0 | Error: -138.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 16.0 | Error: -138.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (35.0, 30.0)
+[MANAGER] Updated: robot_2 @ (45.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 35.0)
+[MANAGER] Updated: robot_4 @ (65.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 15.0 | Error: -50.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 5.0 | Error: -139.9° -> RightTurn
+[PLANNER] robot_3 | Dist: 15.0 | Error: -140.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 15.0 | Error: -140.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (36.0, 30.0)
+[MANAGER] Updated: robot_2 @ (46.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 36.0)
+[MANAGER] Updated: robot_4 @ (64.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 14.0 | Error: -52.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 4.0 | Error: -141.9° -> RightTurn
+[PLANNER] robot_3 | Dist: 14.0 | Error: -142.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 14.0 | Error: -142.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (37.0, 30.0)
+[MANAGER] Updated: robot_2 @ (47.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 37.0)
+[MANAGER] Updated: robot_4 @ (63.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 13.0 | Error: -54.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 3.0 | Error: -143.9° -> RightTurn
+[PLANNER] robot_3 | Dist: 13.0 | Error: -144.0° -> RightRotate
+[PLANNER] robot_4 | Dist: 13.0 | Error: -144.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (38.0, 30.0)
+[MANAGER] Updated: robot_2 @ (48.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 38.0)
+[MANAGER] Updated: robot_4 @ (62.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 12.0 | Error: -56.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 2.0 | Error: -145.9° -> RightTurn
+[PLANNER] robot_3 | Dist: 12.0 | Error: -146.1° -> RightRotate
+[PLANNER] robot_4 | Dist: 12.0 | Error: -146.1° -> RightRotate
+[MANAGER] Updated: robot_1 @ (39.0, 30.0)
+[MANAGER] Updated: robot_2 @ (49.0, 50.0)
+[MANAGER] Updated: robot_3 @ (70.0, 39.0)
+[MANAGER] Updated: robot_4 @ (61.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 11.0 | Error: -58.1° -> RightRotate
+[PLANNER] robot_2 | Arrived -> STOP
+[PLANNER] robot_3 | Dist: 11.0 | Error: -148.1° -> RightRotate
+[PLANNER] robot_4 | Dist: 11.0 | Error: -148.1° -> RightRotate
+[MANAGER] Updated: robot_1 @ (40.0, 30.0)
+[MANAGER] Updated: robot_3 @ (70.0, 40.0)
+[MANAGER] Updated: robot_4 @ (60.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 10.0 | Error: -60.1° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Dist: 10.0 | Error: -150.1° -> RightRotate
+[PLANNER] robot_4 | Dist: 10.0 | Error: -150.1° -> RightRotate
+[MANAGER] Updated: robot_1 @ (41.0, 30.0)
+[MANAGER] Updated: robot_3 @ (70.0, 41.0)
+[MANAGER] Updated: robot_4 @ (59.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 9.0 | Error: -62.2° -> RightTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Dist: 9.0 | Error: -152.1° -> RightTurn
+[PLANNER] robot_4 | Dist: 9.0 | Error: -152.1° -> RightTurn
+[MANAGER] Updated: robot_1 @ (42.0, 30.0)
+[MANAGER] Updated: robot_3 @ (70.0, 42.0)
+[MANAGER] Updated: robot_4 @ (58.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 8.0 | Error: -64.2° -> RightTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Dist: 8.0 | Error: -154.1° -> RightTurn
+[PLANNER] robot_4 | Dist: 8.0 | Error: -154.1° -> RightTurn
+[MANAGER] Updated: robot_1 @ (43.0, 30.0)
+[MANAGER] Updated: robot_3 @ (70.0, 43.0)
+[MANAGER] Updated: robot_4 @ (57.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 7.0 | Error: -66.2° -> RightTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Dist: 7.0 | Error: -156.1° -> RightTurn
+[PLANNER] robot_4 | Dist: 7.0 | Error: -156.2° -> RightTurn
+[MANAGER] Updated: robot_1 @ (44.0, 30.0)
+[MANAGER] Updated: robot_3 @ (70.0, 44.0)
+[MANAGER] Updated: robot_4 @ (56.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 6.0 | Error: -68.2° -> RightTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Dist: 6.0 | Error: -158.1° -> RightTurn
+[PLANNER] robot_4 | Dist: 6.0 | Error: -158.2° -> RightTurn
+[MANAGER] Updated: robot_1 @ (45.0, 30.0)
+[MANAGER] Updated: robot_3 @ (70.0, 45.0)
+[MANAGER] Updated: robot_4 @ (55.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 5.0 | Error: -70.2° -> RightTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Dist: 5.0 | Error: -160.2° -> RightTurn
+[PLANNER] robot_4 | Dist: 5.0 | Error: -160.2° -> RightTurn
+[MANAGER] Updated: robot_1 @ (46.0, 30.0)
+[MANAGER] Updated: robot_3 @ (70.0, 46.0)
+[MANAGER] Updated: robot_4 @ (54.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 4.0 | Error: -72.2° -> RightTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Dist: 4.0 | Error: -162.2° -> RightTurn
+[PLANNER] robot_4 | Dist: 4.0 | Error: -162.2° -> RightTurn
+[MANAGER] Updated: robot_1 @ (47.0, 30.0)
+[MANAGER] Updated: robot_3 @ (70.0, 47.0)
+[MANAGER] Updated: robot_4 @ (53.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 3.0 | Error: -74.2° -> RightTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Dist: 3.0 | Error: -164.2° -> RightTurn
+[PLANNER] robot_4 | Dist: 3.0 | Error: -164.2° -> RightTurn
+[MANAGER] Updated: robot_1 @ (48.0, 30.0)
+[MANAGER] Updated: robot_3 @ (70.0, 48.0)
+[MANAGER] Updated: robot_4 @ (52.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Dist: 2.0 | Error: -76.2° -> RightTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Dist: 2.0 | Error: -166.2° -> RightTurn
+[PLANNER] robot_4 | Dist: 2.0 | Error: -166.2° -> RightTurn
+[MANAGER] Updated: robot_1 @ (49.0, 30.0)
+[MANAGER] Updated: robot_3 @ (70.0, 49.0)
+[MANAGER] Updated: robot_4 @ (51.0, 70.0)
+
+--- Start Path Planning Cycle (4 robots active) ---
+[PLANNER] robot_1 | Arrived -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Arrived -> STOP
+[PLANNER] robot_4 | Arrived -> STOP
+[MANAGER] Registered: robot_5 @ (0.0, 0.0)
+[MANAGER] Robot robot_1 timed out. Disconnected from active pool.
+[MANAGER] Robot robot_2 timed out. Disconnected from active pool.
+[MANAGER] Robot robot_3 timed out. Disconnected from active pool.
+[MANAGER] Robot robot_4 timed out. Disconnected from active pool.
+
+--- Applying Formation Strategy around (100.0, 100.0) ---
+[FORMATION] Set: robot_1 -> Target (140.0, 100.0)
+[FORMATION] Set: robot_2 -> Target (100.0, 100.0)
+[FORMATION] Set: robot_3 -> Target (120.0, 100.0)
+[FORMATION] Set: robot_4 -> Target (80.0, 100.0)
+[FORMATION] Set: robot_5 -> Target (60.0, 100.0)
+[MANAGER] Updated: robot_1 @ (50.0, 31.0)
+[MANAGER] Updated: robot_2 @ (50.0, 51.0)
+[MANAGER] Updated: robot_3 @ (71.0, 50.0)
+[MANAGER] Updated: robot_4 @ (52.0, 71.0)
+[MANAGER] Updated: robot_5 @ (1.0, 1.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 113.4 | Error: -42.7° -> RightTurn
+[PLANNER] robot_2 | Dist: 70.0 | Error: -105.4° -> RightRotate
+[PLANNER] robot_3 | Dist: 70.0 | Error: 145.4° -> LeftRotate
+[PLANNER] robot_4 | Dist: 40.3 | Error: 56.2° -> LeftRotate
+[PLANNER] robot_5 | Dist: 115.2 | Error: 57.2° -> LeftRotate
+[MANAGER] Updated: robot_1 @ (51.0, 32.0)
+[MANAGER] Updated: robot_2 @ (51.0, 52.0)
+[MANAGER] Updated: robot_3 @ (72.0, 51.0)
+[MANAGER] Updated: robot_4 @ (53.0, 72.0)
+[MANAGER] Updated: robot_5 @ (2.0, 2.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 112.0 | Error: -44.8° -> RightTurn
+[PLANNER] robot_2 | Dist: 68.6 | Error: -107.4° -> RightRotate
+[PLANNER] robot_3 | Dist: 68.6 | Error: 143.4° -> LeftRotate
+[PLANNER] robot_4 | Dist: 38.9 | Error: 54.2° -> LeftRotate
+[PLANNER] robot_5 | Dist: 113.9 | Error: 55.4° -> LeftRotate
+[MANAGER] Updated: robot_1 @ (52.0, 33.0)
+[MANAGER] Updated: robot_2 @ (52.0, 53.0)
+[MANAGER] Updated: robot_3 @ (73.0, 52.0)
+[MANAGER] Updated: robot_4 @ (54.0, 73.0)
+[MANAGER] Updated: robot_5 @ (3.0, 3.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 110.6 | Error: -46.9° -> RightRotate
+[PLANNER] robot_2 | Dist: 67.2 | Error: -109.4° -> RightRotate
+[PLANNER] robot_3 | Dist: 67.2 | Error: 141.5° -> LeftRotate
+[PLANNER] robot_4 | Dist: 37.5 | Error: 52.2° -> LeftRotate
+[PLANNER] robot_5 | Dist: 112.5 | Error: 53.6° -> LeftRotate
+[MANAGER] Updated: robot_1 @ (53.0, 34.0)
+[MANAGER] Updated: robot_2 @ (53.0, 54.0)
+[MANAGER] Updated: robot_3 @ (74.0, 53.0)
+[MANAGER] Updated: robot_4 @ (55.0, 74.0)
+[MANAGER] Updated: robot_5 @ (4.0, 4.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 109.2 | Error: -49.0° -> RightRotate
+[PLANNER] robot_2 | Dist: 65.8 | Error: -111.5° -> RightRotate
+[PLANNER] robot_3 | Dist: 65.8 | Error: 139.5° -> LeftRotate
+[PLANNER] robot_4 | Dist: 36.1 | Error: 50.3° -> LeftRotate
+[PLANNER] robot_5 | Dist: 111.1 | Error: 51.7° -> LeftRotate
+[MANAGER] Updated: robot_1 @ (54.0, 35.0)
+[MANAGER] Updated: robot_2 @ (54.0, 55.0)
+[MANAGER] Updated: robot_3 @ (75.0, 54.0)
+[MANAGER] Updated: robot_4 @ (56.0, 75.0)
+[MANAGER] Updated: robot_5 @ (5.0, 5.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 107.8 | Error: -51.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 64.4 | Error: -113.5° -> RightRotate
+[PLANNER] robot_3 | Dist: 64.4 | Error: 137.5° -> LeftRotate
+[PLANNER] robot_4 | Dist: 34.7 | Error: 48.3° -> LeftRotate
+[PLANNER] robot_5 | Dist: 109.8 | Error: 49.9° -> LeftRotate
+[MANAGER] Updated: robot_1 @ (55.0, 36.0)
+[MANAGER] Updated: robot_2 @ (55.0, 56.0)
+[MANAGER] Updated: robot_3 @ (76.0, 55.0)
+[MANAGER] Updated: robot_4 @ (57.0, 76.0)
+[MANAGER] Updated: robot_5 @ (6.0, 6.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 106.4 | Error: -53.2° -> RightRotate
+[PLANNER] robot_2 | Dist: 62.9 | Error: -115.5° -> RightRotate
+[PLANNER] robot_3 | Dist: 62.9 | Error: 135.5° -> LeftRotate
+[PLANNER] robot_4 | Dist: 33.2 | Error: 46.4° -> LeftRotate
+[PLANNER] robot_5 | Dist: 108.4 | Error: 48.1° -> LeftRotate
+[MANAGER] Updated: robot_1 @ (56.0, 37.0)
+[MANAGER] Updated: robot_2 @ (56.0, 57.0)
+[MANAGER] Updated: robot_3 @ (77.0, 56.0)
+[MANAGER] Updated: robot_4 @ (58.0, 77.0)
+[MANAGER] Updated: robot_5 @ (7.0, 7.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 105.0 | Error: -55.3° -> RightRotate
+[PLANNER] robot_2 | Dist: 61.5 | Error: -117.5° -> RightRotate
+[PLANNER] robot_3 | Dist: 61.5 | Error: 133.5° -> LeftRotate
+[PLANNER] robot_4 | Dist: 31.8 | Error: 44.4° -> LeftTurn
+[PLANNER] robot_5 | Dist: 107.0 | Error: 46.3° -> LeftRotate
+[MANAGER] Updated: robot_1 @ (57.0, 38.0)
+[MANAGER] Updated: robot_2 @ (57.0, 58.0)
+[MANAGER] Updated: robot_3 @ (78.0, 57.0)
+[MANAGER] Updated: robot_4 @ (59.0, 78.0)
+[MANAGER] Updated: robot_5 @ (8.0, 8.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 103.6 | Error: -57.4° -> RightRotate
+[PLANNER] robot_2 | Dist: 60.1 | Error: -119.5° -> RightRotate
+[PLANNER] robot_3 | Dist: 60.1 | Error: 131.5° -> LeftRotate
+[PLANNER] robot_4 | Dist: 30.4 | Error: 42.5° -> LeftTurn
+[PLANNER] robot_5 | Dist: 105.7 | Error: 44.5° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (58.0, 39.0)
+[MANAGER] Updated: robot_2 @ (58.0, 59.0)
+[MANAGER] Updated: robot_3 @ (79.0, 58.0)
+[MANAGER] Updated: robot_4 @ (60.0, 79.0)
+[MANAGER] Updated: robot_5 @ (9.0, 9.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 102.2 | Error: -59.5° -> RightRotate
+[PLANNER] robot_2 | Dist: 58.7 | Error: -121.5° -> RightRotate
+[PLANNER] robot_3 | Dist: 58.7 | Error: 129.5° -> LeftRotate
+[PLANNER] robot_4 | Dist: 29.0 | Error: 40.6° -> LeftTurn
+[PLANNER] robot_5 | Dist: 104.3 | Error: 42.7° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (59.0, 40.0)
+[MANAGER] Updated: robot_2 @ (59.0, 60.0)
+[MANAGER] Updated: robot_3 @ (80.0, 59.0)
+[MANAGER] Updated: robot_4 @ (61.0, 80.0)
+[MANAGER] Updated: robot_5 @ (10.0, 10.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 100.8 | Error: -61.7° -> RightRotate
+[PLANNER] robot_2 | Dist: 57.3 | Error: -123.6° -> RightRotate
+[PLANNER] robot_3 | Dist: 57.3 | Error: 127.6° -> LeftRotate
+[PLANNER] robot_4 | Dist: 27.6 | Error: 38.6° -> LeftTurn
+[PLANNER] robot_5 | Dist: 103.0 | Error: 40.9° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (60.0, 41.0)
+[MANAGER] Updated: robot_2 @ (60.0, 61.0)
+[MANAGER] Updated: robot_3 @ (81.0, 60.0)
+[MANAGER] Updated: robot_4 @ (62.0, 81.0)
+[MANAGER] Updated: robot_5 @ (11.0, 11.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 99.4 | Error: -63.8° -> RightRotate
+[PLANNER] robot_2 | Dist: 55.9 | Error: -125.6° -> RightRotate
+[PLANNER] robot_3 | Dist: 55.9 | Error: 125.6° -> LeftRotate
+[PLANNER] robot_4 | Dist: 26.2 | Error: 36.7° -> LeftTurn
+[PLANNER] robot_5 | Dist: 101.6 | Error: 39.2° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (61.0, 42.0)
+[MANAGER] Updated: robot_2 @ (61.0, 62.0)
+[MANAGER] Updated: robot_3 @ (82.0, 61.0)
+[MANAGER] Updated: robot_4 @ (63.0, 82.0)
+[MANAGER] Updated: robot_5 @ (12.0, 12.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 98.0 | Error: -65.9° -> RightRotate
+[PLANNER] robot_2 | Dist: 54.5 | Error: -127.6° -> RightRotate
+[PLANNER] robot_3 | Dist: 54.5 | Error: 123.6° -> LeftRotate
+[PLANNER] robot_4 | Dist: 24.8 | Error: 34.8° -> LeftTurn
+[PLANNER] robot_5 | Dist: 100.2 | Error: 37.4° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (62.0, 43.0)
+[MANAGER] Updated: robot_2 @ (62.0, 63.0)
+[MANAGER] Updated: robot_3 @ (83.0, 62.0)
+[MANAGER] Updated: robot_4 @ (64.0, 83.0)
+[MANAGER] Updated: robot_5 @ (13.0, 13.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 96.6 | Error: -68.0° -> RightRotate
+[PLANNER] robot_2 | Dist: 53.0 | Error: -129.6° -> RightRotate
+[PLANNER] robot_3 | Dist: 53.0 | Error: 121.6° -> LeftRotate
+[PLANNER] robot_4 | Dist: 23.3 | Error: 32.9° -> LeftTurn
+[PLANNER] robot_5 | Dist: 98.9 | Error: 35.6° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (63.0, 44.0)
+[MANAGER] Updated: robot_2 @ (63.0, 64.0)
+[MANAGER] Updated: robot_3 @ (84.0, 63.0)
+[MANAGER] Updated: robot_4 @ (65.0, 84.0)
+[MANAGER] Updated: robot_5 @ (14.0, 14.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 95.2 | Error: -70.2° -> RightRotate
+[PLANNER] robot_2 | Dist: 51.6 | Error: -131.6° -> RightRotate
+[PLANNER] robot_3 | Dist: 51.6 | Error: 119.6° -> LeftRotate
+[PLANNER] robot_4 | Dist: 21.9 | Error: 31.0° -> LeftTurn
+[PLANNER] robot_5 | Dist: 97.5 | Error: 33.9° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (64.0, 45.0)
+[MANAGER] Updated: robot_2 @ (64.0, 65.0)
+[MANAGER] Updated: robot_3 @ (85.0, 64.0)
+[MANAGER] Updated: robot_4 @ (66.0, 85.0)
+[MANAGER] Updated: robot_5 @ (15.0, 15.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 93.8 | Error: -72.3° -> RightRotate
+[PLANNER] robot_2 | Dist: 50.2 | Error: -133.7° -> RightRotate
+[PLANNER] robot_3 | Dist: 50.2 | Error: 117.7° -> LeftRotate
+[PLANNER] robot_4 | Dist: 20.5 | Error: 29.1° -> LeftTurn
+[PLANNER] robot_5 | Dist: 96.2 | Error: 32.1° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (65.0, 46.0)
+[MANAGER] Updated: robot_2 @ (65.0, 66.0)
+[MANAGER] Updated: robot_3 @ (86.0, 65.0)
+[MANAGER] Updated: robot_4 @ (67.0, 86.0)
+[MANAGER] Updated: robot_5 @ (16.0, 16.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 92.4 | Error: -74.4° -> RightRotate
+[PLANNER] robot_2 | Dist: 48.8 | Error: -135.7° -> RightRotate
+[PLANNER] robot_3 | Dist: 48.8 | Error: 115.7° -> LeftRotate
+[PLANNER] robot_4 | Dist: 19.1 | Error: 27.3° -> LeftTurn
+[PLANNER] robot_5 | Dist: 94.8 | Error: 30.4° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (66.0, 47.0)
+[MANAGER] Updated: robot_2 @ (66.0, 67.0)
+[MANAGER] Updated: robot_3 @ (87.0, 66.0)
+[MANAGER] Updated: robot_4 @ (68.0, 87.0)
+[MANAGER] Updated: robot_5 @ (17.0, 17.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 91.0 | Error: -76.6° -> RightRotate
+[PLANNER] robot_2 | Dist: 47.4 | Error: -137.7° -> RightRotate
+[PLANNER] robot_3 | Dist: 47.4 | Error: 113.7° -> LeftRotate
+[PLANNER] robot_4 | Dist: 17.7 | Error: 25.4° -> LeftTurn
+[PLANNER] robot_5 | Dist: 93.5 | Error: 28.6° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (67.0, 48.0)
+[MANAGER] Updated: robot_2 @ (67.0, 68.0)
+[MANAGER] Updated: robot_3 @ (88.0, 67.0)
+[MANAGER] Updated: robot_4 @ (69.0, 88.0)
+[MANAGER] Updated: robot_5 @ (18.0, 18.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 89.6 | Error: -78.7° -> RightRotate
+[PLANNER] robot_2 | Dist: 46.0 | Error: -139.7° -> RightRotate
+[PLANNER] robot_3 | Dist: 46.0 | Error: 111.7° -> LeftRotate
+[PLANNER] robot_4 | Dist: 16.3 | Error: 23.6° -> LeftTurn
+[PLANNER] robot_5 | Dist: 92.1 | Error: 26.9° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (68.0, 49.0)
+[MANAGER] Updated: robot_2 @ (68.0, 69.0)
+[MANAGER] Updated: robot_3 @ (89.0, 68.0)
+[MANAGER] Updated: robot_4 @ (70.0, 89.0)
+[MANAGER] Updated: robot_5 @ (19.0, 19.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 88.2 | Error: -80.9° -> RightRotate
+[PLANNER] robot_2 | Dist: 44.6 | Error: -141.8° -> RightRotate
+[PLANNER] robot_3 | Dist: 44.6 | Error: 109.8° -> LeftRotate
+[PLANNER] robot_4 | Dist: 14.9 | Error: 21.9° -> LeftTurn
+[PLANNER] robot_5 | Dist: 90.8 | Error: 25.2° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (69.0, 50.0)
+[MANAGER] Updated: robot_2 @ (69.0, 70.0)
+[MANAGER] Updated: robot_3 @ (90.0, 69.0)
+[MANAGER] Updated: robot_4 @ (71.0, 90.0)
+[MANAGER] Updated: robot_5 @ (20.0, 20.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 86.8 | Error: -83.0° -> RightRotate
+[PLANNER] robot_2 | Dist: 43.1 | Error: -143.8° -> RightRotate
+[PLANNER] robot_3 | Dist: 43.1 | Error: 107.8° -> LeftRotate
+[PLANNER] robot_4 | Dist: 13.5 | Error: 20.2° -> LeftTurn
+[PLANNER] robot_5 | Dist: 89.4 | Error: 23.4° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (70.0, 51.0)
+[MANAGER] Updated: robot_2 @ (70.0, 71.0)
+[MANAGER] Updated: robot_3 @ (91.0, 70.0)
+[MANAGER] Updated: robot_4 @ (72.0, 91.0)
+[MANAGER] Updated: robot_5 @ (21.0, 21.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 85.4 | Error: -85.2° -> RightRotate
+[PLANNER] robot_2 | Dist: 41.7 | Error: -145.8° -> RightRotate
+[PLANNER] robot_3 | Dist: 41.7 | Error: 105.8° -> LeftRotate
+[PLANNER] robot_4 | Dist: 12.0 | Error: 18.5° -> LeftTurn
+[PLANNER] robot_5 | Dist: 88.1 | Error: 21.7° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (71.0, 52.0)
+[MANAGER] Updated: robot_2 @ (71.0, 72.0)
+[MANAGER] Updated: robot_3 @ (92.0, 71.0)
+[MANAGER] Updated: robot_4 @ (73.0, 92.0)
+[MANAGER] Updated: robot_5 @ (22.0, 22.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 84.1 | Error: -87.4° -> RightRotate
+[PLANNER] robot_2 | Dist: 40.3 | Error: -147.8° -> RightRotate
+[PLANNER] robot_3 | Dist: 40.3 | Error: 103.9° -> LeftRotate
+[PLANNER] robot_4 | Dist: 10.6 | Error: 17.0° -> LeftTurn
+[PLANNER] robot_5 | Dist: 86.8 | Error: 20.0° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (72.0, 53.0)
+[MANAGER] Updated: robot_2 @ (72.0, 73.0)
+[MANAGER] Updated: robot_3 @ (93.0, 72.0)
+[MANAGER] Updated: robot_4 @ (74.0, 93.0)
+[MANAGER] Updated: robot_5 @ (23.0, 23.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 82.7 | Error: -89.5° -> RightRotate
+[PLANNER] robot_2 | Dist: 38.9 | Error: -149.9° -> RightRotate
+[PLANNER] robot_3 | Dist: 38.9 | Error: 101.9° -> LeftRotate
+[PLANNER] robot_4 | Dist: 9.2 | Error: 15.5° -> LeftTurn
+[PLANNER] robot_5 | Dist: 85.4 | Error: 18.3° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (73.0, 54.0)
+[MANAGER] Updated: robot_2 @ (73.0, 74.0)
+[MANAGER] Updated: robot_3 @ (94.0, 73.0)
+[MANAGER] Updated: robot_4 @ (75.0, 94.0)
+[MANAGER] Updated: robot_5 @ (24.0, 24.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 81.3 | Error: -91.7° -> RightRotate
+[PLANNER] robot_2 | Dist: 37.5 | Error: -151.9° -> RightRotate
+[PLANNER] robot_3 | Dist: 37.5 | Error: 99.9° -> LeftRotate
+[PLANNER] robot_4 | Dist: 7.8 | Error: 14.3° -> LeftTurn
+[PLANNER] robot_5 | Dist: 84.1 | Error: 16.7° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (74.0, 55.0)
+[MANAGER] Updated: robot_2 @ (74.0, 75.0)
+[MANAGER] Updated: robot_3 @ (95.0, 74.0)
+[MANAGER] Updated: robot_4 @ (76.0, 95.0)
+[MANAGER] Updated: robot_5 @ (25.0, 25.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 79.9 | Error: -93.9° -> RightRotate
+[PLANNER] robot_2 | Dist: 36.1 | Error: -154.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 36.1 | Error: 98.0° -> LeftRotate
+[PLANNER] robot_4 | Dist: 6.4 | Error: 13.5° -> LeftTurn
+[PLANNER] robot_5 | Dist: 82.8 | Error: 15.0° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (75.0, 56.0)
+[MANAGER] Updated: robot_2 @ (75.0, 76.0)
+[MANAGER] Updated: robot_3 @ (96.0, 75.0)
+[MANAGER] Updated: robot_4 @ (77.0, 96.0)
+[MANAGER] Updated: robot_5 @ (26.0, 26.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 78.5 | Error: -96.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 34.7 | Error: -156.0° -> RightRotate
+[PLANNER] robot_3 | Dist: 34.7 | Error: 96.0° -> LeftRotate
+[PLANNER] robot_4 | Dist: 5.0 | Error: 13.3° -> LeftTurn
+[PLANNER] robot_5 | Dist: 81.4 | Error: 13.3° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (76.0, 57.0)
+[MANAGER] Updated: robot_2 @ (76.0, 77.0)
+[MANAGER] Updated: robot_3 @ (97.0, 76.0)
+[MANAGER] Updated: robot_4 @ (78.0, 97.0)
+[MANAGER] Updated: robot_5 @ (27.0, 27.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 77.1 | Error: -98.3° -> RightRotate
+[PLANNER] robot_2 | Dist: 33.2 | Error: -158.1° -> RightRotate
+[PLANNER] robot_3 | Dist: 33.2 | Error: 94.1° -> LeftRotate
+[PLANNER] robot_4 | Dist: 3.6 | Error: 14.4° -> LeftTurn
+[PLANNER] robot_5 | Dist: 80.1 | Error: 11.7° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (77.0, 58.0)
+[MANAGER] Updated: robot_2 @ (77.0, 78.0)
+[MANAGER] Updated: robot_3 @ (98.0, 77.0)
+[MANAGER] Updated: robot_4 @ (79.0, 98.0)
+[MANAGER] Updated: robot_5 @ (28.0, 28.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 75.7 | Error: -100.5° -> RightRotate
+[PLANNER] robot_2 | Dist: 31.8 | Error: -160.1° -> RightRotate
+[PLANNER] robot_3 | Dist: 31.8 | Error: 92.1° -> LeftRotate
+[PLANNER] robot_4 | Dist: 2.2 | Error: 19.5° -> LeftTurn
+[PLANNER] robot_5 | Dist: 78.8 | Error: 10.0° -> LeftTurn
+[MANAGER] Updated: robot_1 @ (78.0, 59.0)
+[MANAGER] Updated: robot_2 @ (78.0, 79.0)
+[MANAGER] Updated: robot_3 @ (99.0, 78.0)
+[MANAGER] Updated: robot_4 @ (80.0, 99.0)
+[MANAGER] Updated: robot_5 @ (29.0, 29.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 74.3 | Error: -102.7° -> RightRotate
+[PLANNER] robot_2 | Dist: 30.4 | Error: -162.2° -> RightRotate
+[PLANNER] robot_3 | Dist: 30.4 | Error: 90.2° -> LeftRotate
+[PLANNER] robot_4 | Arrived -> STOP
+[PLANNER] robot_5 | Dist: 77.5 | Error: 8.4° -> Forward
+[MANAGER] Updated: robot_1 @ (79.0, 60.0)
+[MANAGER] Updated: robot_2 @ (79.0, 80.0)
+[MANAGER] Updated: robot_3 @ (100.0, 79.0)
+[MANAGER] Updated: robot_5 @ (30.0, 30.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 72.9 | Error: -104.9° -> RightRotate
+[PLANNER] robot_2 | Dist: 29.0 | Error: -164.3° -> RightRotate
+[PLANNER] robot_3 | Dist: 29.0 | Error: 88.2° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 76.2 | Error: 6.8° -> Forward
+[MANAGER] Updated: robot_1 @ (80.0, 61.0)
+[MANAGER] Updated: robot_2 @ (80.0, 81.0)
+[MANAGER] Updated: robot_3 @ (101.0, 80.0)
+[MANAGER] Updated: robot_5 @ (31.0, 31.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 71.6 | Error: -107.2° -> RightRotate
+[PLANNER] robot_2 | Dist: 27.6 | Error: -166.4° -> RightRotate
+[PLANNER] robot_3 | Dist: 27.6 | Error: 86.3° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 74.8 | Error: 5.2° -> Forward
+[MANAGER] Updated: robot_1 @ (81.0, 62.0)
+[MANAGER] Updated: robot_2 @ (81.0, 82.0)
+[MANAGER] Updated: robot_3 @ (102.0, 81.0)
+[MANAGER] Updated: robot_5 @ (32.0, 32.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 70.2 | Error: -109.4° -> RightRotate
+[PLANNER] robot_2 | Dist: 26.2 | Error: -168.6° -> RightRotate
+[PLANNER] robot_3 | Dist: 26.2 | Error: 84.4° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 73.5 | Error: 3.6° -> Forward
+[MANAGER] Updated: robot_1 @ (82.0, 63.0)
+[MANAGER] Updated: robot_2 @ (82.0, 83.0)
+[MANAGER] Updated: robot_3 @ (103.0, 82.0)
+[MANAGER] Updated: robot_5 @ (33.0, 33.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 68.8 | Error: -111.7° -> RightRotate
+[PLANNER] robot_2 | Dist: 24.8 | Error: -170.8° -> RightRotate
+[PLANNER] robot_3 | Dist: 24.8 | Error: 82.5° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 72.2 | Error: 2.1° -> Forward
+[MANAGER] Updated: robot_1 @ (83.0, 64.0)
+[MANAGER] Updated: robot_2 @ (83.0, 84.0)
+[MANAGER] Updated: robot_3 @ (104.0, 83.0)
+[MANAGER] Updated: robot_5 @ (34.0, 34.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 67.4 | Error: -113.9° -> RightRotate
+[PLANNER] robot_2 | Dist: 23.3 | Error: -173.1° -> RightRotate
+[PLANNER] robot_3 | Dist: 23.3 | Error: 80.6° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 70.9 | Error: 0.5° -> Forward
+[MANAGER] Updated: robot_1 @ (84.0, 65.0)
+[MANAGER] Updated: robot_2 @ (84.0, 85.0)
+[MANAGER] Updated: robot_3 @ (105.0, 84.0)
+[MANAGER] Updated: robot_5 @ (35.0, 35.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 66.0 | Error: -116.2° -> RightRotate
+[PLANNER] robot_2 | Dist: 21.9 | Error: -175.4° -> RightRotate
+[PLANNER] robot_3 | Dist: 21.9 | Error: 78.7° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 69.6 | Error: -1.0° -> Forward
+[MANAGER] Updated: robot_1 @ (85.0, 66.0)
+[MANAGER] Updated: robot_2 @ (85.0, 86.0)
+[MANAGER] Updated: robot_3 @ (106.0, 85.0)
+[MANAGER] Updated: robot_5 @ (36.0, 36.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 64.7 | Error: -118.5° -> RightRotate
+[PLANNER] robot_2 | Dist: 20.5 | Error: -177.7° -> RightRotate
+[PLANNER] robot_3 | Dist: 20.5 | Error: 76.8° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 68.4 | Error: -2.6° -> Forward
+[MANAGER] Updated: robot_1 @ (86.0, 67.0)
+[MANAGER] Updated: robot_2 @ (86.0, 87.0)
+[MANAGER] Updated: robot_3 @ (107.0, 86.0)
+[MANAGER] Updated: robot_5 @ (37.0, 37.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 63.3 | Error: -120.8° -> RightRotate
+[PLANNER] robot_2 | Dist: 19.1 | Error: 179.9° -> LeftRotate
+[PLANNER] robot_3 | Dist: 19.1 | Error: 75.0° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 67.1 | Error: -4.1° -> Forward
+[MANAGER] Updated: robot_1 @ (87.0, 68.0)
+[MANAGER] Updated: robot_2 @ (87.0, 88.0)
+[MANAGER] Updated: robot_3 @ (108.0, 87.0)
+[MANAGER] Updated: robot_5 @ (38.0, 38.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 61.9 | Error: -123.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 17.7 | Error: 177.6° -> LeftRotate
+[PLANNER] robot_3 | Dist: 17.7 | Error: 73.1° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 65.8 | Error: -5.5° -> Forward
+[MANAGER] Updated: robot_1 @ (88.0, 69.0)
+[MANAGER] Updated: robot_2 @ (88.0, 89.0)
+[MANAGER] Updated: robot_3 @ (109.0, 88.0)
+[MANAGER] Updated: robot_5 @ (39.0, 39.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 60.5 | Error: -125.4° -> RightRotate
+[PLANNER] robot_2 | Dist: 16.3 | Error: 175.3° -> LeftRotate
+[PLANNER] robot_3 | Dist: 16.3 | Error: 71.3° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 64.5 | Error: -7.0° -> Forward
+[MANAGER] Updated: robot_1 @ (89.0, 70.0)
+[MANAGER] Updated: robot_2 @ (89.0, 90.0)
+[MANAGER] Updated: robot_3 @ (110.0, 89.0)
+[MANAGER] Updated: robot_5 @ (40.0, 40.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 59.2 | Error: -127.7° -> RightRotate
+[PLANNER] robot_2 | Dist: 14.9 | Error: 173.0° -> LeftRotate
+[PLANNER] robot_3 | Dist: 14.9 | Error: 69.6° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 63.2 | Error: -8.4° -> Forward
+[MANAGER] Updated: robot_1 @ (90.0, 71.0)
+[MANAGER] Updated: robot_2 @ (90.0, 91.0)
+[MANAGER] Updated: robot_3 @ (111.0, 90.0)
+[MANAGER] Updated: robot_5 @ (41.0, 41.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 57.8 | Error: -130.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 13.5 | Error: 170.8° -> LeftRotate
+[PLANNER] robot_3 | Dist: 13.5 | Error: 67.9° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 62.0 | Error: -9.9° -> Forward
+[MANAGER] Updated: robot_1 @ (91.0, 72.0)
+[MANAGER] Updated: robot_2 @ (91.0, 92.0)
+[MANAGER] Updated: robot_3 @ (112.0, 91.0)
+[MANAGER] Updated: robot_5 @ (42.0, 42.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 56.4 | Error: -132.5° -> RightRotate
+[PLANNER] robot_2 | Dist: 12.0 | Error: 168.5° -> LeftRotate
+[PLANNER] robot_3 | Dist: 12.0 | Error: 66.2° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 60.7 | Error: -11.2° -> RightTurn
+[MANAGER] Updated: robot_1 @ (92.0, 73.0)
+[MANAGER] Updated: robot_2 @ (92.0, 93.0)
+[MANAGER] Updated: robot_3 @ (113.0, 92.0)
+[MANAGER] Updated: robot_5 @ (43.0, 43.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 55.1 | Error: -134.9° -> RightRotate
+[PLANNER] robot_2 | Dist: 10.6 | Error: 166.3° -> LeftRotate
+[PLANNER] robot_3 | Dist: 10.6 | Error: 64.7° -> LeftRotate
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 59.5 | Error: -12.6° -> RightTurn
+[MANAGER] Updated: robot_1 @ (93.0, 74.0)
+[MANAGER] Updated: robot_2 @ (93.0, 94.0)
+[MANAGER] Updated: robot_3 @ (114.0, 93.0)
+[MANAGER] Updated: robot_5 @ (44.0, 44.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 53.7 | Error: -137.3° -> RightRotate
+[PLANNER] robot_2 | Dist: 9.2 | Error: 163.9° -> LeftTurn
+[PLANNER] robot_3 | Dist: 9.2 | Error: 63.3° -> LeftTurn
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 58.2 | Error: -13.9° -> RightTurn
+[MANAGER] Updated: robot_1 @ (94.0, 75.0)
+[MANAGER] Updated: robot_2 @ (94.0, 95.0)
+[MANAGER] Updated: robot_3 @ (115.0, 94.0)
+[MANAGER] Updated: robot_5 @ (45.0, 45.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 52.4 | Error: -139.7° -> RightRotate
+[PLANNER] robot_2 | Dist: 7.8 | Error: 161.3° -> LeftTurn
+[PLANNER] robot_3 | Dist: 7.8 | Error: 62.0° -> LeftTurn
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 57.0 | Error: -15.3° -> RightTurn
+[MANAGER] Updated: robot_1 @ (95.0, 76.0)
+[MANAGER] Updated: robot_2 @ (95.0, 96.0)
+[MANAGER] Updated: robot_3 @ (116.0, 95.0)
+[MANAGER] Updated: robot_5 @ (46.0, 46.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 51.0 | Error: -142.2° -> RightRotate
+[PLANNER] robot_2 | Dist: 6.4 | Error: 158.4° -> LeftTurn
+[PLANNER] robot_3 | Dist: 6.4 | Error: 61.2° -> LeftTurn
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 55.8 | Error: -16.5° -> RightTurn
+[MANAGER] Updated: robot_1 @ (96.0, 77.0)
+[MANAGER] Updated: robot_2 @ (96.0, 97.0)
+[MANAGER] Updated: robot_3 @ (117.0, 96.0)
+[MANAGER] Updated: robot_5 @ (47.0, 47.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 49.6 | Error: -144.6° -> RightRotate
+[PLANNER] robot_2 | Dist: 5.0 | Error: 154.7° -> LeftTurn
+[PLANNER] robot_3 | Dist: 5.0 | Error: 61.0° -> LeftTurn
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 54.6 | Error: -17.8° -> RightTurn
+[MANAGER] Updated: robot_1 @ (97.0, 78.0)
+[MANAGER] Updated: robot_2 @ (97.0, 98.0)
+[MANAGER] Updated: robot_3 @ (118.0, 97.0)
+[MANAGER] Updated: robot_5 @ (48.0, 48.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 48.3 | Error: -147.1° -> RightRotate
+[PLANNER] robot_2 | Dist: 3.6 | Error: 149.7° -> LeftTurn
+[PLANNER] robot_3 | Dist: 3.6 | Error: 62.1° -> LeftTurn
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 53.4 | Error: -19.0° -> RightTurn
+[MANAGER] Updated: robot_1 @ (98.0, 79.0)
+[MANAGER] Updated: robot_2 @ (98.0, 99.0)
+[MANAGER] Updated: robot_3 @ (119.0, 98.0)
+[MANAGER] Updated: robot_5 @ (49.0, 49.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 47.0 | Error: -149.7° -> RightRotate
+[PLANNER] robot_2 | Dist: 2.2 | Error: 140.7° -> LeftTurn
+[PLANNER] robot_3 | Dist: 2.2 | Error: 67.3° -> LeftTurn
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 52.2 | Error: -20.2° -> RightTurn
+[MANAGER] Updated: robot_1 @ (99.0, 80.0)
+[MANAGER] Updated: robot_2 @ (99.0, 100.0)
+[MANAGER] Updated: robot_3 @ (120.0, 99.0)
+[MANAGER] Updated: robot_5 @ (50.0, 50.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 45.6 | Error: -152.2° -> RightRotate
+[PLANNER] robot_2 | Arrived -> STOP
+[PLANNER] robot_3 | Arrived -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 51.0 | Error: -21.3° -> RightTurn
+[MANAGER] Updated: robot_1 @ (100.0, 81.0)
+[MANAGER] Updated: robot_5 @ (51.0, 51.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 44.3 | Error: -154.9° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 49.8 | Error: -22.4° -> RightTurn
+[MANAGER] Updated: robot_1 @ (101.0, 82.0)
+[MANAGER] Updated: robot_5 @ (52.0, 52.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 43.0 | Error: -157.6° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 48.7 | Error: -23.5° -> RightTurn
+[MANAGER] Updated: robot_1 @ (102.0, 83.0)
+[MANAGER] Updated: robot_5 @ (53.0, 53.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 41.6 | Error: -160.4° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 47.5 | Error: -24.5° -> RightTurn
+[MANAGER] Updated: robot_1 @ (103.0, 84.0)
+[MANAGER] Updated: robot_5 @ (54.0, 54.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 40.3 | Error: -163.2° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 46.4 | Error: -25.4° -> RightTurn
+[MANAGER] Updated: robot_1 @ (104.0, 85.0)
+[MANAGER] Updated: robot_5 @ (55.0, 55.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 39.0 | Error: -166.1° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 45.3 | Error: -26.3° -> RightTurn
+[MANAGER] Updated: robot_1 @ (105.0, 86.0)
+[MANAGER] Updated: robot_5 @ (56.0, 56.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 37.7 | Error: -169.1° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 44.2 | Error: -27.2° -> RightTurn
+[MANAGER] Updated: robot_1 @ (106.0, 87.0)
+[MANAGER] Updated: robot_5 @ (57.0, 57.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 36.4 | Error: -172.1° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 43.1 | Error: -28.0° -> RightTurn
+[MANAGER] Updated: robot_1 @ (107.0, 88.0)
+[MANAGER] Updated: robot_5 @ (58.0, 58.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 35.1 | Error: -175.2° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 42.0 | Error: -28.7° -> RightTurn
+[MANAGER] Updated: robot_1 @ (108.0, 89.0)
+[MANAGER] Updated: robot_5 @ (59.0, 59.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 33.8 | Error: -178.3° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 41.0 | Error: -29.4° -> RightTurn
+[MANAGER] Updated: robot_1 @ (109.0, 90.0)
+[MANAGER] Updated: robot_5 @ (60.0, 60.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 32.6 | Error: 178.5° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 40.0 | Error: -30.0° -> RightTurn
+[MANAGER] Updated: robot_1 @ (110.0, 91.0)
+[MANAGER] Updated: robot_5 @ (60.0, 61.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 31.3 | Error: 175.2° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 39.0 | Error: -32.0° -> RightTurn
+[MANAGER] Updated: robot_1 @ (111.0, 92.0)
+[MANAGER] Updated: robot_5 @ (60.0, 62.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 30.1 | Error: 171.7° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 38.0 | Error: -34.0° -> RightTurn
+[MANAGER] Updated: robot_1 @ (112.0, 93.0)
+[MANAGER] Updated: robot_5 @ (60.0, 63.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 28.9 | Error: 167.8° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 37.0 | Error: -36.0° -> RightTurn
+[MANAGER] Updated: robot_1 @ (113.0, 94.0)
+[MANAGER] Updated: robot_5 @ (60.0, 64.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 27.7 | Error: 163.3° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 36.0 | Error: -38.0° -> RightTurn
+[MANAGER] Updated: robot_1 @ (114.0, 95.0)
+[MANAGER] Updated: robot_5 @ (60.0, 65.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 26.5 | Error: 157.0° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 35.0 | Error: -40.0° -> RightTurn
+[MANAGER] Updated: robot_1 @ (115.0, 96.0)
+[MANAGER] Updated: robot_5 @ (60.0, 66.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 25.3 | Error: 145.3° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 34.0 | Error: -42.0° -> RightTurn
+[MANAGER] Updated: robot_1 @ (116.0, 97.0)
+[MANAGER] Updated: robot_5 @ (60.0, 67.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 24.2 | Error: 84.3° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 33.0 | Error: -44.0° -> RightTurn
+[MANAGER] Updated: robot_1 @ (117.0, 98.0)
+[MANAGER] Updated: robot_5 @ (60.0, 68.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 23.1 | Error: -8.3° -> Forward
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 32.0 | Error: -46.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (118.0, 99.0)
+[MANAGER] Updated: robot_5 @ (60.0, 69.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 22.0 | Error: -36.2° -> RightTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 31.0 | Error: -48.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (119.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 70.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 21.0 | Error: -84.2° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 30.0 | Error: -50.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (120.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 71.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 20.0 | Error: -130.6° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 29.0 | Error: -52.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (121.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 72.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 19.0 | Error: -178.2° -> RightRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 28.0 | Error: -54.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (122.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 73.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 18.0 | Error: 159.8° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 27.0 | Error: -56.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (123.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 74.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 17.0 | Error: 147.6° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 26.0 | Error: -58.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (124.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 75.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 16.0 | Error: 139.7° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 25.0 | Error: -60.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (125.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 76.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 15.0 | Error: 134.3° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 24.0 | Error: -62.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (126.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 77.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 14.0 | Error: 130.5° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 23.0 | Error: -64.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (127.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 78.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 13.0 | Error: 127.4° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 22.0 | Error: -66.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (128.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 79.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 12.0 | Error: 124.9° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 21.0 | Error: -68.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (129.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 80.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 11.0 | Error: 122.5° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 20.0 | Error: -70.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (130.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 81.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 10.0 | Error: 120.4° -> LeftRotate
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 19.0 | Error: -72.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (131.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 82.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 9.0 | Error: 118.2° -> LeftTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 18.0 | Error: -74.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (132.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 83.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 8.0 | Error: 116.2° -> LeftTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 17.0 | Error: -76.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (133.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 84.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 7.0 | Error: 114.1° -> LeftTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 16.0 | Error: -78.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (134.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 85.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 6.0 | Error: 112.1° -> LeftTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 15.0 | Error: -79.9° -> RightRotate
+[MANAGER] Updated: robot_1 @ (135.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 86.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 5.0 | Error: 110.1° -> LeftTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 14.0 | Error: -81.9° -> RightRotate
+[MANAGER] Updated: robot_1 @ (136.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 87.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 4.0 | Error: 108.0° -> LeftTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 13.0 | Error: -83.9° -> RightRotate
+[MANAGER] Updated: robot_1 @ (137.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 88.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 3.0 | Error: 106.0° -> LeftTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 12.0 | Error: -85.9° -> RightRotate
+[MANAGER] Updated: robot_1 @ (138.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 89.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 2.0 | Error: 104.0° -> LeftTurn
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 11.0 | Error: -87.9° -> RightRotate
+[MANAGER] Updated: robot_1 @ (139.0, 100.0)
+[MANAGER] Updated: robot_5 @ (60.0, 90.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Arrived -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 10.0 | Error: -89.9° -> RightRotate
+[MANAGER] Updated: robot_5 @ (60.0, 91.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 9.0 | Error: -91.8° -> RightTurn
+[MANAGER] Updated: robot_5 @ (60.0, 92.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 8.0 | Error: -93.8° -> RightTurn
+[MANAGER] Updated: robot_5 @ (60.0, 93.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 7.0 | Error: -95.8° -> RightTurn
+[MANAGER] Updated: robot_5 @ (60.0, 94.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 6.0 | Error: -97.8° -> RightTurn
+[MANAGER] Updated: robot_5 @ (60.0, 95.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 5.0 | Error: -99.8° -> RightTurn
+[MANAGER] Updated: robot_5 @ (60.0, 96.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 4.0 | Error: -101.8° -> RightTurn
+[MANAGER] Updated: robot_5 @ (60.0, 97.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 3.0 | Error: -103.8° -> RightTurn
+[MANAGER] Updated: robot_5 @ (60.0, 98.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 2.0 | Error: -105.8° -> RightTurn
+[MANAGER] Updated: robot_5 @ (60.0, 99.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Idle -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Arrived -> STOP
+
+--- Applying Formation Strategy around (120.0, 120.0) ---
+[FORMATION] Set: robot_1 -> Target (150.0, 90.0)
+[FORMATION] Set: robot_2 -> Target (150.0, 150.0)
+[FORMATION] Set: robot_3 -> Target (120.0, 90.0)
+[FORMATION] Set: robot_4 -> Target (90.0, 90.0)
+[FORMATION] Set: robot_5 -> Target (90.0, 150.0)
+[MANAGER] Updated: robot_1 @ (140.0, 99.0)
+[MANAGER] Updated: robot_2 @ (100.0, 101.0)
+[MANAGER] Updated: robot_3 @ (120.0, 98.0)
+[MANAGER] Updated: robot_4 @ (81.0, 98.0)
+[MANAGER] Updated: robot_5 @ (61.0, 100.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 13.5 | Error: 58.2° -> LeftRotate
+[PLANNER] robot_2 | Dist: 70.0 | Error: 154.4° -> LeftRotate
+[PLANNER] robot_3 | Dist: 8.0 | Error: -90.0° -> RightTurn
+[PLANNER] robot_4 | Dist: 12.0 | Error: -89.7° -> RightRotate
+[PLANNER] robot_5 | Dist: 57.8 | Error: -139.9° -> RightRotate
+[MANAGER] Updated: robot_1 @ (141.0, 98.0)
+[MANAGER] Updated: robot_2 @ (101.0, 102.0)
+[MANAGER] Updated: robot_3 @ (120.0, 97.0)
+[MANAGER] Updated: robot_4 @ (82.0, 97.0)
+[MANAGER] Updated: robot_5 @ (62.0, 101.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 12.0 | Error: 56.5° -> LeftRotate
+[PLANNER] robot_2 | Dist: 68.6 | Error: 152.5° -> LeftRotate
+[PLANNER] robot_3 | Dist: 7.0 | Error: -91.9° -> RightTurn
+[PLANNER] robot_4 | Dist: 10.6 | Error: -91.3° -> RightRotate
+[PLANNER] robot_5 | Dist: 56.4 | Error: -141.5° -> RightRotate
+[MANAGER] Updated: robot_1 @ (142.0, 97.0)
+[MANAGER] Updated: robot_2 @ (102.0, 103.0)
+[MANAGER] Updated: robot_3 @ (120.0, 96.0)
+[MANAGER] Updated: robot_4 @ (83.0, 96.0)
+[MANAGER] Updated: robot_5 @ (63.0, 102.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 10.6 | Error: 54.9° -> LeftRotate
+[PLANNER] robot_2 | Dist: 67.2 | Error: 150.6° -> LeftRotate
+[PLANNER] robot_3 | Dist: 6.0 | Error: -93.9° -> RightTurn
+[PLANNER] robot_4 | Dist: 9.2 | Error: -92.7° -> RightTurn
+[PLANNER] robot_5 | Dist: 55.1 | Error: -143.2° -> RightRotate
+[MANAGER] Updated: robot_1 @ (143.0, 96.0)
+[MANAGER] Updated: robot_2 @ (103.0, 104.0)
+[MANAGER] Updated: robot_3 @ (120.0, 95.0)
+[MANAGER] Updated: robot_4 @ (84.0, 95.0)
+[MANAGER] Updated: robot_5 @ (64.0, 103.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 9.2 | Error: 53.5° -> LeftTurn
+[PLANNER] robot_2 | Dist: 65.8 | Error: 148.6° -> LeftRotate
+[PLANNER] robot_3 | Dist: 5.0 | Error: -95.9° -> RightTurn
+[PLANNER] robot_4 | Dist: 7.8 | Error: -93.9° -> RightTurn
+[PLANNER] robot_5 | Dist: 53.7 | Error: -144.8° -> RightRotate
+[MANAGER] Updated: robot_1 @ (144.0, 95.0)
+[MANAGER] Updated: robot_2 @ (104.0, 105.0)
+[MANAGER] Updated: robot_3 @ (120.0, 94.0)
+[MANAGER] Updated: robot_4 @ (85.0, 94.0)
+[MANAGER] Updated: robot_5 @ (65.0, 104.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 7.8 | Error: 52.2° -> LeftTurn
+[PLANNER] robot_2 | Dist: 64.4 | Error: 146.6° -> LeftRotate
+[PLANNER] robot_3 | Dist: 4.0 | Error: -97.9° -> RightTurn
+[PLANNER] robot_4 | Dist: 6.4 | Error: -94.8° -> RightTurn
+[PLANNER] robot_5 | Dist: 52.4 | Error: -146.4° -> RightRotate
+[MANAGER] Updated: robot_1 @ (145.0, 94.0)
+[MANAGER] Updated: robot_2 @ (105.0, 106.0)
+[MANAGER] Updated: robot_3 @ (120.0, 93.0)
+[MANAGER] Updated: robot_4 @ (86.0, 93.0)
+[MANAGER] Updated: robot_5 @ (66.0, 105.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 6.4 | Error: 51.4° -> LeftTurn
+[PLANNER] robot_2 | Dist: 62.9 | Error: 144.6° -> LeftRotate
+[PLANNER] robot_3 | Dist: 3.0 | Error: -99.9° -> RightTurn
+[PLANNER] robot_4 | Dist: 5.0 | Error: -95.0° -> RightTurn
+[PLANNER] robot_5 | Dist: 51.0 | Error: -148.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (146.0, 93.0)
+[MANAGER] Updated: robot_2 @ (106.0, 107.0)
+[MANAGER] Updated: robot_3 @ (120.0, 92.0)
+[MANAGER] Updated: robot_4 @ (87.0, 92.0)
+[MANAGER] Updated: robot_5 @ (67.0, 106.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 5.0 | Error: 51.2° -> LeftTurn
+[PLANNER] robot_2 | Dist: 61.5 | Error: 142.5° -> LeftRotate
+[PLANNER] robot_3 | Dist: 2.0 | Error: -101.9° -> RightTurn
+[PLANNER] robot_4 | Dist: 3.6 | Error: -93.8° -> RightTurn
+[PLANNER] robot_5 | Dist: 49.6 | Error: -149.5° -> RightRotate
+[MANAGER] Updated: robot_1 @ (147.0, 92.0)
+[MANAGER] Updated: robot_2 @ (107.0, 108.0)
+[MANAGER] Updated: robot_3 @ (120.0, 91.0)
+[MANAGER] Updated: robot_4 @ (88.0, 91.0)
+[MANAGER] Updated: robot_5 @ (68.0, 107.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 3.6 | Error: 52.3° -> LeftTurn
+[PLANNER] robot_2 | Dist: 60.1 | Error: 140.5° -> LeftRotate
+[PLANNER] robot_3 | Arrived -> STOP
+[PLANNER] robot_4 | Dist: 2.2 | Error: -88.6° -> RightTurn
+[PLANNER] robot_5 | Dist: 48.3 | Error: -151.0° -> RightRotate
+[MANAGER] Updated: robot_1 @ (148.0, 91.0)
+[MANAGER] Updated: robot_2 @ (108.0, 109.0)
+[MANAGER] Updated: robot_4 @ (89.0, 90.0)
+[MANAGER] Updated: robot_5 @ (69.0, 108.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Dist: 2.2 | Error: 57.4° -> LeftTurn
+[PLANNER] robot_2 | Dist: 58.7 | Error: 138.5° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Arrived -> STOP
+[PLANNER] robot_5 | Dist: 47.0 | Error: -152.5° -> RightRotate
+[MANAGER] Updated: robot_1 @ (149.0, 90.0)
+[MANAGER] Updated: robot_2 @ (109.0, 110.0)
+[MANAGER] Updated: robot_5 @ (70.0, 109.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Arrived -> STOP
+[PLANNER] robot_2 | Dist: 57.3 | Error: 136.4° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 45.6 | Error: -154.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (110.0, 111.0)
+[MANAGER] Updated: robot_5 @ (71.0, 110.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 55.9 | Error: 134.4° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 44.3 | Error: -155.4° -> RightRotate
+[MANAGER] Updated: robot_2 @ (111.0, 112.0)
+[MANAGER] Updated: robot_5 @ (72.0, 111.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 54.5 | Error: 132.4° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 43.0 | Error: -156.7° -> RightRotate
+[MANAGER] Updated: robot_2 @ (112.0, 113.0)
+[MANAGER] Updated: robot_5 @ (73.0, 112.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 53.0 | Error: 130.3° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 41.6 | Error: -158.1° -> RightRotate
+[MANAGER] Updated: robot_2 @ (113.0, 114.0)
+[MANAGER] Updated: robot_5 @ (74.0, 113.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 51.6 | Error: 128.3° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 40.3 | Error: -159.4° -> RightRotate
+[MANAGER] Updated: robot_2 @ (114.0, 115.0)
+[MANAGER] Updated: robot_5 @ (75.0, 114.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 50.2 | Error: 126.3° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 39.0 | Error: -160.6° -> RightRotate
+[MANAGER] Updated: robot_2 @ (115.0, 116.0)
+[MANAGER] Updated: robot_5 @ (76.0, 115.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 48.8 | Error: 124.2° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 37.7 | Error: -161.8° -> RightRotate
+[MANAGER] Updated: robot_2 @ (116.0, 117.0)
+[MANAGER] Updated: robot_5 @ (77.0, 116.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 47.4 | Error: 122.2° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 36.4 | Error: -162.9° -> RightRotate
+[MANAGER] Updated: robot_2 @ (117.0, 118.0)
+[MANAGER] Updated: robot_5 @ (78.0, 117.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 46.0 | Error: 120.1° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 35.1 | Error: -164.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (118.0, 119.0)
+[MANAGER] Updated: robot_5 @ (79.0, 118.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 44.6 | Error: 118.1° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 33.8 | Error: -165.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (119.0, 120.0)
+[MANAGER] Updated: robot_5 @ (80.0, 119.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 43.1 | Error: 116.1° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 32.6 | Error: -165.9° -> RightRotate
+[MANAGER] Updated: robot_2 @ (120.0, 121.0)
+[MANAGER] Updated: robot_5 @ (81.0, 120.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 41.7 | Error: 114.0° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 31.3 | Error: -166.7° -> RightRotate
+[MANAGER] Updated: robot_2 @ (121.0, 122.0)
+[MANAGER] Updated: robot_5 @ (82.0, 121.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 40.3 | Error: 112.0° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 30.1 | Error: -167.4° -> RightRotate
+[MANAGER] Updated: robot_2 @ (122.0, 123.0)
+[MANAGER] Updated: robot_5 @ (83.0, 122.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 38.9 | Error: 110.0° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 28.9 | Error: -168.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (123.0, 124.0)
+[MANAGER] Updated: robot_5 @ (84.0, 123.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 37.5 | Error: 107.9° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 27.7 | Error: -168.5° -> RightRotate
+[MANAGER] Updated: robot_2 @ (124.0, 125.0)
+[MANAGER] Updated: robot_5 @ (85.0, 124.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 36.1 | Error: 105.9° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 26.5 | Error: -168.9° -> RightRotate
+[MANAGER] Updated: robot_2 @ (125.0, 126.0)
+[MANAGER] Updated: robot_5 @ (86.0, 125.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 34.7 | Error: 103.8° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 25.3 | Error: -169.1° -> RightRotate
+[MANAGER] Updated: robot_2 @ (126.0, 127.0)
+[MANAGER] Updated: robot_5 @ (87.0, 126.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 33.2 | Error: 101.8° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 24.2 | Error: -169.1° -> RightRotate
+[MANAGER] Updated: robot_2 @ (127.0, 128.0)
+[MANAGER] Updated: robot_5 @ (88.0, 127.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 31.8 | Error: 99.7° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 23.1 | Error: -169.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (128.0, 129.0)
+[MANAGER] Updated: robot_5 @ (89.0, 128.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 30.4 | Error: 97.7° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 22.0 | Error: -168.6° -> RightRotate
+[MANAGER] Updated: robot_2 @ (129.0, 130.0)
+[MANAGER] Updated: robot_5 @ (90.0, 129.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 29.0 | Error: 95.6° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 21.0 | Error: -168.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (130.0, 131.0)
+[MANAGER] Updated: robot_5 @ (90.0, 130.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 27.6 | Error: 93.5° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 20.0 | Error: -170.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (131.0, 132.0)
+[MANAGER] Updated: robot_5 @ (90.0, 131.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 26.2 | Error: 91.5° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 19.0 | Error: -172.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (132.0, 133.0)
+[MANAGER] Updated: robot_5 @ (90.0, 132.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 24.8 | Error: 89.4° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 18.0 | Error: -174.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (133.0, 134.0)
+[MANAGER] Updated: robot_5 @ (90.0, 133.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 23.3 | Error: 87.3° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 17.0 | Error: -176.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (134.0, 135.0)
+[MANAGER] Updated: robot_5 @ (90.0, 134.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 21.9 | Error: 85.2° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 16.0 | Error: -178.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (135.0, 136.0)
+[MANAGER] Updated: robot_5 @ (90.0, 135.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 20.5 | Error: 83.0° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 15.0 | Error: -180.0° -> RightRotate
+[MANAGER] Updated: robot_2 @ (136.0, 137.0)
+[MANAGER] Updated: robot_5 @ (90.0, 136.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 19.1 | Error: 80.9° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 14.0 | Error: 178.0° -> LeftRotate
+[MANAGER] Updated: robot_2 @ (137.0, 138.0)
+[MANAGER] Updated: robot_5 @ (90.0, 137.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 17.7 | Error: 78.7° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 13.0 | Error: 176.0° -> LeftRotate
+[MANAGER] Updated: robot_2 @ (138.0, 139.0)
+[MANAGER] Updated: robot_5 @ (90.0, 138.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 16.3 | Error: 76.5° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 12.0 | Error: 174.0° -> LeftRotate
+[MANAGER] Updated: robot_2 @ (139.0, 140.0)
+[MANAGER] Updated: robot_5 @ (90.0, 139.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 14.9 | Error: 74.3° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 11.0 | Error: 172.0° -> LeftRotate
+[MANAGER] Updated: robot_2 @ (140.0, 141.0)
+[MANAGER] Updated: robot_5 @ (90.0, 140.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 13.5 | Error: 72.0° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 10.0 | Error: 170.0° -> LeftRotate
+[MANAGER] Updated: robot_2 @ (141.0, 142.0)
+[MANAGER] Updated: robot_5 @ (90.0, 141.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 12.0 | Error: 69.6° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 9.0 | Error: 168.0° -> LeftTurn
+[MANAGER] Updated: robot_2 @ (142.0, 143.0)
+[MANAGER] Updated: robot_5 @ (90.0, 142.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 10.6 | Error: 67.2° -> LeftRotate
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 8.0 | Error: 166.0° -> LeftTurn
+[MANAGER] Updated: robot_2 @ (143.0, 144.0)
+[MANAGER] Updated: robot_5 @ (90.0, 143.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 9.2 | Error: 64.6° -> LeftTurn
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 7.0 | Error: 164.0° -> LeftTurn
+[MANAGER] Updated: robot_2 @ (144.0, 145.0)
+[MANAGER] Updated: robot_5 @ (90.0, 144.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 7.8 | Error: 61.8° -> LeftTurn
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 6.0 | Error: 162.0° -> LeftTurn
+[MANAGER] Updated: robot_2 @ (145.0, 146.0)
+[MANAGER] Updated: robot_5 @ (90.0, 145.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 6.4 | Error: 58.7° -> LeftTurn
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 5.0 | Error: 160.0° -> LeftTurn
+[MANAGER] Updated: robot_2 @ (146.0, 147.0)
+[MANAGER] Updated: robot_5 @ (90.0, 146.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 5.0 | Error: 54.9° -> LeftTurn
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 4.0 | Error: 158.0° -> LeftTurn
+[MANAGER] Updated: robot_2 @ (147.0, 148.0)
+[MANAGER] Updated: robot_5 @ (90.0, 147.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 3.6 | Error: 49.7° -> LeftTurn
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 3.0 | Error: 156.0° -> LeftTurn
+[MANAGER] Updated: robot_2 @ (148.0, 149.0)
+[MANAGER] Updated: robot_5 @ (90.0, 148.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Dist: 2.2 | Error: 40.6° -> LeftTurn
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Dist: 2.0 | Error: 154.0° -> LeftTurn
+[MANAGER] Updated: robot_2 @ (149.0, 150.0)
+[MANAGER] Updated: robot_5 @ (90.0, 149.0)
+
+--- Start Path Planning Cycle (5 robots active) ---
+[PLANNER] robot_1 | Idle -> STOP
+[PLANNER] robot_2 | Arrived -> STOP
+[PLANNER] robot_3 | Idle -> STOP
+[PLANNER] robot_4 | Idle -> STOP
+[PLANNER] robot_5 | Arrived -> STOP
