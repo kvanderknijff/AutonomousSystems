@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robot Formation Control</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .panel {
+      width: 100%;
+      max-width: 520px;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+    }
+    h1 { margin: 0 0 0.25rem; font-size: 1.5rem; }
+    .subtitle { color: #94a3b8; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+    select, input {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 1rem;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .row label { grid-column: span 1; }
+    .row input { margin-bottom: 0; }
+    .actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+    button {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .apply { background: #2563eb; color: white; }
+    .apply:hover { background: #1d4ed8; }
+    .stop { background: #dc2626; color: white; }
+    .stop:hover { background: #b91c1c; }
+    .status {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #0f172a;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+    .status h2 { margin: 0 0 0.75rem; font-size: 1rem; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: #334155;
+    }
+    .badge.active { background: #166534; }
+    .robots { margin-top: 0.75rem; font-size: 0.85rem; color: #94a3b8; }
+    .robots li { margin: 0.25rem 0; }
+    .message {
+      margin-top: 1rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .message.ok { display: block; background: #14532d; color: #bbf7d0; }
+    .message.err { display: block; background: #450a0a; color: #fecaca; }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>Formation Control</h1>
+    <p class="subtitle">Coordinates are camera pixels (1280×720). Enable auto-center to form around where robots are now.</p>
+
+    <form id="formation-form">
+      <label for="formation">Formation</label>
+      <select id="formation" name="formation" required>
+        <option value="line">Line</option>
+        <option value="plus">Plus (+)</option>
+        <option value="square">Square</option>
+      </select>
+
+      <div class="row">
+        <div>
+          <label for="center_x">Center X</label>
+          <input id="center_x" name="center_x" type="number" value="320" step="1">
+        </div>
+        <div>
+          <label for="center_y">Center Y</label>
+          <input id="center_y" name="center_y" type="number" value="240" step="1">
+        </div>
+      </div>
+
+      <label for="spacing">Spacing</label>
+      <input id="spacing" name="spacing" type="number" value="40" step="1" min="10">
+
+      <label style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;font-size:0.9rem;">
+        <input id="auto_center" name="auto_center" type="checkbox" checked>
+        Auto-center formation on connected robots
+      </label>
+
+      <div class="actions">
+        <button type="button" class="apply" id="center-btn" style="flex:0.6;background:#334155;">Use robot average</button>
+        <button type="submit" class="apply">Apply Formation</button>
+        <button type="button" class="stop" id="stop-btn">Stop All</button>
+      </div>
+    </form>
+
+    <div id="message" class="message"></div>
+
+    <div class="status">
+      <h2>Status</h2>
+      <div>
+        Connected: <strong id="robot-count">0</strong>
+        &nbsp;·&nbsp;
+        Active formation:
+        <span id="active-formation" class="badge">none</span>
+      </div>
+      <div id="sequential-status" class="robots" style="margin-top: 0.5rem; display: none;"></div>
+      <ul class="robots" id="robot-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    const messageEl = document.getElementById("message");
+    const robotCountEl = document.getElementById("robot-count");
+    const activeFormationEl = document.getElementById("active-formation");
+    const sequentialStatusEl = document.getElementById("sequential-status");
+    const robotListEl = document.getElementById("robot-list");
+
+    function showMessage(text, ok) {
+      messageEl.textContent = text;
+      messageEl.className = "message " + (ok ? "ok" : "err");
+      setTimeout(() => { messageEl.className = "message"; }, 4000);
+    }
+
+    async function refreshStatus() {
+      try {
+        const res = await fetch("/api/status");
+        const data = await res.json();
+        robotCountEl.textContent = data.connected_robots;
+        if (data.current_formation) {
+          activeFormationEl.textContent = data.current_formation;
+          activeFormationEl.classList.add("active");
+        } else {
+          activeFormationEl.textContent = "none";
+          activeFormationEl.classList.remove("active");
+        }
+
+        const seq = data.sequential || {};
+        if (seq.active && seq.total > 0) {
+          sequentialStatusEl.style.display = "block";
+          sequentialStatusEl.textContent =
+            "Deploying robot " + seq.step + " of " + seq.total +
+            (seq.current_robot ? " (" + seq.current_robot + ")" : "");
+        } else if (seq.total > 0 && seq.step === seq.total) {
+          sequentialStatusEl.style.display = "block";
+          sequentialStatusEl.textContent = "Formation complete (" + seq.total + " robots placed)";
+        } else {
+          sequentialStatusEl.style.display = "none";
+          sequentialStatusEl.textContent = "";
+        }
+
+        robotListEl.innerHTML = "";
+        if (data.robots.length === 0) {
+          robotListEl.innerHTML = "<li>No robots connected yet.</li>";
+        } else {
+          data.robots.forEach((robot) => {
+            const li = document.createElement("li");
+            const isActive = seq.current_robot === robot.mac;
+            li.textContent =
+              robot.mac +
+              " @ (" + robot.x + ", " + robot.y + ")" +
+              (isActive ? " → moving now" : robot.has_target ? " → moving" : " → waiting");
+            robotListEl.appendChild(li);
+          });
+          if (data.suggested_center && document.getElementById("auto_center").checked) {
+            document.getElementById("center_x").value = data.suggested_center.x;
+            document.getElementById("center_y").value = data.suggested_center.y;
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.getElementById("formation-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const payload = {
+        formation: document.getElementById("formation").value,
+        center_x: Number(document.getElementById("center_x").value),
+        center_y: Number(document.getElementById("center_y").value),
+        spacing: Number(document.getElementById("spacing").value),
+        auto_center: document.getElementById("auto_center").checked,
+      };
+      try {
+        const res = await fetch("/api/formation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Request failed");
+        showMessage("Formation queued: " + data.formation.formation, true);
+        refreshStatus();
+      } catch (err) {
+        showMessage(err.message, false);
+      }
+    });
+
+    document.getElementById("center-btn").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/api/status");
+        const data = await res.json();
+        if (!data.suggested_center) {
+          showMessage("No robots connected to average.", false);
+          return;
+        }
+        document.getElementById("center_x").value = data.suggested_center.x;
+        document.getElementById("center_y").value = data.suggested_center.y;
+        document.getElementById("auto_center").checked = true;
+        showMessage("Center set to robot average.", true);
+      } catch (err) {
+        showMessage(err.message, false);
+      }
+    });
+
+    document.getElementById("stop-btn").addEventListener("click", async () => {
+      try {
+        const res = await fetch("/api/stop", { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Request failed");
+        showMessage("All robots stopped.", true);
+        refreshStatus();
+      } catch (err) {
+        showMessage(err.message, false);
+      }
+    });
+
+    refreshStatus();
+    setInterval(refreshStatus, 2000);
+  </script>
+</body>
+</html>
