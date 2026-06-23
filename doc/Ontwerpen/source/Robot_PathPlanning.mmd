@@ -1,0 +1,80 @@
+---
+config:
+  layout: elk
+  theme: redux-color
+---
+flowchart TD
+    Start([Start: Robot Fleet System]) --> InitRM[Initialize RobotManager]
+    InitRM --> MsgLoop{Incoming Telemetry Message?}
+    
+    MsgLoop -->|Yes| ProcessMsg[process_incoming_message]
+    ProcessMsg --> CheckExists{Robot ID Exists?}
+    CheckExists -->|Yes| UpdatePos[Update robot position & time]
+    CheckExists -->|No| CreateRobot[Create new Robot object]
+    UpdatePos --> MsgLoop
+    CreateRobot --> MsgLoop
+    
+    MsgLoop -->|Formation Request| ApplyForm[apply_formation]
+    ApplyForm --> FilterLive1[Filter live robots<br/>timeout ≤ 2.0s]
+    FilterLive1 --> TimeoutCheck1{Any timeouts?}
+    TimeoutCheck1 -->|Yes| LogTimeout1[Log disconnect &<br/>clear targets]
+    TimeoutCheck1 -->|No| GetPositions[Extract current<br/>robot positions]
+    LogTimeout1 --> GetPositions
+    GetPositions --> CallStrategy[Call formation strategy<br/>Line/Plus/Square]
+    CallStrategy --> CalcAssign[optimal_robot_assignment<br/>minimizes total distance]
+    CalcAssign --> SetTargets[Assign targets to robots]
+    SetTargets --> MsgLoop
+    
+    MsgLoop -->|Path Planning Cycle| ExecutePath[execute_path_planning]
+    ExecutePath --> FilterLive2[Filter live robots]
+    FilterLive2 --> TimeoutCheck2{Any timeouts?}
+    TimeoutCheck2 -->|Yes| LogTimeout2[Log disconnect]
+    TimeoutCheck2 -->|No| PlanLoop{Next robot?}
+    LogTimeout2 --> PlanLoop
+    
+    PlanLoop -->|Yes| CheckTarget{Robot has target?}
+    CheckTarget -->|No| SendStop1[Send STOP command]
+    SendStop1 --> PlanLoop
+    CheckTarget -->|Yes| CalcDist[Calculate distance<br/>to target]
+    CalcDist --> ArrivalCheck{Distance < 2.0?}
+    ArrivalCheck -->|Yes| ClearTarget[Clear target]
+    ClearTarget --> SendStop2[Send STOP command]
+    SendStop2 --> PlanLoop
+    ArrivalCheck -->|No| GatherNeighbors[Gather other robot<br/>positions]
+    GatherNeighbors --> CalcAPF[calculate_apf_heading]
+    CalcAPF --> CalcAttract[Calculate attractive<br/>force toward target]
+    CalcAttract --> CalcRepel[Calculate repulsive<br/>forces from neighbors<br/>within 30.0 radius]
+    CalcRepel --> SumForces[Superimpose forces<br/>to get heading]
+    SumForces --> CalcHeading[atan2 to get<br/>heading angle]
+    CalcHeading --> CalcError[Calculate heading error<br/>normalize to -180:180]
+    CalcError --> SelectCommand{Distance & Error<br/>thresholds?}
+    SelectCommand -->|Close & Small error| Fwd1[Forward]
+    SelectCommand -->|Close & Error > 10°| LR1[LeftRotate]
+    SelectCommand -->|Close & Error < -10°| RR1[RightRotate]
+    SelectCommand -->|Far & Error > 45°| LR2[LeftRotate]
+    SelectCommand -->|Far & Error < -45°| RR2[RightRotate]
+    SelectCommand -->|Far & 10° < Error ≤ 45°| LT[LeftTurn]
+    SelectCommand -->|Far & -45° ≤ Error < -10°| RT[RightTurn]
+    SelectCommand -->|Far & Small error| Fwd2[Forward]
+    Fwd1 --> SendCmd[Send command via callback]
+    LR1 --> SendCmd
+    RR1 --> SendCmd
+    LR2 --> SendCmd
+    RR2 --> SendCmd
+    LT --> SendCmd
+    RT --> SendCmd
+    Fwd2 --> SendCmd
+    SendCmd --> PlanLoop
+    
+    PlanLoop -->|All robots processed| MsgLoop
+    MsgLoop -->|System shutdown| End([End])
+    
+    classDef processBox stroke:#818cf8,fill:#eef2ff
+    classDef decisionBox stroke:#fb923c,fill:#fff7ed
+    classDef dataBox stroke:#2dd4bf,fill:#f0fdfa
+    classDef outputBox stroke:#f87171,fill:#fef2f2
+    
+    class Start,End outputBox
+    class ProcessMsg,UpdatePos,CreateRobot,ApplyForm,SetTargets,ExecutePath,CalcDist,GatherNeighbors,CalcAPF,SendCmd processBox
+    class CheckExists,TimeoutCheck1,TimeoutCheck2,PlanLoop,CheckTarget,ArrivalCheck,SelectCommand decisionBox
+    class FilterLive1,FilterLive2,GetPositions,CalcAssign,CalcError dataBox
