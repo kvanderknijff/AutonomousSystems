@@ -50,7 +50,7 @@ De server hoort het verzoek en laat de robot weten dat hij in de wachtrij staat.
 * **Payload:** `[checking]`
 
 Nu vindt de automatische koppeling plaats via de camera op het data-kanaal:
-1. De camera ziet een robot met een **Geel** lampje rijden.
+1. De camera ziet een robot met een **blauw** lampje rijden.
 2. De camera streamt deze informatie via `Robots/Data/Positions`.
 3. **De Match:** De server leest dit data-topic uit, ziet dat `ArUco_1` op "connecting" staat, en weet dat dit hoort bij de robot die net `[MAC_1]` stuurde. De server koppelt ze intern: `ArUco_1 = MAC_1`.
 
@@ -66,7 +66,7 @@ De robot vangt dit op:
 De server stuurt nu puur rijcommando's via `Robots/Data/{MAC}/Commands`. 
 
 * **Uitval via Data:** Als de robot uitvalt, ziet de camera dit en stuurt via `Robots/Data/Positions` de status `"off"`. De server grijpt in en stopt de commando's.
-* **Herverbinding via Control:** Verliest de robot de wifi? Dan springt zijn LED naar **Geel** en begint hij weer bij Stap 1 op `Robots/Control/Connecting`.
+* **Herverbinding via Control:** Verliest de robot de wifi? Dan springt zijn LED naar **blauw** en begint hij weer bij Stap 1 op `Robots/Control/Connecting`.
 
 ---
 

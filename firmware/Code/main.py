@@ -7,19 +7,21 @@ from machine import Pin, PWM, ADC
 from robot_config import ROBOTS
 #from poly_fit_3rd import polyfit3,eval_poly3
 
-DISCONNECT_TIMEOUT = 3000 # milliseconds
+DISCONNECT_TIMEOUT=3000 # milliseconds
 BUILT_IN_LED=25 # Built in led
 FLED=20 # Front led Red
 BLED=21 # Back led Green
 PWM_LM=6 # Left Continuous Servo
 PWM_RM=7 # Right Continuous Servo
 PWM_SC=10 # Panning Servo
-SDA=4
-SCL=5
-MISO=16
-MOSI=19
-SCK=18
-CS=17
+# SDA=4
+# SCL=5
+# MISO=16
+# MOSI=19
+# SCK=18
+# CS=17
+GREEN_LED_PIN = 18
+BLUE_LED_PIN = 19
 
 # added May 2026 - 2 more pins used for the Left and Right IR barrier encoders
 EN_R=11 # GPIO14=Pin 19==> Right Connector Pin 2 (looking from the top - back side of charior)
@@ -37,8 +39,13 @@ except:
 built_in_led = machine.Pin("LED", machine.Pin.OUT)
 fled = Pin(FLED, Pin.OUT)
 bled = Pin(BLED, Pin.OUT)
+green_led = Pin(GREEN_LED_PIN, Pin.OUT)
+blue_led = Pin(BLUE_LED_PIN, Pin.OUT)
+green_led.value(False)
+blue_led.value(False)
 bled.value(False)
-fled.value(False)
+fled.value(True)
+
 
 # connection status
 # 0 = not connected 
@@ -46,6 +53,7 @@ fled.value(False)
 # 2 = connecting
 # 3 = connected
 state = 0
+last_connect_request = 0
 
 #setus up servos
 LeftMotor = PWM(Pin(PWM_LM))
@@ -59,69 +67,50 @@ PanMotor.freq(50)
 Lsensor = machine.Pin(EN_L, machine.Pin.IN, machine.Pin.PULL_DOWN)
 Rsensor = machine.Pin(EN_R, machine.Pin.IN, machine.Pin.PULL_DOWN)
 
-# loads the local page content
-# page = open("main.html", "r")
-# html = page.read()
-# page.close()
-
 #------------------------------------------------
 #               Network
 #------------------------------------------------
 
+
 def connect_to_network():
-    global is_connected
-    global ssid,pwd
-    if not ssid:
-        print("No network credentials available. Unable to setup a connection")
-        return
-    network.hostname("mypicow") #wlan.config(hostname="mypico")
+    global wifi_connected
+    global mac_str
+    global ssid, pwd
+
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-    print("Hostname set to: "+str(network.hostname()))
-    
-    time0=time.time()
-    wlan.connect(ssid, pwd)
-    while 1:
-        if(wlan.isconnected()):
-            is_connected=True
-            print("\nConnected to "+str(ssid)+"!\n")
-            built_in_led.value(True)
-            break
-        else:
-            print(".")
-            is_connected=False
-            time.sleep(1)
-            if(time.time()-time0>10):
-                print("Connection could not be established")
-                break
 
-    sta_if = network.WLAN(network.STA_IF)
+    print("Connecting to WiFi network:", ssid)
+
+    wlan.connect(ssid, pwd)
+
+    start_time = time.time()
+
+    while not wlan.isconnected():
+
+        print(".", end="")
+        time.sleep(1)
+
+        if time.time() - start_time > 10:
+            print("\nConnection timeout")
+            wifi_connected = False
+            return False
+
+    wifi_connected = True
+    print("Connected!")
     mac = wlan.config('mac')
-    global mac_str
     mac_str = ':'.join('{:02X}'.format(b) for b in mac)
     print("MAC address:", mac_str)
+    print("IP address :", wlan.ifconfig()[0])
+    built_in_led.value(True)
 
-    print("IP address:", sta_if.ifconfig()[0]) # prints the IP on the serial
-
-    global s # the socket...
-    
-    if not is_connected:
-        print("Device not network enabled: no web server will be activated")
-        return
-    # listen on port 80
-    addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-    s = socket.socket()
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(addr)
-    print("Listening to port 80\n")
-    s.listen(1)
-    fled.value(True)
+    return True
 
 
 def serve_pagina():
     global s # the socket
-    global is_connected # connection status
-    while (is_connected==True):
+    global wifi_connected # connection status
+    while (wifi_connected==True):
         cl, addr = s.accept()
         print("Incoming connection request from: "+str(addr)+"\n")
         # here is the place where we get the request body...
@@ -196,6 +185,19 @@ def serve_pagina():
         print("No connection is present. No web pagina is being server")
 
 
+def check_server_status():
+    try:
+        addr = socket.getaddrinfo(mqtt_ip, 8080)[0][-1]
+        s = socket.socket()
+        s.settimeout(5)
+        s.connect(addr)
+        # print("Verbinding gelukt")
+        s.close()
+
+    except Exception as e:
+        print("SERVER IS NOT RUNNING!!!")
+
+
 #------------------------------------------------
 #               Motor control
 #------------------------------------------------
@@ -209,11 +211,14 @@ def moveMotor(motor, speed):
         LeftMotor.duty_u16(speed)
 
 def stopMotors():
-    print("Stopping motors")
+    # print("Stopping motors")
     LeftMotor.duty_u16(4900)
     RightMotor.duty_u16(4900)
 
 def move(command):
+    if state != 3: 
+        print("Received command but not connected to MQTT broker. Ignoring command.")
+        return
 
     if command == "SS":
         stopMotors()
@@ -240,34 +245,35 @@ def mqtt_callback(topic, msg):
     print("MQTT:", topic, "->", msg)
 
     if topic == f"Robots/Control/{mac_str}/Status":
-        if msg == "checking":
+        if msg == "[checking]":
+            if state != 1: return
             print("Request received... waiting for connection to MQTT broker")
-            # Led op geel
+            blue_led.value(True)
             state = 2 # connecting
             time.sleep(0.1)
 
-        elif msg == "connected":
+        elif msg == "[connected]":
+            if state != 2: return
             print("Connection to MQTT broker established")
             # Led op groen
+            blue_led.value(False)
+            green_led.value(True)
             state = 3 # connected
             time.sleep(0.1)
 
-        elif msg == "disconnected":
+        elif msg == "[disconnected]":
             print("Connection to MQTT broker lost")
             stopMotors()
-            state = 0 # disconnected
-            time.sleep(0.1)
-            machine.reset() # Reset the device to try to reconnect
+            blue_led.value(False)
+            green_led.value(False)
+            state = 1 # disconnected
 
         else:
             print("Unknown status message received:", msg)
 
 
     elif topic == f"Robots/Control/{mac_str}/Commands":
-        if state == 3:  # only process commands if connected
-            move(msg)
-        else:
-            print("Received command but not connected to MQTT broker. Ignoring command.")
+        move(msg)
 
 
     # ----- Test topics -----
@@ -296,45 +302,60 @@ def mqtt_connect_and_subscribe(
         broker_ip,
         username,
         password,
-        port= 1883,
+        port=1883,
         client_id="pico_client",
     ):
 
-    client = MQTTClient(
-        client_id=client_id,
-        server=broker_ip,
-        port=port,
-        user=username,
-        password=password
-    )
+    global mqtt_connected
 
-    client.set_callback(mqtt_callback)
+    try:
+        client = MQTTClient(
+            client_id=client_id,
+            server=broker_ip,
+            port=port,
+            user=username,
+            password=password
+        )
 
-    print("Connecting to MQTT broker...")
-    client.connect()
+        client.set_callback(mqtt_callback)
 
-    print("Connected")
+        print("Connecting to MQTT broker...")
+        client.connect()
 
-    for topic in topics:
-        client.subscribe(topic)
-        print("Subscribed to:", topic)
+        print("Connected")
 
-    bled.value(True)
-    return client
+        for topic in topics:
+            client.subscribe(topic)
+            print("Subscribed to:", topic)
+
+        mqtt_connected = True
+        return client
+
+    except Exception as e:
+        mqtt_connected = False
+        print("MQTT connection failed:", e)
+        return None
 
 
 #------------------------------------------------
 #                   Init
 #------------------------------------------------
-
+print("------------------------------------------------------------")
 stopMotors()
 connect_to_network()
+
+if not wifi_connected:
+    print("Could not connect to WiFi network. Please check your credentials.")
+    machine.reset()
+print("------------------------------------------------------------")
+
 
 if mac_str in ROBOTS:
     MOTOR_CFG = ROBOTS[mac_str]
     print("Loaded motor config for", mac_str)
 else:
-    raise Exception("No motor configuration found for MAC: " + mac_str)
+    print("No motor configuration found for MAC: " + mac_str)
+print("------------------------------------------------------------")
 
 topics = [
     "chariot/#",
@@ -343,23 +364,44 @@ topics = [
 ]
 
 mqtt_client = mqtt_connect_and_subscribe( # Connect to MQTT broker and subscribe to topics
+    client_id = mac_str,
     broker_ip=mqtt_ip,
     username=mqtt_username,
     password=mqtt_password,
     port=mqtt_port
 )
 
-mqtt_client.publish( # Publish mac adress to the broker to indicate that this device is connecting
-    "Robots/Control/Connecting",
-    mac_str
-)
-print("Requested connection to MQTT broker with client ID:", mac_str)
+if not mqtt_connected:
+    print("Could not connect to MQTT broker. Please check your credentials and broker status.")
+    bled.value(False)
+    while True:
+        fled.value(not fled.value())
+        time.sleep_ms(300)  # Stay in a loop if MQTT connection fails
+
+print("------------------------------------------------------------")
+
+# Connected to WiFi and MQTT broker, now indicate that the device is ready
 state = 1
+fled.value(False)
+
 
 #------------------------------------------------
 #                   Main loop
 #------------------------------------------------
 
+
 while True:
-    mqtt_client.check_msg()
     time.sleep_ms(10)
+    mqtt_client.check_msg()
+
+
+    if state == 1:
+        now = time.ticks_ms()
+        if time.ticks_diff(now, last_connect_request) >= 10000:
+            check_server_status()
+            mqtt_client.publish("Robots/Control/Connecting", mac_str)
+            print("Requested connection to MQTT broker with client ID:", mac_str)
+            last_connect_request = now
+            bled.value(True)
+            time.sleep_ms(200)
+            bled.value(False)
