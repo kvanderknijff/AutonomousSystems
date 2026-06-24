@@ -7,7 +7,7 @@ import json
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 detector = cv2.aruco.ArucoDetector(dictionary)
 
-maxAllowedDistanceMarkerToLed = 50
+maxAllowedDistanceMarkerToLed = 65
 
 def on_connect(client, userdata, flags, rc) -> None:
     if rc == 0:
@@ -51,7 +51,7 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
 
                 topMiddleX = (topLeft[0] + topRight[0]) // 2
                 topMiddleY = (topLeft[1] + topRight[1]) // 2
-                
+
                 direction = math.degrees(math.atan2(topMiddleY - centerY, topMiddleX - centerX))
                 cv2.putText(frame, f"dir: {direction}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
                 
@@ -60,7 +60,7 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
                 cornerArucoInformation.append([int(markerID[0]), center])
 
     for marker in chariotArucoInformation:
-        cv2.circle(frame, marker[1], maxAllowedDistanceMarkerToLed, (0, 255, 0), 2)
+        cv2.circle(frame, marker[1], maxAllowedDistanceMarkerToLed, (0, 0, 0), 2)
 
     return chariotArucoInformation, cornerArucoInformation, frame
 
@@ -76,7 +76,7 @@ def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method
         area = cv2.contourArea(contour)
         if area > 250:
             x, y, w, h = cv2.boundingRect(contour)
-            ledPositions.append([x + 0.5 * w, y + 0.5* h])
+            ledPositions.append([x + 0.5 * w, y + 0.5 * h])
             cv2.rectangle(frameRGB, (x, y), (x + w, y + h), colorCode, 2)
 
     if not ledPositions:
@@ -98,7 +98,7 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     frameBG = cv2.subtract(frameB, frameG)
     frameRB = cv2.subtract(frameR, frameB)
 
-    ret, frameBG = cv2.threshold(frameBG, 60, 255, cv2.THRESH_BINARY) # thresh (2e) lager
+    ret, frameBG = cv2.threshold(frameBG, 40, 255, cv2.THRESH_BINARY)
     blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE)
     ledPositions.append(blueLedPositions)
 
@@ -125,12 +125,19 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
         status = "Off"
         bestDistance = maxAllowedDistanceMarkerToLed + 1
         textHeight += 40
+        
+        chariotDirection = ((chariot[2] - 90 + 180) % 360) - 180
+
         for colorIndex, ledColor in enumerate(ledPositions):
             for led in ledColor:
                 if led == (-1,-1):
                     continue
+
                 distance = math.dist(chariot[1], led)
-                if distance < bestDistance:
+                angle = math.degrees(math.atan2(led[1] - chariot[1][1], led[0] - chariot[1][0]))
+                angleDifference = abs((angle - chariotDirection + 180) % 360 - 180)
+
+                if distance < bestDistance and angleDifference >= 120:
                     if colorIndex == 0: # Blue LED
                         status = "Connecting"
                     elif colorIndex == 1: # Green LED
@@ -138,7 +145,7 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
                     bestDistance = distance
 
         chariotInformation.append([chariot[0], chariot[1], chariot[2], status])
-        cv2.putText(frame, f"Chariot {chariot[0]} :  {status}", (40, textHeight), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+        cv2.putText(frame, f"Chariot {chariot[0]}: {status}", (40, textHeight), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
     return chariotInformation, frame
 
@@ -203,12 +210,12 @@ def videoProcessing(file: str, record: bool, camera: bool, type: str) -> None:
             
             if chariotInformation:
                 sendChariotInformation(chariotInformation)
-            else:
-                print("No chariot information to send")
+            #else:
+            #    print("No chariot information to send")
             if cornerInformation:
                 sendCornerInformation(cornerInformation)
-            else:
-                print("No corner information to send")
+            #else:
+            #    print("No corner information to send")
 
             if type == "aruco":
                 cv2.imshow("Frames", arUcoFrame)
