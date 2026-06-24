@@ -3,7 +3,7 @@ from typing import Callable
 from avoidance import calculate_apf_heading  # Import APF algorithm
 
 # Set to logging.DEBUG for development, logging.WARNING for production
-logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+logging.basicConfig(level=logging.ERROR, format="%(message)s")
 
 # Type alias: maps active robot positions to their optimal formation targets
 RobotCommandCallback = Callable[[str, str, str], None]
