@@ -7,7 +7,13 @@ import json
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 detector = cv2.aruco.ArucoDetector(dictionary)
 
-maxAllowedDistanceMarkerToLed = 65
+FirstChariotMarkerID = 1
+LastChariotMarkerID = 4
+FirstCornerMarkerID = 5
+LastCornerMarkerID = 8
+
+maxAllowedDistanceMarkerToLed = 100 #65
+ledSearchAngle = 120
 
 def on_connect(client, userdata, flags, rc) -> None:
     if rc == 0:
@@ -46,7 +52,7 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
 
             center = (centerX, centerY)
             
-            if markerID >= 1 and markerID <= 4:
+            if markerID >= FirstChariotMarkerID and markerID <= LastChariotMarkerID:
                 cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
                 topMiddleX = (topLeft[0] + topRight[0]) // 2
@@ -56,7 +62,7 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
                 cv2.putText(frame, f"dir: {direction}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
                 
                 chariotArucoInformation.append([int(markerID[0]), center, direction])
-            elif markerID >= 5 and markerID <= 8:
+            elif markerID >= FirstCornerMarkerID and markerID <= LastCornerMarkerID:
                 cornerArucoInformation.append([int(markerID[0]), center])
 
     for marker in chariotArucoInformation:
@@ -70,11 +76,13 @@ def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method
     """
     ledPositions = []
 
+    minimumLedArea = 250
+
     contours, hierarchy = cv2.findContours(frame, method, cv2.CHAIN_APPROX_SIMPLE)
 
     for contour in contours:
         area = cv2.contourArea(contour)
-        if area > 250:
+        if area > minimumLedArea:
             x, y, w, h = cv2.boundingRect(contour)
             ledPositions.append([x + 0.5 * w, y + 0.5 * h])
             cv2.rectangle(frameRGB, (x, y), (x + w, y + h), colorCode, 2)
@@ -128,6 +136,17 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
         
         chariotDirection = ((chariot[2] - 90 + 180) % 360) - 180
 
+        # +120° grens (geel)
+        x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection + ledSearchAngle)))
+        y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection + ledSearchAngle)))
+        cv2.line(frame, chariot[1], (x, y), (0, 255, 255), 2)
+        # -120° grens (geel)
+        x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection - ledSearchAngle)))
+        y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection - ledSearchAngle)))
+        cv2.line(frame, chariot[1], (x, y), (0, 255, 255), 2)
+        # radius
+        cv2.circle(frame, chariot[1], maxAllowedDistanceMarkerToLed, (0, 255, 255), 2)
+
         for colorIndex, ledColor in enumerate(ledPositions):
             for led in ledColor:
                 if led == (-1,-1):
@@ -137,7 +156,7 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
                 angle = math.degrees(math.atan2(led[1] - chariot[1][1], led[0] - chariot[1][0]))
                 angleDifference = abs((angle - chariotDirection + 180) % 360 - 180)
 
-                if distance < bestDistance and angleDifference >= 120:
+                if distance < bestDistance and angleDifference >= ledSearchAngle:
                     if colorIndex == 0: # Blue LED
                         status = "Connecting"
                     elif colorIndex == 1: # Green LED
@@ -171,7 +190,7 @@ def sendCornerInformation(cornerInformation: list) -> None:
         message_json = json.dumps(message)
         client.publish(mqttTopic, message_json)
 
-def videoProcessing(file: str, record: bool, camera: bool, type: str) -> None:
+def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
     capture = cv2.VideoCapture(file)
 
     if not capture.isOpened():
@@ -188,7 +207,7 @@ def videoProcessing(file: str, record: bool, camera: bool, type: str) -> None:
         fps = capture.get(cv2.CAP_PROP_FPS)
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        if type == "aruco":
+        if debug == "aruco":
             out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height), isColor=False)
         else:
             out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height))
@@ -217,15 +236,15 @@ def videoProcessing(file: str, record: bool, camera: bool, type: str) -> None:
             #else:
             #    print("No corner information to send")
 
-            if type == "aruco":
+            if debug == "aruco":
                 cv2.imshow("Frames", arUcoFrame)
                 if record:
                     out.write(arUcoFrame)
-            elif type == "leds":
+            elif debug == "leds":
                 cv2.imshow("Frames", ledFrame)
                 if record:
                     out.write(ledFrame)
-            elif type == "linking":
+            elif debug == "linking":
                 cv2.imshow("Frames", linkingFrame)
                 if record:
                     out.write(linkingFrame)
@@ -257,10 +276,10 @@ if __name__ == "__main__":
     - camera: are the inputted frames coming form a camera
         - Yes: True
         - No: False (e.g. .mp4 file)
-    - type: which video do you want to see
+    - debug: which video do you want to see
         - "aruco": Show the detection of ArUco markers along with its information, orientation and area for LED linking
         - "leds": Show the detection of leds
         - "linking": Show which ArUco markers are linked to which leds
     """
-    cameraSource = "http://145.137.58.182:8080/video"
-    videoProcessing(cameraSource, record=True, camera=True, type="linking")
+    cameraSource = "http://145.137.66.79:8080/video"
+    videoProcessing(cameraSource, record=False, camera=True, debug="linking")
