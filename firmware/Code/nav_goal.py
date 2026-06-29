@@ -87,6 +87,11 @@ def normalize_angle(degrees):
     return (degrees + 180) % 360 - 180
 
 
+def _hypot(x, y):
+    # MicroPython's math module has no hypot().
+    return math.sqrt(x * x + y * y)
+
+
 def bearing_degrees(dx, dy):
     return math.degrees(math.atan2(dy, dx))
 
@@ -111,7 +116,7 @@ def calculate_apf_heading(
 ):
     dx_target = target_x - current_x
     dy_target = target_y - current_y
-    dist_target = math.hypot(dx_target, dy_target)
+    dist_target = _hypot(dx_target, dy_target)
 
     if dist_target == 0:
         return 0.0
@@ -125,7 +130,7 @@ def calculate_apf_heading(
     for ox, oy in other_robots_positions:
         dx_obstacle = current_x - ox
         dy_obstacle = current_y - oy
-        dist_obstacle = math.hypot(dx_obstacle, dy_obstacle)
+        dist_obstacle = _hypot(dx_obstacle, dy_obstacle)
 
         if dist_obstacle == 0 or dist_obstacle > influence_radius:
             continue
@@ -369,7 +374,7 @@ class GoalNavigator:
                 continue
             neighbors.append((info["x"], info["y"]))
             if self.has_position:
-                dist = math.hypot(info["x"] - self.x, info["y"] - self.y)
+                dist = _hypot(info["x"] - self.x, info["y"] - self.y)
                 if closest is None or dist < closest:
                     closest = dist
                     nearest = (info["x"], info["y"])
@@ -392,7 +397,7 @@ class GoalNavigator:
         for ox, oy in neighbors:
             dx = ox - self.x
             dy = oy - self.y
-            dist = math.hypot(dx, dy)
+            dist = _hypot(dx, dy)
             if dist == 0 or dist > self.forward_block_distance:
                 continue
             cos_angle = (dx * hx + dy * hy) / dist
@@ -428,7 +433,7 @@ class GoalNavigator:
 
         dx = goal_x - self.x
         dy = goal_y - self.y
-        distance = math.hypot(dx, dy)
+        distance = _hypot(dx, dy)
 
         if distance < self.tolerance:
             if not self._reported_arrival:
