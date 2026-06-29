@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional
 
+from config import OFFLINE_LED_STREAK
 from database import Database
 
 
@@ -20,7 +21,7 @@ class RobotRecord:
     aruco_id: Optional[int] = None
     x: int = 0
     y: int = 0
-    orientation: int = 0
+    orientation: float = 0.0
     led_status: str = "off"
 
     def position_dict(self) -> dict:
@@ -53,6 +54,7 @@ class RobotRegistry:
     robots: Dict[str, RobotRecord] = field(default_factory=dict)
     aruco_to_mac: Dict[int, str] = field(default_factory=dict)
     pending_macs: List[str] = field(default_factory=list)
+    _off_streak: Dict[str, int] = field(default_factory=dict)
 
     def load_from_database(self) -> None:
         for row in self.db.load_registry_state():
@@ -67,8 +69,13 @@ class RobotRegistry:
     def get_mac_for_aruco(self, aruco_id: int) -> Optional[str]:
         return self.aruco_to_mac.get(aruco_id)
 
-    def register_connection_request(self, mac: str) -> RobotRecord:
+    def register_connection_request(self, mac: str) -> tuple[RobotRecord, bool]:
+        """Register a robot handshake request. Returns (record, was_connected)."""
         record = self.robots.get(mac)
+        was_connected = (
+            record is not None and record.state == RobotConnectionState.CONNECTED
+        )
+
         if record is None:
             record = RobotRecord(mac=mac)
             self.robots[mac] = record
@@ -82,10 +89,12 @@ class RobotRegistry:
             record.led_status = "off"
             self.db.set_robot_state(mac, "pending")
 
-        if mac not in self.pending_macs:
-            self.pending_macs.append(mac)
+        if mac in self.pending_macs:
+            self.pending_macs.remove(mac)
+        self.pending_macs.insert(0, mac)
+        self._off_streak.pop(mac, None)
         self.db.log_event("connecting", mac=mac, payload=mac)
-        return record
+        return record, was_connected
 
     def next_pending_mac(self) -> Optional[str]:
         while self.pending_macs:
@@ -98,16 +107,26 @@ class RobotRegistry:
 
     def complete_handshake(self, mac: str, aruco_id: int) -> bool:
         record = self.robots.get(mac)
-        if record is None or record.state != RobotConnectionState.PENDING:
+        if record is None:
             return False
-        if aruco_id in self.aruco_to_mac and self.aruco_to_mac[aruco_id] != mac:
+        if record.state != RobotConnectionState.PENDING:
             return False
+        previous_mac = self.aruco_to_mac.get(aruco_id)
+        if previous_mac is not None and previous_mac != mac:
+            previous_record = self.robots.get(previous_mac)
+            if previous_record is not None:
+                previous_record.aruco_id = None
+                previous_record.state = RobotConnectionState.OFFLINE
+                self.db.set_robot_state(previous_mac, "offline")
+                self.db.clear_aruco_mapping(previous_mac)
+            self.aruco_to_mac.pop(aruco_id, None)
 
         record.aruco_id = aruco_id
         record.state = RobotConnectionState.CONNECTED
         self.aruco_to_mac[aruco_id] = mac
         if mac in self.pending_macs:
             self.pending_macs.remove(mac)
+        self._off_streak.pop(mac, None)
 
         self.db.set_robot_state(mac, "connected", aruco_id=aruco_id)
         self.db.log_event("connected", mac=mac, aruco_id=aruco_id)
@@ -118,7 +137,7 @@ class RobotRegistry:
         aruco_id: int,
         x: int,
         y: int,
-        orientation: int,
+        orientation: float,
         led_status: str,
     ) -> tuple[Optional[RobotRecord], bool]:
         mac = self.aruco_to_mac.get(aruco_id)
@@ -132,12 +151,24 @@ class RobotRegistry:
         record.led_status = led_status
 
         went_offline = False
-        if led_status == "off" and record.state == RobotConnectionState.CONNECTED:
-            record.state = RobotConnectionState.OFFLINE
-            went_offline = True
-            self.db.set_robot_state(mac, "offline")
-            self.db.log_event("offline", mac=mac, aruco_id=aruco_id)
+        if led_status == "off":
+            streak = self._off_streak.get(mac, 0) + 1
+            self._off_streak[mac] = streak
+            if record.state == RobotConnectionState.CONNECTED and streak >= OFFLINE_LED_STREAK:
+                record.state = RobotConnectionState.OFFLINE
+                went_offline = True
+                self.db.set_robot_state(mac, "offline")
+                self.db.log_event("offline", mac=mac, aruco_id=aruco_id)
+            else:
+                self.db.update_robot_position(
+                    mac, x=x, y=y, orientation=orientation, led_status=led_status
+                )
         else:
+            self._off_streak[mac] = 0
+            if record.state == RobotConnectionState.OFFLINE:
+                record.state = RobotConnectionState.CONNECTED
+                self.db.set_robot_state(mac, "connected", aruco_id=aruco_id)
+                self.db.log_event("connected", mac=mac, aruco_id=aruco_id)
             self.db.update_robot_position(
                 mac, x=x, y=y, orientation=orientation, led_status=led_status
             )

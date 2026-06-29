@@ -1,13 +1,38 @@
-import logging, time, math
+import logging
+import math
+import time
 from typing import Callable
-from avoidance import calculate_apf_heading  # Import APF algorithm
 
-# Set to logging.DEBUG for development, logging.WARNING for production
-logging.basicConfig(level=logging.ERROR, format="%(message)s")
+from config import PLANNER_MODE, PLANNER_ROBOT_TIMEOUT
+from mqtt_protocol import DEFAULT_GOAL_TOLERANCE, GOAL_ACTION_CLEAR, GOAL_ACTION_SET
 
-# Type alias: maps active robot positions to their optimal formation targets
+logger = logging.getLogger(__name__)
+
+
+def _normalize_angle(degrees: float) -> float:
+    return (degrees + 180) % 360 - 180
+
+
+def _bearing_degrees(dx: float, dy: float) -> float:
+    return math.degrees(math.atan2(dy, dx))
+
+
+def _steer_command(direct_error: float) -> str:
+    """Drive toward the target using turns; avoid in-place spins."""
+    abs_error = abs(direct_error)
+    if abs_error < 12.0:
+        return "Forward"
+    if direct_error > 0:
+        return "LeftTurn"
+    return "RightTurn"
+
 RobotCommandCallback = Callable[[str, str, str], None]
-FormationStrategy = Callable[[dict[str, tuple[float, float]], float, float], dict[str, tuple[float, float]]]
+GoalCallback = Callable[[str, dict], None]
+FormationStrategy = Callable[
+    [dict[str, tuple[float, float]], float, float],
+    dict[str, tuple[float, float]],
+]
+
 
 class Robot:
     def __init__(self, robot_id: str, x: float, y: float, direction: float) -> None:
@@ -15,181 +40,253 @@ class Robot:
         self.x: float = x
         self.y: float = y
         self.direction: float = direction
-
-        # Epoch timestamp to track telemetry heartbeats for timeout protection
         self.last_update_time: float = time.time()
-
-        # Goal coordinates assigned by the formation strategy
         self.target_x: float | None = None
         self.target_y: float | None = None
+        self.goal_tolerance: float = DEFAULT_GOAL_TOLERANCE
+        self.goal_seq: int = 0
+        self.published_goal_seq: int = -1
 
     def update_position(self, x: float, y: float, direction: float) -> None:
-        """Update the current state vectors of the robot."""
         self.x = x
         self.y = y
         self.direction = direction
-        self.last_update_time = time.time() # Reset timmeout clock
+        self.last_update_time = time.time()
 
-    def set_target(self, target_x: float, target_y: float) -> None:
-        """Assign a new goal coordinate to navigate towards."""
+    def set_target(
+        self,
+        target_x: float,
+        target_y: float,
+        tolerance: float = DEFAULT_GOAL_TOLERANCE,
+    ) -> None:
         self.target_x = target_x
         self.target_y = target_y
+        self.goal_tolerance = tolerance
+        self.goal_seq += 1
 
     def clear_target(self) -> None:
-        """Reset targets when destination is reached or mission is aborted."""
         self.target_x = None
         self.target_y = None
+        self.published_goal_seq = -1
+
+    def goal_payload(self) -> dict:
+        assert self.target_x is not None
+        assert self.target_y is not None
+        return {
+            "action": GOAL_ACTION_SET,
+            "target_x": self.target_x,
+            "target_y": self.target_y,
+            "tolerance": self.goal_tolerance,
+            "seq": self.goal_seq,
+        }
+
+    def clear_goal_payload(self) -> dict:
+        return {"action": GOAL_ACTION_CLEAR, "seq": self.goal_seq}
 
     @property
     def has_target(self) -> bool:
-        """Check if the robot currently has an active target assigned."""
         return self.target_x is not None and self.target_y is not None
 
 
 class RobotManager:
-    def __init__(self, on_command_calculated: RobotCommandCallback | None = None) -> None:
-        # Central memory database for tracking all discovered fleet states
+    def __init__(
+        self,
+        on_command_calculated: RobotCommandCallback | None = None,
+        on_goal_assigned: GoalCallback | None = None,
+        timeout_threshold: float = PLANNER_ROBOT_TIMEOUT,
+        planner_mode: str = PLANNER_MODE,
+    ) -> None:
         self.active_robots: dict[str, Robot] = {}
-        
-        # Link the 3-argument callback to the manager object
+        self.timeout_threshold = timeout_threshold
         self.on_command_calculated: RobotCommandCallback | None = on_command_calculated
+        self.on_goal_assigned: GoalCallback | None = on_goal_assigned
+        self.planner_mode = planner_mode
 
+    def _filter_live_robots(self) -> dict[str, Robot]:
+        current_time = time.time()
+        live_pool: dict[str, Robot] = {}
 
-    def _filter_live_robots(self, timeout_threshold: float = 2.0) -> dict[str, Robot]:
-                """Internal helper to filter out dead or disconnected hardware profiles."""
-                current_time = time.time()
-                live_pool: dict[str, Robot] = {}
+        for robot_id, robot in self.active_robots.items():
+            age = current_time - robot.last_update_time
+            if age <= self.timeout_threshold:
+                live_pool[robot_id] = robot
+            else:
+                logger.warning(
+                    "[MANAGER] Robot %s skipped by planner: telemetry age %.1fs exceeds %.1fs",
+                    robot_id,
+                    age,
+                    self.timeout_threshold,
+                )
+                robot.clear_target()
 
-                for robot_id, robot in self.active_robots.items():
-                    # If a robot hasn't streamed telemetry within the threshold, it is dropped       
-                    if current_time - robot.last_update_time <= timeout_threshold:
-                        live_pool[robot_id] = robot
-                    else:
-                        logging.warning(f"[MANAGER] Robot {robot_id} timed out. Disconnected from active pool.")
-                        if self.on_command_calculated:
-                            # Arguments: (robot_id, payload, topic_type)
-                            self.on_command_calculated(robot_id, " DISCONNECTED", "status")
+        return live_pool
 
-                        robot.clear_target() # Clear tracking state
-
-                return live_pool
-
-
-    def process_incoming_message(self, robot_id: str, x: float, y: float, direction: float) -> None:
-        """Process incoming state updates from telemetry feed."""
-
-        # The robot already exists, update the position
+    def process_incoming_message(
+        self, robot_id: str, x: float, y: float, direction: float
+    ) -> None:
         if robot_id in self.active_robots:
             self.active_robots[robot_id].update_position(x, y, direction)
-            logging.debug(f"[MANAGER] Updated: {robot_id} @ ({x:.1f}, {y:.1f})")
-        
-        # New robot detected, create a new object
+            logger.debug(
+                "[MANAGER] Updated: %s @ (%.1f, %.1f) Dir: %.1f°",
+                robot_id,
+                x,
+                y,
+                direction,
+            )
         else:
-            new_robot = Robot(robot_id, x, y, direction)
-            self.active_robots[robot_id] = new_robot
-            logging.debug(f"[MANAGER] Registered: {robot_id} @ ({x:.1f}, {y:.1f})")
+            self.active_robots[robot_id] = Robot(robot_id, x, y, direction)
+            logger.info("[MANAGER] Registered: %s @ (%.1f, %.1f)", robot_id, x, y)
 
-
-    def apply_formation(self, formation_strategy: FormationStrategy, center_x: float, center_y: float) -> None:
-        """Map active robots to structural shape coordinates using the provided strategy."""
-        # Filter out timed-out robots first so Hungarian optimizer only computes online hardware
-        live_robots = self._filter_live_robots(timeout_threshold=2.0)
-
-
-        if not self.active_robots:
-            logging.warning("[FORMATION] Request denied: No active robots online.")
+    def publish_active_goals(self, *, force: bool = False) -> None:
+        if self.planner_mode != "goals":
             return
-        
-        # Extract current position vectors for optimization input
-        current_positions: dict[str, tuple[float, float]] = {
-            robot_id: (robot.x, robot.y) for robot_id, robot in self.active_robots.items()
-        }
+        for robot in self.active_robots.values():
+            if robot.has_target:
+                self._publish_goal_if_needed(robot, force=force)
 
-        # Compute optimal coordinate matching
+    def apply_formation(
+        self,
+        formation_strategy: FormationStrategy,
+        center_x: float,
+        center_y: float,
+        *,
+        publish_goals: bool = True,
+    ) -> None:
+        live_robots = self._filter_live_robots()
+        if not live_robots:
+            logger.warning("[FORMATION] Request denied: no live robots with telemetry.")
+            return
+
+        current_positions = {
+            robot_id: (robot.x, robot.y) for robot_id, robot in live_robots.items()
+        }
         calculated_targets = formation_strategy(current_positions, center_x, center_y)
 
-        # Assign targets to the tracking state
-        logging.debug(f"\n--- Applying Formation Strategy around ({center_x:.1f}, {center_y:.1f}) ---")
+        logger.info(
+            "--- Applying formation around (%.1f, %.1f) for %d robots ---",
+            center_x,
+            center_y,
+            len(live_robots),
+        )
         for robot_id, (target_x, target_y) in calculated_targets.items():
-            if robot_id in self.active_robots:
-                self.active_robots[robot_id].set_target(target_x, target_y)
-                logging.debug(f"[FORMATION] Set: {robot_id} -> Target ({target_x:.1f}, {target_y:.1f})")
+            if robot_id in live_robots:
+                live_robots[robot_id].set_target(target_x, target_y)
+                logger.info(
+                    "[FORMATION] %s -> target (%.1f, %.1f)",
+                    robot_id,
+                    target_x,
+                    target_y,
+                )
+                if publish_goals and self.planner_mode == "goals":
+                    self._publish_goal_if_needed(live_robots[robot_id])
 
+    def handle_robot_report(self, robot_id: str, status: str, seq: int = 0) -> None:
+        robot = self.active_robots.get(robot_id)
+        if robot is None:
+            return
+        if status != "arrived":
+            return
+        if robot.has_target and seq and seq != robot.goal_seq:
+            logger.debug(
+                "[PLANNER] Ignoring stale arrived for %s (seq %d != %d)",
+                robot_id,
+                seq,
+                robot.goal_seq,
+            )
+            return
+        if robot.has_target:
+            logger.info(
+                "[PLANNER] %s reported arrived at (%.1f, %.1f)",
+                robot_id,
+                robot.target_x,
+                robot.target_y,
+            )
+            robot.clear_target()
 
     def execute_path_planning(self) -> None:
-        """Run loop over active fleet to compute reactive collision-free motion commands."""
-        # 1. Get the current online pool
-        live_robots = self._filter_live_robots(timeout_threshold=2.0)
-        
-        
-        if not self.active_robots:
+        if self.planner_mode == "goals":
+            self._execute_goal_mode()
             return
-        
-        logging.debug(f"\n--- Start Path Planning Cycle ({len(self.active_robots)} robots active) ---")
-        for robot_id, robot in self.active_robots.items():
+        self._execute_command_mode()
 
-            # Enforce active safety stop on idle hardware
+    def _publish_goal_if_needed(self, robot: Robot, *, force: bool = False) -> None:
+        if not robot.has_target or self.on_goal_assigned is None:
+            return
+        if not force and robot.published_goal_seq == robot.goal_seq:
+            return
+        self.on_goal_assigned(robot.robot_id, robot.goal_payload())
+        robot.published_goal_seq = robot.goal_seq
+
+    def publish_clear_goal(self, robot_id: str) -> None:
+        robot = self.active_robots.get(robot_id)
+        if robot is None or self.on_goal_assigned is None:
+            return
+        self.on_goal_assigned(robot_id, robot.clear_goal_payload())
+        robot.clear_target()
+
+    def _execute_goal_mode(self) -> None:
+        live_robots = self._filter_live_robots()
+        if not live_robots:
+            return
+
+        for robot in live_robots.values():
+            if robot.has_target:
+                self._publish_goal_if_needed(robot)
+
+    def _execute_command_mode(self) -> None:
+        live_robots = self._filter_live_robots()
+        if not live_robots:
+            return
+
+        logger.debug(
+            "--- Start Path Planning Cycle (%d robots active) ---",
+            len(live_robots),
+        )
+
+        arrival_distance = 12.0
+
+        for robot_id, robot in live_robots.items():
             if not robot.has_target:
-                logging.debug(f"[PLANNER] {robot_id} | Idle -> STOP")
-                if self.on_command_calculated:
-                    self.on_command_calculated(robot_id, "STOP", "commands")
                 continue
 
             assert robot.target_x is not None
             assert robot.target_y is not None
 
-            # 1. Calculate distance vector to target
-            dx: float = robot.target_x - robot.x
-            dy: float = robot.target_y - robot.y
-            distance: float = math.hypot(dx, dy)
+            dx = robot.target_x - robot.x
+            dy = robot.target_y - robot.y
+            distance = math.hypot(dx, dy)
 
-            # 2. Arrival deadband validation
-            if distance < 2.0:
-                logging.debug(f"[PLANNER] {robot_id} | Arrived -> STOP")
+            direct_bearing = _bearing_degrees(dx, dy)
+            direct_error = _normalize_angle(direct_bearing - robot.direction)
+
+            if distance < arrival_distance:
+                logger.info(
+                    "[PLANNER] %s arrived at (%.1f, %.1f)",
+                    robot_id,
+                    robot.target_x,
+                    robot.target_y,
+                )
                 robot.clear_target()
                 if self.on_command_calculated:
                     self.on_command_calculated(robot_id, "STOP", "commands")
                 continue
 
-            # 3. Gather coordinate positions of external neighbors for APF
-            other_robots_positions: list[tuple[float, float]] = [
-                (other.x, other.y) for other_id, other in self.active_robots.items() if other_id != robot_id
-            ]
+            calculated_command = _steer_command(direct_error)
 
-            # 4. Compute modified heading using Artificial Potential Fields
-            # This incorporates repulsive fields from neighboring robots dynamically
-            target_heading_deg: float = calculate_apf_heading(
-                current_x=robot.x,
-                current_y=robot.y,
-                target_x=robot.target_x,
-                target_y=robot.target_y,
-                other_robots_positions=other_robots_positions,
-                influence_radius=30.0  # Safe distance threshold
+            logger.info(
+                "[PLANNER] %s | Dist: %.1f | Pos: (%.1f, %.1f) | Goal: (%.1f, %.1f) | "
+                "Dir: %.1f° | Bearing: %.1f° | Error: %.1f° -> %s",
+                robot_id,
+                distance,
+                robot.x,
+                robot.y,
+                robot.target_x,
+                robot.target_y,
+                robot.direction,
+                direct_bearing,
+                direct_error,
+                calculated_command,
             )
 
-            # 5. Delta calculation and normalization to [-180, 180]
-            heading_error: float = target_heading_deg - robot.direction
-            heading_error = (heading_error + 180) % 360 - 180  # Normalize to [-180, 180]
-
-            # 6. Advanced Threshold Controller (Rotate vs Turn vs Forward)
-            curve_threshold: float = 10.0   # Small errors -> Drive straight with micro-adjustments
-            rotate_threshold: float = 45.0  # Large errors -> Pivot on the spot first
-
-            # Dynamic controller scaling: override rotations when closing in on targets
-            if distance < 10.0:
-                if heading_error > curve_threshold:         calculated_command = "LeftRotate"
-                elif heading_error < -curve_threshold:      calculated_command = "RightRotate"
-                else:                                       calculated_command = "Forward"
-            else:
-                if heading_error > rotate_threshold:        calculated_command = "LeftRotate"
-                elif heading_error < -rotate_threshold:     calculated_command = "RightRotate"
-                elif heading_error > curve_threshold:       calculated_command = "LeftTurn"
-                elif heading_error < -curve_threshold:      calculated_command = "RightTurn"
-                else:                                       calculated_command = "Forward"
-
-            logging.debug(f"[PLANNER] {robot_id} | Dist: {distance:.1f} | Error: {heading_error:.1f}° -> {calculated_command}")
-            
-            # Send the command back through the callback if it is registered
-            # Fire data pipeline callback trigger
             if self.on_command_calculated:
                 self.on_command_calculated(robot_id, calculated_command, "commands")

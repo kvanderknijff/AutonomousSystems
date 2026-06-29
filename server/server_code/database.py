@@ -213,3 +213,9 @@ class Database:
     def load_registry_state(self) -> List[Dict[str, Any]]:
         """Restore robots from DB on server startup."""
         return self.get_all_robots()
+
+    def clear_all_robots(self) -> int:
+        """Drop all robots on server restart so every unit must handshake again."""
+        with self._lock, self._connection() as conn:
+            cursor = conn.execute("DELETE FROM robots")
+            return cursor.rowcount

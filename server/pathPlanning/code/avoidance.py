@@ -5,9 +5,9 @@ def calculate_apf_heading(current_x: float,
                           target_x: float,
                           target_y: float,
                           other_robots_positions: list[tuple[float, float]],
-                          influence_radius: float = 30.0,
+                          influence_radius: float = 25.0,
                           k_attract: float = 1.0,
-                          k_repel: float = 100.0
+                          k_repel: float = 40.0
                           ) -> float:
     """Compute reactive heading vector using Artificial Potential Fields (APF)."""
 

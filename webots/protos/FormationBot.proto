@@ -1,0 +1,178 @@
+#VRML_SIM R2023b utf8
+
+PROTO FormationBot [
+  field SFVec3f translation 0 0 0.105
+  field SFRotation rotation 0 0 1 0
+  field SFString name "formation_bot"
+  field SFString controller "formation_robot"
+  field MFString controllerArgs []
+  field SFString customData "aruco=0;status=connecting"
+  field MFString markerUrl []
+  field SFBool supervisor TRUE
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    controller IS controller
+    controllerArgs IS controllerArgs
+    customData IS customData
+    supervisor IS supervisor
+    children [
+      DEF BODY Shape {
+        appearance PBRAppearance {
+          baseColor 0.15 0.22 0.42
+          roughness 0.7
+          metalness 0
+        }
+        geometry Box {
+          size 0.34 0.24 0.08
+        }
+      }
+      Transform {
+        translation 0 0 0.055
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.95 0.95 0.95
+              baseColorMap ImageTexture {
+                url IS markerUrl
+              }
+              roughness 0.4
+              metalness 0
+            }
+            geometry Box {
+              size 0.20 0.20 0.01
+            }
+          }
+        ]
+      }
+      LED {
+        translation -0.08 0.08 0.07
+        name "led_connecting"
+        color [
+          0 0.25 1
+        ]
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0 0.25 1
+              emissiveColor 0 0.25 1
+            }
+            geometry Sphere {
+              radius 0.025
+            }
+          }
+        ]
+      }
+      LED {
+        translation 0.08 0.08 0.07
+        name "led_connected"
+        color [
+          0 1 0
+        ]
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0 1 0
+              emissiveColor 0 1 0
+            }
+            geometry Sphere {
+              radius 0.025
+            }
+          }
+        ]
+      }
+      DEF LEFT_WHEEL HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 0 1 0
+          anchor 0 0.14 -0.04
+        }
+        device [
+          RotationalMotor {
+            name "left_motor"
+            maxVelocity 12
+            maxTorque 4
+          }
+        ]
+        endPoint Solid {
+          translation 0 0.14 -0.04
+          rotation 1 0 0 1.5708
+          children [
+            DEF WHEEL Shape {
+              appearance PBRAppearance {
+                baseColor 0.02 0.02 0.02
+                roughness 0.8
+              }
+              geometry Cylinder {
+                radius 0.055
+                height 0.035
+                subdivision 32
+              }
+            }
+          ]
+          name "left_wheel"
+          boundingObject USE WHEEL
+          physics Physics {
+            density -1
+            mass 0.05
+          }
+        }
+      }
+      DEF RIGHT_WHEEL HingeJoint {
+        jointParameters HingeJointParameters {
+          axis 0 1 0
+          anchor 0 -0.14 -0.04
+        }
+        device [
+          RotationalMotor {
+            name "right_motor"
+            maxVelocity 12
+            maxTorque 4
+          }
+        ]
+        endPoint Solid {
+          translation 0 -0.14 -0.04
+          rotation 1 0 0 1.5708
+          children [
+            USE WHEEL
+          ]
+          name "right_wheel"
+          boundingObject USE WHEEL
+          physics Physics {
+            density -1
+            mass 0.05
+          }
+        }
+      }
+      Solid {
+        translation -0.14 0 -0.055
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.45 0.45 0.45
+              roughness 0.8
+            }
+            geometry Sphere {
+              radius 0.025
+            }
+          }
+        ]
+        name "rear_caster"
+        boundingObject Sphere {
+          radius 0.025
+        }
+        physics Physics {
+          density -1
+          mass 0.03
+        }
+      }
+    ]
+    boundingObject USE BODY
+    physics Physics {
+      density -1
+      mass 0.8
+    }
+  }
+}

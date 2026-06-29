@@ -13,6 +13,8 @@ from config import (
     FORMATION_SPACING,
     MQTT_BROKER,
     MQTT_PORT,
+    PLANNER_INTERVAL,
+    PLANNER_MODE,
     WEB_ENABLED,
     WEB_HOST,
     WEB_PORT,
@@ -30,7 +32,10 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     print(f"MQTT broker: {MQTT_BROKER}:{MQTT_PORT}")
     print(f"Database: {DATABASE_PATH}")
-    print("Planner: event-driven (runs on each camera position update)")
+    if PLANNER_INTERVAL > 0:
+        print(f"Planner: {PLANNER_MODE} mode (max {1 / PLANNER_INTERVAL:.1f} Hz)")
+    else:
+        print(f"Planner: {PLANNER_MODE} mode (runs on each camera position update)")
     if WEB_ENABLED:
         print(f"Web UI: http://{WEB_HOST if WEB_HOST != '0.0.0.0' else 'localhost'}:{WEB_PORT}")
     else:
@@ -51,6 +56,7 @@ if __name__ == "__main__":
         command_resend_interval=COMMAND_RESEND_INTERVAL,
         formation_auto_center=FORMATION_AUTO_CENTER,
         initial_formation=FORMATION or None,
+        planner_interval=PLANNER_INTERVAL,
     )
     controller.attach(server)
 
@@ -61,4 +67,6 @@ if __name__ == "__main__":
         server.start(blocking=True)
     except KeyboardInterrupt:
         logger.info("Shutting down")
+    finally:
+        controller.stop()
         server.stop()

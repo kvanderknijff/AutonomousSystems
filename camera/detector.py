@@ -1,3 +1,5 @@
+"""Overhead camera: ArUco tracking, LED linking, MQTT position publish."""
+
 import cv2
 import math
 import numpy as np
@@ -64,6 +66,7 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
                 chariotArucoInformation.append([int(markerID[0]), center, direction])
             elif markerID >= FirstCornerMarkerID and markerID <= LastCornerMarkerID:
                 cornerArucoInformation.append([int(markerID[0]), center])
+                cv2.rectangle(frame, topLeft, bottomRight, (0, 255, 0), 2)
 
     for marker in chariotArucoInformation:
         cv2.circle(frame, marker[1], maxAllowedDistanceMarkerToLed, (0, 0, 0), 2)
@@ -183,9 +186,10 @@ def sendChariotInformation(chariotInformation: list) -> None:
 def sendCornerInformation(cornerInformation: list) -> None:
     for corner in cornerInformation:
         message = {
-            "ArUco_ID": int(corner[0]), 
+            "ArUco_ID": int(corner[0]),
             "x_position": int(corner[1][0]),
             "y_position": int(corner[1][1]),
+            "marker_type": "corner",
         }
         message_json = json.dumps(message)
         client.publish(mqttTopic, message_json)
@@ -267,7 +271,6 @@ def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
 if __name__ == "__main__":
     client.connect(mqttBroker, mqttPort)
     client.loop_start()
-
     """
     videoProcessing() parameters:
     - record: do you want to save the shown frames to output.mp4

@@ -76,7 +76,7 @@
     }
     .badge.active { background: #166534; }
     .robots { margin-top: 0.75rem; font-size: 0.85rem; color: #94a3b8; }
-    .robots li { margin: 0.25rem 0; }
+    .robots li { margin: 0.35rem 0; line-height: 1.4; }
     .message {
       margin-top: 1rem;
       padding: 0.65rem 0.85rem;
@@ -91,7 +91,7 @@
 <body>
   <div class="panel">
     <h1>Formation Control</h1>
-    <p class="subtitle">Coordinates are camera pixels (1280×720). Enable auto-center to form around where robots are now.</p>
+    <p class="subtitle">Coordinates are camera pixels (640×480). Use robot average only when you want to form around the current fleet position.</p>
 
     <form id="formation-form">
       <label for="formation">Formation</label>
@@ -116,7 +116,7 @@
       <input id="spacing" name="spacing" type="number" value="40" step="1" min="10">
 
       <label style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;font-size:0.9rem;">
-        <input id="auto_center" name="auto_center" type="checkbox" checked>
+        <input id="auto_center" name="auto_center" type="checkbox">
         Auto-center formation on connected robots
       </label>
 
@@ -138,6 +138,7 @@
         <span id="active-formation" class="badge">none</span>
       </div>
       <div id="sequential-status" class="robots" style="margin-top: 0.5rem; display: none;"></div>
+      <div id="field-bounds" class="robots" style="margin-top: 0.5rem;"></div>
       <ul class="robots" id="robot-list"></ul>
     </div>
   </div>
@@ -148,6 +149,25 @@
     const activeFormationEl = document.getElementById("active-formation");
     const sequentialStatusEl = document.getElementById("sequential-status");
     const robotListEl = document.getElementById("robot-list");
+    const fieldBoundsEl = document.getElementById("field-bounds");
+
+    function formatRobotLine(robot, isActive) {
+      const pos = robot.has_live_position
+        ? "(" + robot.x + ", " + robot.y + ") @ " + robot.orientation + "°"
+        : "no camera telemetry yet";
+      const target = robot.target_x !== null && robot.target_y !== null
+        ? " -> target (" + robot.target_x + ", " + robot.target_y + ")"
+        : "";
+      const state = isActive
+        ? "moving now"
+        : robot.has_target
+          ? "moving"
+          : robot.has_live_position
+            ? "idle"
+            : "waiting for position";
+      const aruco = robot.aruco_id != null ? "ArUco " + robot.aruco_id + " · " : "";
+      return aruco + robot.mac + " @ " + pos + target + " · " + state;
+    }
 
     function showMessage(text, ok) {
       messageEl.textContent = text;
@@ -183,22 +203,26 @@
         }
 
         robotListEl.innerHTML = "";
+        const field = data.field_bounds;
+        if (field && field.ready && field.bounds) {
+          const b = field.bounds;
+          fieldBoundsEl.textContent =
+            "Field: (" + b.min_x + ", " + b.min_y + ") – (" + b.max_x + ", " + b.max_y + ")";
+        } else if (field && field.corners && Object.keys(field.corners).length > 0) {
+          fieldBoundsEl.textContent =
+            "Field corners seen: " + Object.keys(field.corners).join(", ") + " (need 2+ axes)";
+        } else {
+          fieldBoundsEl.textContent = "Field: waiting for corner markers (5–8 physical, 15–18 Webots)";
+        }
         if (data.robots.length === 0) {
           robotListEl.innerHTML = "<li>No robots connected yet.</li>";
         } else {
           data.robots.forEach((robot) => {
             const li = document.createElement("li");
             const isActive = seq.current_robot === robot.mac;
-            li.textContent =
-              robot.mac +
-              " @ (" + robot.x + ", " + robot.y + ")" +
-              (isActive ? " → moving now" : robot.has_target ? " → moving" : " → waiting");
+            li.textContent = formatRobotLine(robot, isActive);
             robotListEl.appendChild(li);
           });
-          if (data.suggested_center && document.getElementById("auto_center").checked) {
-            document.getElementById("center_x").value = data.suggested_center.x;
-            document.getElementById("center_y").value = data.suggested_center.y;
-          }
         }
       } catch (err) {
         console.error(err);
@@ -259,7 +283,7 @@
     });
 
     refreshStatus();
-    setInterval(refreshStatus, 2000);
+    setInterval(refreshStatus, 1000);
   </script>
 </body>
 </html>

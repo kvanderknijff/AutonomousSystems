@@ -5,6 +5,14 @@ import machine
 from umqtt.simple import MQTTClient
 from machine import Pin, PWM, ADC
 from robot_config import ROBOTS
+from nav_goal import (
+    GoalNavigator,
+    GOAL_ACTION_CLEAR,
+    parse_config_payload,
+    parse_goal_payload,
+    parse_position_payload,
+    format_report_payload,
+)
 #from poly_fit_3rd import polyfit3,eval_poly3
 
 DISCONNECT_TIMEOUT=3000 # milliseconds
@@ -54,6 +62,10 @@ fled.value(True)
 # 3 = connected
 state = 0
 last_connect_request = 0
+robot_aruco_id = None
+navigator = GoalNavigator()
+last_applied_command = None
+navigation_topics_ready = False
 
 #setus up servos
 LeftMotor = PWM(Pin(PWM_LM))
@@ -215,13 +227,16 @@ def stopMotors():
     LeftMotor.duty_u16(4900)
     RightMotor.duty_u16(4900)
 
+
 def move(command):
-    if state != 3: 
+    global last_applied_command
+    if state != 3:
         print("Received command but not connected to MQTT broker. Ignoring command.")
         return
 
     if command == "SS":
         stopMotors()
+        last_applied_command = "SS"
         return
 
     if command not in MOTOR_CFG:
@@ -229,9 +244,125 @@ def move(command):
         return
 
     left_pwm, right_pwm = MOTOR_CFG[command]
-
+    last_applied_command = command
     moveMotor("left", left_pwm)
     moveMotor("right", right_pwm)
+
+
+def parse_bracket_payload(payload):
+    text = payload.strip()
+    if text.startswith("[") and text.endswith("]"):
+        return text[1:-1]
+    return text
+
+
+def publish_report(status, seq=0):
+    global mqtt_client
+    if mqtt_client is None or state != 3:
+        return
+    x = navigator.x
+    y = navigator.y
+    payload = format_report_payload(status, seq=seq, x=x, y=y)
+    topic = f"Robots/Data/{mac_str}/Report"
+    mqtt_client.publish(topic, payload)
+    print("Report:", topic, payload)
+
+
+def subscribe_navigation_topics(client):
+    global navigation_topics_ready
+    topics = [
+        f"Robots/Data/{mac_str}/Goals",
+        f"Robots/Data/{mac_str}/Config",
+        "Robots/Data/Positions",
+    ]
+    for topic in topics:
+        client.subscribe(topic)
+        print("Subscribed to:", topic)
+    navigation_topics_ready = True
+
+
+def handle_goal_message(msg):
+    goal = parse_goal_payload(msg)
+    if goal is None:
+        print("Ignored invalid goal:", msg)
+        return
+    if goal["action"] == GOAL_ACTION_CLEAR:
+        navigator.clear_goal()
+        print("Goal cleared")
+        return
+    navigator.set_goal(
+        goal["target_x"],
+        goal["target_y"],
+        tolerance=goal.get("tolerance"),
+        seq=goal.get("seq", 0),
+    )
+    print(
+        "Goal set:",
+        goal["target_x"],
+        goal["target_y"],
+        "tol",
+        goal.get("tolerance"),
+    )
+
+
+def handle_config_message(msg):
+    global robot_aruco_id
+    config = parse_config_payload(msg)
+    if config is None:
+        return
+    robot_aruco_id = config["aruco_id"]
+    navigator.set_aruco_id(robot_aruco_id)
+    print("Assigned ArUco ID:", robot_aruco_id)
+
+
+def handle_position_message(msg):
+    position = parse_position_payload(msg)
+    if position is None:
+        return
+    if position.get("kind") == "corner":
+        navigator.update_field_corner(
+            position["aruco_id"],
+            position["x"],
+            position["y"],
+        )
+        return
+    navigator.update_fleet_position(
+        position["aruco_id"],
+        position["x"],
+        position["y"],
+    )
+    if robot_aruco_id is not None and position["aruco_id"] != robot_aruco_id:
+        return
+    navigator.update_position(
+        position["x"],
+        position["y"],
+        position["orientation"],
+    )
+
+
+def run_navigation_tick():
+    global last_applied_command
+    if state != 3:
+        return
+
+    result = navigator.tick()
+    if result is None:
+        return
+
+    if len(result) == 3:
+        kind, value, seq = result
+    else:
+        kind, value = result
+        seq = navigator.seq
+
+    if kind == "command":
+        if value != last_applied_command or value == "SS":
+            move(value)
+            last_applied_command = value
+    elif kind == "report":
+        publish_report(value, seq=seq)
+        move("SS")
+        last_applied_command = "SS"
 
 
 #------------------------------------------------
@@ -241,7 +372,7 @@ def move(command):
 def mqtt_callback(topic, msg):
     topic = topic.decode()
     msg = msg.decode()
-    global state
+    global state, navigation_topics_ready
     print("MQTT:", topic, "->", msg)
 
     if topic == f"Robots/Control/{mac_str}/Status":
@@ -255,15 +386,18 @@ def mqtt_callback(topic, msg):
         elif msg == "[connected]":
             if state != 2: return
             print("Connection to MQTT broker established")
-            # Led op groen
             blue_led.value(False)
             green_led.value(True)
             state = 3 # connected
+            if not navigation_topics_ready:
+                subscribe_navigation_topics(mqtt_client)
             time.sleep(0.1)
 
         elif msg == "[disconnected]":
             print("Connection to MQTT broker lost")
             stopMotors()
+            navigator.clear_goal()
+            navigation_topics_ready = False
             blue_led.value(False)
             green_led.value(False)
             state = 1 # disconnected
@@ -271,12 +405,20 @@ def mqtt_callback(topic, msg):
         else:
             print("Unknown status message received:", msg)
 
+    elif topic == f"Robots/Data/{mac_str}/Commands":
+        print("Received move command:", msg)
+        navigator.enter_manual_mode()
+        move(parse_bracket_payload(msg))
 
-    elif topic == f"Robots/Control/{mac_str}/Commands":
-        move(msg)
+    elif topic == f"Robots/Data/{mac_str}/Goals":
+        handle_goal_message(msg)
 
+    elif topic == f"Robots/Data/{mac_str}/Config":
+        handle_config_message(msg)
 
-    # ----- Test topics -----
+    elif topic == "Robots/Data/Positions":
+        handle_position_message(msg)
+
     elif topic == "chariot/move/right":
         moveMotor("right", int(msg))
     elif topic == "chariot/move/left":
@@ -360,7 +502,7 @@ print("------------------------------------------------------------")
 topics = [
     "chariot/#",
     f"Robots/Control/{mac_str}/Status",
-    f"Robots/Control/{mac_str}/Commands"
+    f"Robots/Data/{mac_str}/Commands",
 ]
 
 mqtt_client = mqtt_connect_and_subscribe( # Connect to MQTT broker and subscribe to topics
@@ -393,8 +535,7 @@ fled.value(False)
 while True:
     time.sleep_ms(10)
     mqtt_client.check_msg()
-
-
+    run_navigation_tick()
     if state == 1:
         now = time.ticks_ms()
         if time.ticks_diff(now, last_connect_request) >= 10000:

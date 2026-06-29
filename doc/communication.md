@@ -33,7 +33,10 @@ Dit document legt uit hoe de camera, de server en de robots met elkaar praten vi
 | `Robots/Control/Connecting` | Robot → Server | `[MAC]` | Een robot start op en vraagt om een verbinding. |
 | `Robots/Control/{MAC}/Status` | Server → Robot | `[checking]` \| `[connected]` | De server stuurt statusupdates van de handshake naar de robot. |
 | `Robots/Data/Positions` | Camera → Server | `[ArUco, x, y, orientation, status]` | De camera blijft de server vertellen waar elke robot rijdt en wat de LED-status is. |
-| `Robots/Data/{MAC}/Commands` | Server → Robot | `[bewegingscode]` | Hier krijgt de robot zijn rij-instructies op binnen (alleen actief na verbinding). |
+| `Robots/Data/{MAC}/Commands` | Server → Robot | `[bewegingscode]` | Handmatige rij-instructies (legacy / override). |
+| `Robots/Data/{MAC}/Goals` | Server → Robot | JSON doel | Autonome navigatie naar `(x, y)`. |
+| `Robots/Data/{MAC}/Config` | Server → Robot | `{"aruco_id":N}` | Koppeling robot ↔ camera-marker. |
+| `Robots/Data/{MAC}/Report` | Robot → Server | JSON status | Meldingen zoals `arrived`. |
 
 ---
 
@@ -96,7 +99,7 @@ De server stuurt nu puur rijcommando's via `Robots/Data/{MAC}/Commands`.
   * `[1, 550, 240, 92, "connected"]` *(LED is groen)*
   * `[1, 550, 240, 92, "off"]` *(LED is uit / robot kwijt)*
 
-### Besturing & Commando's
+### Besturing & Commando's (legacy / handmatig)
 * **Topic:** `Robots/Data/{MAC}/Commands`
 * **Payloads:**
   * `[FW]` *(Forward)*
@@ -106,3 +109,43 @@ De server stuurt nu puur rijcommando's via `Robots/Data/{MAC}/Commands`.
   * `[RL]` *(Rotate Left)*
   * `[RR]` *(Rotate Right)*
   * `[SS]` *(Stop)*
+
+Handmatige commando's schakelen de robot terug naar **manual mode** en wissen het actieve doel.
+
+### Autonome navigatie (aanbevolen)
+* **Topic:** `Robots/Data/{MAC}/Goals`
+* **Payload (JSON):**
+  * `{"action":"set","target_x":320.0,"target_y":240.0,"tolerance":12.0,"seq":1}`
+  * `{"action":"clear","seq":1}`
+
+De server stuurt na een formatie alleen doelen; de robot navigeert lokaal op basis van cameraposities.
+
+### Robot-configuratie
+* **Topic:** `Robots/Data/{MAC}/Config`
+* **Payload:** `{"aruco_id":1}`
+* **Doel:** vertelt de robot welk ArUco-ID op `Robots/Data/Positions` van hem is.
+
+### Robot-rapportage
+* **Topic:** `Robots/Data/{MAC}/Report`
+* **Payload:** `{"status":"arrived","seq":1,"x":320.0,"y":240.0}`
+* **Statuswaarden:** `moving`, `arrived`, `idle`, `blocked`
+
+---
+
+## Planner-modi (server)
+
+| Modus | Omgevingsvariabele | Gedrag |
+| :--- | :--- | :--- |
+| `goals` (standaard) | `PLANNER_MODE=goals` | Server stuurt doelen; robots sturen zelf FW/TL/TR |
+| `commands` (legacy) | `PLANNER_MODE=commands` | Server stuurt elke planner-tick een rijcommando |
+
+---
+
+## Stap 4 (bijgewerkt): Rijden met lokale intelligentie
+
+1. Server kiest formatie en stuurt per robot een **goal** naar `Robots/Data/{MAC}/Goals`.
+2. Server stuurt bij connect **config** met `aruco_id` naar `Robots/Data/{MAC}/Config`.
+3. Robot luistert naar `Robots/Data/Positions` en filtert op eigen ArUco-ID.
+4. Robot berekent lokaal FW/TL/TR richting het doel.
+5. Bij aankomst publiceert de robot `{"status":"arrived",...}` op `Report`; de server wist het doel.
+6. Noodstop blijft `[SS]` op `Commands` + `{"action":"clear"}` op `Goals`.
