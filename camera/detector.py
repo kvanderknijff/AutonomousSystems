@@ -1,18 +1,19 @@
 """Overhead camera: ArUco tracking, LED linking, MQTT position publish."""
-
 import cv2
 import math
 import numpy as np
 from paho.mqtt import client as mqtt_client
 import json
 
-dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
-detector = cv2.aruco.ArucoDetector(dictionary)
+cameraSource = "http://145.137.58.182:8080/video"
 
 FirstChariotMarkerID = 1
 LastChariotMarkerID = 4
 FirstCornerMarkerID = 5
 LastCornerMarkerID = 8
+
+dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+detector = cv2.aruco.ArucoDetector(dictionary)
 
 maxAllowedDistanceMarkerToLed = 100 #65
 ledSearchAngle = 120
@@ -105,9 +106,7 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     frameHSV = cv2.cvtColor(frameBGR, cv2.COLOR_BGR2HSV)
 
     frameR, frameG, frameB = cv2.split(frameRGB)
-
     frameBG = cv2.subtract(frameB, frameG)
-    frameRB = cv2.subtract(frameR, frameB)
 
     ret, frameBG = cv2.threshold(frameBG, 40, 255, cv2.THRESH_BINARY)
     blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE)
@@ -139,15 +138,12 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
         
         chariotDirection = ((chariot[2] - 90 + 180) % 360) - 180
 
-        # +120° grens (geel)
         x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection + ledSearchAngle)))
         y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection + ledSearchAngle)))
         cv2.line(frame, chariot[1], (x, y), (0, 255, 255), 2)
-        # -120° grens (geel)
         x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection - ledSearchAngle)))
         y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection - ledSearchAngle)))
         cv2.line(frame, chariot[1], (x, y), (0, 255, 255), 2)
-        # radius
         cv2.circle(frame, chariot[1], maxAllowedDistanceMarkerToLed, (0, 255, 255), 2)
 
         for colorIndex, ledColor in enumerate(ledPositions):
@@ -233,12 +229,12 @@ def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
             
             if chariotInformation:
                 sendChariotInformation(chariotInformation)
-            #else:
-            #    print("No chariot information to send")
+            else:
+                print("No chariot information to send")
             if cornerInformation:
                 sendCornerInformation(cornerInformation)
-            #else:
-            #    print("No corner information to send")
+            else:
+                print("No corner information to send")
 
             if debug == "aruco":
                 cv2.imshow("Frames", arUcoFrame)
@@ -284,5 +280,4 @@ if __name__ == "__main__":
         - "leds": Show the detection of leds
         - "linking": Show which ArUco markers are linked to which leds
     """
-    cameraSource = "http://145.137.66.79:8080/video"
     videoProcessing(cameraSource, record=False, camera=True, debug="linking")
