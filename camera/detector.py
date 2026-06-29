@@ -5,7 +5,7 @@ import numpy as np
 from paho.mqtt import client as mqtt_client
 import json
 
-cameraSource = "http://145.137.58.182:8080/video"
+cameraSource = "http://145.137.58.182:8880/video"
 
 FirstChariotMarkerID = 1
 LastChariotMarkerID = 4
@@ -67,20 +67,21 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
                 chariotArucoInformation.append([int(markerID[0]), center, direction])
             elif markerID >= FirstCornerMarkerID and markerID <= LastCornerMarkerID:
                 cornerArucoInformation.append([int(markerID[0]), center])
-                cv2.rectangle(frame, topLeft, bottomRight, (0, 255, 0), 2)
+                cv2.line(frame, topLeft, bottomLeft, (0, 255, 0), 2)
+                cv2.line(frame, bottomLeft, bottomRight, (0, 255, 0), 2)
+                cv2.line(frame, bottomRight, topRight, (0, 255, 0), 2)
+                cv2.line(frame, topLeft, topRight, (0, 255, 0), 2)
 
     for marker in chariotArucoInformation:
         cv2.circle(frame, marker[1], maxAllowedDistanceMarkerToLed, (0, 0, 0), 2)
 
     return chariotArucoInformation, cornerArucoInformation, frame
 
-def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method: int) -> tuple[list, np.ndarray]:
+def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method: int, minimumLedArea: int) -> tuple[list, np.ndarray]:
     """
     Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam
     """
     ledPositions = []
-
-    minimumLedArea = 250
 
     contours, hierarchy = cv2.findContours(frame, method, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -109,13 +110,13 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     frameBG = cv2.subtract(frameB, frameG)
 
     ret, frameBG = cv2.threshold(frameBG, 40, 255, cv2.THRESH_BINARY)
-    blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE)
+    blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE, 250)
     ledPositions.append(blueLedPositions)
 
     lowerGreen = np.array([35, 40, 40])
     upperGreen = np.array([95, 255, 255])
     maskG = cv2.inRange(frameHSV, lowerGreen, upperGreen)
-    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL)
+    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL, 50)
     ledPositions.append(greenLedPositions)
 
     outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
@@ -207,7 +208,7 @@ def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
         fps = capture.get(cv2.CAP_PROP_FPS)
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        if debug == "aruco":
+        if debug == "arucos":
             out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height), isColor=False)
         else:
             out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height))
@@ -236,7 +237,7 @@ def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
             else:
                 print("No corner information to send")
 
-            if debug == "aruco":
+            if debug == "arucos":
                 cv2.imshow("Frames", arUcoFrame)
                 if record:
                     out.write(arUcoFrame)
@@ -276,8 +277,8 @@ if __name__ == "__main__":
         - Yes: True
         - No: False (e.g. .mp4 file)
     - debug: which video do you want to see
-        - "aruco": Show the detection of ArUco markers along with its information, orientation and area for LED linking
+        - "arucos": Show the detection of ArUco markers along with its information, orientation and area for LED linking
         - "leds": Show the detection of leds
         - "linking": Show which ArUco markers are linked to which leds
     """
-    videoProcessing(cameraSource, record=False, camera=True, debug="linking")
+    videoProcessing(cameraSource, record=True, camera=True, debug="linking")
