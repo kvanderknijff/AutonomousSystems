@@ -1,3 +1,10 @@
+cameraSource = "http://145.137.66.79:8080/video"
+
+FirstChariotMarkerID = 1
+LastChariotMarkerID = 4
+FirstCornerMarkerID = 5
+LastCornerMarkerID = 8
+
 import cv2
 import math
 import numpy as np
@@ -6,11 +13,6 @@ import json
 
 dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 detector = cv2.aruco.ArucoDetector(dictionary)
-
-FirstChariotMarkerID = 1
-LastChariotMarkerID = 4
-FirstCornerMarkerID = 5
-LastCornerMarkerID = 8
 
 maxAllowedDistanceMarkerToLed = 100 #65
 ledSearchAngle = 120
@@ -51,16 +53,16 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
             centerY = (topLeft[1] + bottomRight[1]) // 2
 
             center = (centerX, centerY)
-            
-            if markerID >= FirstChariotMarkerID and markerID <= LastChariotMarkerID:
-                cv2.circle(frame, center, 5, (0, 0, 255), -1)
+            cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
+
+            if markerID >= FirstChariotMarkerID and markerID <= LastChariotMarkerID:
                 topMiddleX = (topLeft[0] + topRight[0]) // 2
                 topMiddleY = (topLeft[1] + topRight[1]) // 2
 
                 direction = math.degrees(math.atan2(topMiddleY - centerY, topMiddleX - centerX))
                 cv2.putText(frame, f"dir: {direction}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
-                
+
                 chariotArucoInformation.append([int(markerID[0]), center, direction])
             elif markerID >= FirstCornerMarkerID and markerID <= LastCornerMarkerID:
                 cornerArucoInformation.append([int(markerID[0]), center])
@@ -229,12 +231,12 @@ def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
             
             if chariotInformation:
                 sendChariotInformation(chariotInformation)
-            #else:
-            #    print("No chariot information to send")
+            else:
+                print("No chariot information to send")
             if cornerInformation:
                 sendCornerInformation(cornerInformation)
-            #else:
-            #    print("No corner information to send")
+            else:
+                print("No corner information to send")
 
             if debug == "aruco":
                 cv2.imshow("Frames", arUcoFrame)
@@ -281,5 +283,4 @@ if __name__ == "__main__":
         - "leds": Show the detection of leds
         - "linking": Show which ArUco markers are linked to which leds
     """
-    cameraSource = "http://145.137.66.79:8080/video"
-    videoProcessing(cameraSource, record=False, camera=True, debug="linking")
+    videoProcessing(cameraSource, record=True, camera=True, debug="linking")
