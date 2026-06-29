@@ -106,7 +106,6 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     frameR, frameG, frameB = cv2.split(frameRGB)
 
     frameBG = cv2.subtract(frameB, frameG)
-    frameRB = cv2.subtract(frameR, frameB)
 
     ret, frameBG = cv2.threshold(frameBG, 40, 255, cv2.THRESH_BINARY)
     blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE)
@@ -138,15 +137,12 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
         
         chariotDirection = ((chariot[2] - 90 + 180) % 360) - 180
 
-        # +120° grens (geel)
         x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection + ledSearchAngle)))
         y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection + ledSearchAngle)))
         cv2.line(frame, chariot[1], (x, y), (0, 255, 255), 2)
-        # -120° grens (geel)
         x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection - ledSearchAngle)))
         y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection - ledSearchAngle)))
         cv2.line(frame, chariot[1], (x, y), (0, 255, 255), 2)
-        # radius
         cv2.circle(frame, chariot[1], maxAllowedDistanceMarkerToLed, (0, 255, 255), 2)
 
         for colorIndex, ledColor in enumerate(ledPositions):
