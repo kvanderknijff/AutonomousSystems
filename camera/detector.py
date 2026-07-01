@@ -5,7 +5,7 @@ import numpy as np
 from paho.mqtt import client as mqtt_client
 import json
 
-cameraSource = "http://145.137.58.182:8880/video"
+cameraSource = "http://145.137.61.30:8880/video"
 
 FirstChariotMarkerID = 1
 LastChariotMarkerID = 4
@@ -110,7 +110,7 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     frameBG = cv2.subtract(frameB, frameG)
 
     ret, frameBG = cv2.threshold(frameBG, 40, 255, cv2.THRESH_BINARY)
-    blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE, 200)
+    blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE, 150)
     ledPositions.append(blueLedPositions)
 
     lowerGreen = np.array([35, 40, 40])
@@ -190,6 +190,7 @@ def sendCornerInformation(cornerInformation: list) -> None:
 
 def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
     capture = cv2.VideoCapture(file)
+    capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     if not capture.isOpened():
         print("Error: Could not open video")
@@ -247,6 +248,8 @@ def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
                 if record:
                     out.write(linkingFrame)
             else:
+                #cv2.circle(frame, (340, 1200), 5, (0, 0, 255), -1)
+                #cv2.circle(frame, (300, 1200), 5, (0, 0, 255), -1)
                 cv2.imshow("Frames", frame)
                 if record:
                     out.write(frame)
@@ -278,4 +281,4 @@ if __name__ == "__main__":
         - "leds": Show the detection of leds
         - "linking": Show which ArUco markers are linked to which leds
     """
-    videoProcessing(cameraSource, record=True, camera=True, debug="none")
+    videoProcessing(cameraSource, record=True, camera=True, debug="leds")
