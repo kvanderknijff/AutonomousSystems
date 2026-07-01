@@ -79,7 +79,7 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
 
 def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method: int, minimumLedArea: int) -> tuple[list, np.ndarray]:
     """
-    Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam
+    Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam for course TINLAS03-2025-VT-JAAR
     """
     ledPositions = []
 
@@ -99,7 +99,7 @@ def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method
 
 def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     """
-    Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam
+    Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam for course TINLAS03-2025-VT-JAAR
     """
     ledPositions = []
 
@@ -110,13 +110,13 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     frameBG = cv2.subtract(frameB, frameG)
 
     ret, frameBG = cv2.threshold(frameBG, 40, 255, cv2.THRESH_BINARY)
-    blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE, 250)
+    blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE, 200)
     ledPositions.append(blueLedPositions)
 
     lowerGreen = np.array([35, 40, 40])
     upperGreen = np.array([95, 255, 255])
     maskG = cv2.inRange(frameHSV, lowerGreen, upperGreen)
-    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL, 50)
+    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL, 40)
     ledPositions.append(greenLedPositions)
 
     outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
@@ -125,9 +125,6 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
 def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarray) -> tuple[list, np.ndarray]:
     """
     Assuming two ArUco's are not directly next to eachother
-
-    Could cause a problem if two chariots are directly next to eachother 
-    and the led of one chariot is assigned to both
     """
     chariotInformation = []
     textHeight = 40
@@ -281,4 +278,4 @@ if __name__ == "__main__":
         - "leds": Show the detection of leds
         - "linking": Show which ArUco markers are linked to which leds
     """
-    videoProcessing(cameraSource, record=True, camera=True, debug="linking")
+    videoProcessing(cameraSource, record=True, camera=True, debug="none")
