@@ -43,7 +43,7 @@ if __name__ == "__main__":
     if FORMATION:
         print(f"Startup formation: {FORMATION} (can be changed from web UI)")
     else:
-        print("Formation: use web UI or set FORMATION=line|plus|square")
+        print("Formation: use web UI or set FORMATION=line|plus|square|y")
     print("Ctrl+C to stop.\n")
 
     server = CentralServer()

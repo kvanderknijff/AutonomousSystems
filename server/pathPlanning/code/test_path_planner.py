@@ -22,7 +22,8 @@ manager = RobotManager(on_command_calculated=mock_mqtt_publisher)
 formation_map = {
     "line": formations.calculate_line,
     "plus": formations.calculate_plus,
-    "square": formations.calculate_square
+    "square": formations.calculate_square,
+    "y": formations.calculate_Y,
 }
 
 def trigger_web_formation(shape_key: str, cx: float, cy: float) -> None:

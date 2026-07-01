@@ -6,8 +6,9 @@ import time
 from functools import partial
 from typing import TYPE_CHECKING, Any
 
-from formations import calculate_line, calculate_plus, calculate_square
+from formations import calculate_line, calculate_plus, calculate_square, calculate_Y
 from config import PLANNER_DISCONNECT_GRACE, PLANNER_MODE, FIELD_MARGIN
+from mqtt_protocol import goal_tolerance_for_aruco
 from path_planner import RobotManager
 
 if TYPE_CHECKING:
@@ -28,6 +29,7 @@ FORMATION_STRATEGIES = {
     "line": calculate_line,
     "plus": calculate_plus,
     "square": calculate_square,
+    "y": calculate_Y,
 }
 
 
@@ -79,6 +81,7 @@ class PlannerController:
             on_command_calculated=self._on_publish,
             on_goal_assigned=self._on_goal_assigned,
             planner_mode=PLANNER_MODE,
+            goal_tolerance_for=self._goal_tolerance_for_robot,
         )
 
         if initial_formation and initial_formation in FORMATION_STRATEGIES:
@@ -106,6 +109,11 @@ class PlannerController:
         self._position_event.set()
         if self._worker_thread is not None:
             self._worker_thread.join(timeout=2.0)
+
+    def _goal_tolerance_for_robot(self, robot_id: str) -> float:
+        record = self.server.registry.get(robot_id)
+        aruco_id = record.aruco_id if record is not None else None
+        return goal_tolerance_for_aruco(aruco_id)
 
     def _on_publish(self, robot_id: str, payload: str, topic_type: str) -> None:
         """Central routing: movement commands vs connection status (Kai's 3-arg callback)."""

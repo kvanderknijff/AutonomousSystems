@@ -32,7 +32,7 @@
       font-size: 0.85rem;
       color: #cbd5e1;
     }
-    select, input {
+    select, input:not([type="checkbox"]) {
       width: 100%;
       padding: 0.6rem 0.75rem;
       margin-bottom: 1rem;
@@ -45,7 +45,51 @@
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .row label { grid-column: span 1; }
     .row input { margin-bottom: 0; }
-    .actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+    .auto-center-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      margin: 0;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      line-height: 1.35;
+      cursor: pointer;
+      flex: 1;
+      min-width: 0;
+    }
+    .checkbox-label input[type="checkbox"] {
+      width: 1.1rem;
+      height: 1.1rem;
+      margin: 0.1rem 0 0;
+      flex-shrink: 0;
+      accent-color: #2563eb;
+      cursor: pointer;
+    }
+    .secondary {
+      flex: 0 0 auto;
+      padding: 0.55rem 0.85rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #334155;
+      color: #e2e8f0;
+      white-space: nowrap;
+    }
+    .secondary:hover { background: #475569; }
+    .actions { display: flex; gap: 0.75rem; margin-top: 0.25rem; }
     button {
       flex: 1;
       padding: 0.75rem 1rem;
@@ -99,6 +143,7 @@
         <option value="line">Line</option>
         <option value="plus">Plus (+)</option>
         <option value="square">Square</option>
+        <option value="y">Y</option>
       </select>
 
       <div class="row">
@@ -115,13 +160,15 @@
       <label for="spacing">Spacing</label>
       <input id="spacing" name="spacing" type="number" value="40" step="1" min="10">
 
-      <label style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;font-size:0.9rem;">
-        <input id="auto_center" name="auto_center" type="checkbox">
-        Auto-center formation on connected robots
-      </label>
+      <div class="auto-center-row">
+        <label class="checkbox-label" for="auto_center">
+          <input id="auto_center" name="auto_center" type="checkbox">
+          <span>Auto-center formation on connected robots</span>
+        </label>
+        <button type="button" class="secondary" id="center-btn">Use robot average</button>
+      </div>
 
       <div class="actions">
-        <button type="button" class="apply" id="center-btn" style="flex:0.6;background:#334155;">Use robot average</button>
         <button type="submit" class="apply">Apply Formation</button>
         <button type="button" class="stop" id="stop-btn">Stop All</button>
       </div>

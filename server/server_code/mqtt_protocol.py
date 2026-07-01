@@ -6,8 +6,12 @@ import re
 from config import (
     CORNER_ARUCO_FIRST,
     CORNER_ARUCO_LAST,
+    PHYSICAL_GOAL_TOLERANCE,
     WEBOTS_CORNER_ARUCO_FIRST,
     WEBOTS_CORNER_ARUCO_LAST,
+    WEBOTS_GOAL_TOLERANCE,
+    WEBOTS_ROBOT_ARUCO_FIRST,
+    WEBOTS_ROBOT_ARUCO_LAST,
 )
 
 TOPIC_CONTROL_CONNECTING = "Robots/Control/Connecting"
@@ -239,6 +243,18 @@ def is_corner_aruco(aruco_id: int) -> bool:
     if CORNER_ARUCO_FIRST <= aid <= CORNER_ARUCO_LAST:
         return True
     return WEBOTS_CORNER_ARUCO_FIRST <= aid <= WEBOTS_CORNER_ARUCO_LAST
+
+
+def is_webots_robot_aruco(aruco_id: int) -> bool:
+    aid = int(aruco_id)
+    return WEBOTS_ROBOT_ARUCO_FIRST <= aid <= WEBOTS_ROBOT_ARUCO_LAST
+
+
+def goal_tolerance_for_aruco(aruco_id: int | None) -> float:
+    """Pick goal tolerance from ArUco ID; physical robots get a looser threshold."""
+    if aruco_id is not None and is_webots_robot_aruco(aruco_id):
+        return WEBOTS_GOAL_TOLERANCE
+    return PHYSICAL_GOAL_TOLERANCE
 
 
 def format_position_payload(aruco_id: int, x: int, y: int, orientation: int, led_status: str) -> str:

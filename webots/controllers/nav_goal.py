@@ -8,6 +8,7 @@ GOAL_ACTION_CLEAR = "clear"
 
 DEFAULT_GOAL_TOLERANCE = 12.0
 DEFAULT_HEADING_TOLERANCE = 12.0
+DEFAULT_ROTATE_HEADING_THRESHOLD = 45.0
 DEFAULT_POSITION_TIMEOUT = 2.0
 DEFAULT_APF_INFLUENCE_RADIUS = 50.0
 DEFAULT_APF_K_ATTRACT = 1.0
@@ -17,6 +18,9 @@ DEFAULT_FORWARD_BLOCK_DISTANCE = 45.0
 DEFAULT_FORWARD_BLOCK_ANGLE = 65.0
 DEFAULT_NEIGHBOR_STALE_SEC = 2.0
 DEFAULT_FIELD_MARGIN = 20.0
+TURN_COMMANDS = frozenset(("TL", "TR", "RL", "RR"))
+DEFAULT_TURN_PULSE_SEC = 0.0
+DEFAULT_TURN_SETTLE_SEC = 0.35
 
 from mqtt_protocol import CORNER_ARUCO_FIRST, CORNER_ARUCO_LAST  # noqa: E402
 
@@ -91,9 +95,16 @@ def bearing_degrees(dx, dy):
     return math.degrees(math.atan2(dy, dx))
 
 
-def steer_command_code(direct_error, heading_tolerance=DEFAULT_HEADING_TOLERANCE):
-    if abs(direct_error) < heading_tolerance:
+def steer_command_code(
+    direct_error,
+    heading_tolerance=DEFAULT_HEADING_TOLERANCE,
+    rotate_threshold=DEFAULT_ROTATE_HEADING_THRESHOLD,
+):
+    abs_error = abs(direct_error)
+    if abs_error < heading_tolerance:
         return "FW"
+    if abs_error >= rotate_threshold:
+        return "RL" if direct_error > 0 else "RR"
     if direct_error > 0:
         return "TL"
     return "TR"
@@ -160,6 +171,8 @@ class GoalNavigator:
         forward_block_angle=DEFAULT_FORWARD_BLOCK_ANGLE,
         neighbor_stale_sec=DEFAULT_NEIGHBOR_STALE_SEC,
         field_margin=DEFAULT_FIELD_MARGIN,
+        turn_pulse_sec=DEFAULT_TURN_PULSE_SEC,
+        turn_settle_sec=DEFAULT_TURN_SETTLE_SEC,
     ):
         self.arrival_distance = arrival_distance
         self.heading_tolerance = heading_tolerance
@@ -172,6 +185,8 @@ class GoalNavigator:
         self.forward_block_angle = forward_block_angle
         self.neighbor_stale_sec = neighbor_stale_sec
         self.field_margin = field_margin
+        self.turn_pulse_sec = float(turn_pulse_sec)
+        self.turn_settle_sec = float(turn_settle_sec)
         self.own_aruco_id = None
         self.target_x = None
         self.target_y = None
@@ -185,6 +200,11 @@ class GoalNavigator:
         self._reported_arrival = False
         self._fleet = {}
         self._field_bounds = FieldBounds()
+        self._pulse_command = None
+        self._pulse_phase = None
+        self._pulse_run_until = 0.0
+        self._pulse_settle_until = 0.0
+        self._pulse_position_stamp = 0.0
 
     @property
     def field_bounds(self):
@@ -212,11 +232,13 @@ class GoalNavigator:
         self.seq = int(seq)
         self._reported_arrival = False
         self.autonomous = True
+        self._clear_turn_pulse()
 
     def clear_goal(self):
         self.target_x = None
         self.target_y = None
         self._reported_arrival = False
+        self._clear_turn_pulse()
 
     def update_position(self, x, y, orientation, now=None):
         self.x = float(x)
@@ -317,6 +339,43 @@ class GoalNavigator:
         self.autonomous = False
         self.clear_goal()
 
+    def _clear_turn_pulse(self):
+        self._pulse_command = None
+        self._pulse_phase = None
+        self._pulse_run_until = 0.0
+        self._pulse_settle_until = 0.0
+        self._pulse_position_stamp = 0.0
+
+    def _apply_turn_pulse(self, command, now):
+        if self.turn_pulse_sec <= 0 or command not in TURN_COMMANDS:
+            self._clear_turn_pulse()
+            return command
+
+        if self._pulse_phase == "run":
+            if command != self._pulse_command:
+                self._clear_turn_pulse()
+            elif now < self._pulse_run_until:
+                return self._pulse_command
+            else:
+                self._pulse_phase = "settle"
+                self._pulse_settle_until = now + self.turn_settle_sec
+                return "SS"
+
+        if self._pulse_phase == "settle":
+            fresh_position = self.last_position_time > self._pulse_position_stamp
+            if not fresh_position and now < self._pulse_settle_until:
+                return "SS"
+            self._clear_turn_pulse()
+
+        self._pulse_phase = "run"
+        self._pulse_command = command
+        self._pulse_run_until = now + self.turn_pulse_sec
+        self._pulse_position_stamp = self.last_position_time
+        return command
+
+    def _movement_command(self, command, now):
+        return ("command", self._apply_turn_pulse(command, now))
+
     def tick(self, now=None):
         if not self.autonomous or not self.has_goal:
             return None
@@ -326,6 +385,7 @@ class GoalNavigator:
             return None
 
         if now - self.last_position_time > self.position_timeout:
+            self._clear_turn_pulse()
             return ("command", "SS")
 
         goal_x, goal_y = self._effective_goal()
@@ -347,7 +407,9 @@ class GoalNavigator:
         neighbors, closest, nearest = self._neighbor_positions(now)
 
         if nearest is not None and closest < self.min_separation:
-            return ("command", self._turn_away_command(nearest[0], nearest[1]))
+            return self._movement_command(
+                self._turn_away_command(nearest[0], nearest[1]), now
+            )
 
         escape_heading = self._field_bounds.escape_heading(
             self.x, self.y, self.field_margin
@@ -380,4 +442,4 @@ class GoalNavigator:
             else:
                 command = "SS"
 
-        return ("command", command)
+        return self._movement_command(command, now)

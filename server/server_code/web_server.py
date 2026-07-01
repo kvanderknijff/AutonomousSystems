@@ -5,6 +5,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from config import WEB_ACCESS_LOG
+
 if TYPE_CHECKING:
     from planner_service import PlannerController
 
@@ -90,6 +92,8 @@ def make_handler(controller: "PlannerController"):
             self.wfile.write(data)
 
         def log_message(self, fmt: str, *args) -> None:
+            if not WEB_ACCESS_LOG:
+                return
             logger.info("%s - %s", self.address_string(), fmt % args)
 
     return FormationHandler

@@ -63,7 +63,7 @@ fled.value(True)
 state = 0
 last_connect_request = 0
 robot_aruco_id = None
-navigator = GoalNavigator()
+navigator = GoalNavigator(turn_pulse_sec=0.15, turn_settle_sec=0.35)
 last_applied_command = None
 navigation_topics_ready = False
 

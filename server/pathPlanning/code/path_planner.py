@@ -28,6 +28,7 @@ def _steer_command(direct_error: float) -> str:
 
 RobotCommandCallback = Callable[[str, str, str], None]
 GoalCallback = Callable[[str, dict], None]
+GoalToleranceCallback = Callable[[str], float]
 FormationStrategy = Callable[
     [dict[str, tuple[float, float]], float, float],
     dict[str, tuple[float, float]],
@@ -95,12 +96,19 @@ class RobotManager:
         on_goal_assigned: GoalCallback | None = None,
         timeout_threshold: float = PLANNER_ROBOT_TIMEOUT,
         planner_mode: str = PLANNER_MODE,
+        goal_tolerance_for: GoalToleranceCallback | None = None,
     ) -> None:
         self.active_robots: dict[str, Robot] = {}
         self.timeout_threshold = timeout_threshold
         self.on_command_calculated: RobotCommandCallback | None = on_command_calculated
         self.on_goal_assigned: GoalCallback | None = on_goal_assigned
         self.planner_mode = planner_mode
+        self._goal_tolerance_for = goal_tolerance_for
+
+    def _tolerance_for(self, robot_id: str) -> float:
+        if self._goal_tolerance_for is not None:
+            return self._goal_tolerance_for(robot_id)
+        return DEFAULT_GOAL_TOLERANCE
 
     def _filter_live_robots(self) -> dict[str, Robot]:
         current_time = time.time()
@@ -170,12 +178,14 @@ class RobotManager:
         )
         for robot_id, (target_x, target_y) in calculated_targets.items():
             if robot_id in live_robots:
-                live_robots[robot_id].set_target(target_x, target_y)
+                tolerance = self._tolerance_for(robot_id)
+                live_robots[robot_id].set_target(target_x, target_y, tolerance=tolerance)
                 logger.info(
-                    "[FORMATION] %s -> target (%.1f, %.1f)",
+                    "[FORMATION] %s -> target (%.1f, %.1f) tol=%.1f",
                     robot_id,
                     target_x,
                     target_y,
+                    tolerance,
                 )
                 if publish_goals and self.planner_mode == "goals":
                     self._publish_goal_if_needed(live_robots[robot_id])
@@ -243,8 +253,6 @@ class RobotManager:
             len(live_robots),
         )
 
-        arrival_distance = 12.0
-
         for robot_id, robot in live_robots.items():
             if not robot.has_target:
                 continue
@@ -259,7 +267,7 @@ class RobotManager:
             direct_bearing = _bearing_degrees(dx, dy)
             direct_error = _normalize_angle(direct_bearing - robot.direction)
 
-            if distance < arrival_distance:
+            if distance < robot.goal_tolerance:
                 logger.info(
                     "[PLANNER] %s arrived at (%.1f, %.1f)",
                     robot_id,
