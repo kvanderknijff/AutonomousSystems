@@ -6,6 +6,13 @@ from paho.mqtt import client as mqtt_client
 import json
 
 cameraSource = "http://145.137.61.30:8880/video"
+debugType = "linking"
+"""
+debugType: which video do you want to see
+    - "arucos": Show the detection of ArUco markers along with its information, orientation and area for LED linking
+    - "leds": Show the detection of leds
+    - "linking": Show which ArUco markers are linked to which leds
+"""
 
 FirstChariotMarkerID = 1
 LastChariotMarkerID = 4
@@ -188,7 +195,7 @@ def sendCornerInformation(cornerInformation: list) -> None:
         message_json = json.dumps(message)
         client.publish(mqttTopic, message_json)
 
-def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
+def videoProcessing(file: str, record: bool, camera: bool) -> None:
     capture = cv2.VideoCapture(file)
     capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
@@ -206,7 +213,7 @@ def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
         fps = capture.get(cv2.CAP_PROP_FPS)
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        if debug == "arucos":
+        if debugType == "arucos":
             out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height), isColor=False)
         else:
             out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height))
@@ -235,15 +242,15 @@ def videoProcessing(file: str, record: bool, camera: bool, debug: str) -> None:
             else:
                 print("No corner information to send")
 
-            if debug == "arucos":
+            if debugType == "arucos":
                 cv2.imshow("Frames", arUcoFrame)
                 if record:
                     out.write(arUcoFrame)
-            elif debug == "leds":
+            elif debugType == "leds":
                 cv2.imshow("Frames", ledFrame)
                 if record:
                     out.write(ledFrame)
-            elif debug == "linking":
+            elif debugType == "linking":
                 cv2.imshow("Frames", linkingFrame)
                 if record:
                     out.write(linkingFrame)
@@ -276,9 +283,5 @@ if __name__ == "__main__":
     - camera: are the inputted frames coming form a camera
         - Yes: True
         - No: False (e.g. .mp4 file)
-    - debug: which video do you want to see
-        - "arucos": Show the detection of ArUco markers along with its information, orientation and area for LED linking
-        - "leds": Show the detection of leds
-        - "linking": Show which ArUco markers are linked to which leds
     """
-    videoProcessing(cameraSource, record=True, camera=True, debug="leds")
+    videoProcessing(cameraSource, record=True, camera=True)
