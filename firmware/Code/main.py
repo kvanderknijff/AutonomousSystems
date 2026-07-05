@@ -273,6 +273,7 @@ def subscribe_navigation_topics(client):
     topics = [
         f"Robots/Data/{mac_str}/Goals",
         f"Robots/Data/{mac_str}/Config",
+        "Robots/Data/Positions/Physical",
         "Robots/Data/Positions",
     ]
     for topic in topics:
@@ -416,7 +417,7 @@ def mqtt_callback(topic, msg):
     elif topic == f"Robots/Data/{mac_str}/Config":
         handle_config_message(msg)
 
-    elif topic == "Robots/Data/Positions":
+    elif topic in ("Robots/Data/Positions", "Robots/Data/Positions/Physical"):
         handle_position_message(msg)
 
     elif topic == "chariot/move/right":

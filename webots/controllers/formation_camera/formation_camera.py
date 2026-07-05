@@ -15,12 +15,12 @@ from mqtt_protocol import (  # noqa: E402
     MQTT_PASS,
     MQTT_USER,
     PORT,
-    TOPIC_DATA_POSITIONS,
+    TOPIC_DATA_POSITIONS_SIMULATION,
     format_corner_payload,
     format_position_payload,
     is_corner_aruco,
 )
-from webots_nodes import parse_custom_data, resolve_aruco_id  # noqa: E402
+from webots_nodes import is_disabled_robot, is_physical_proxy, parse_custom_data, resolve_aruco_id  # noqa: E402
 
 
 supervisor = Supervisor()
@@ -68,6 +68,8 @@ def tracked_nodes():
         aruco_id = resolve_aruco_id(node)
         if aruco_id is None:
             continue
+        if is_physical_proxy(node) or is_disabled_robot(node):
+            continue
 
         if is_corner_aruco(aruco_id):
             corners.append((node, aruco_id))
@@ -113,8 +115,8 @@ print(
 )
 if not tracked_corners:
     print(
-        "[Camera] WARNING: no corner markers found — field bounds disabled. "
-        "Expect nodes named corner_marker_15 .. corner_marker_18"
+        "[Camera] No Webots corner markers in scene — "
+        "field bounds come from physical camera corners (ArUco 5-8)."
     )
 last_publish = 0
 last_log = 0
@@ -133,7 +135,7 @@ while supervisor.step(timestep) != -1:
         world_x, world_y, _ = node.getPosition()
         pixel_x, pixel_y = world_to_camera_pixels(world_x, world_y)
         payload = format_corner_payload(aruco_id, pixel_x, pixel_y)
-        client.publish(TOPIC_DATA_POSITIONS, payload)
+        client.publish(TOPIC_DATA_POSITIONS_SIMULATION, payload)
         published_corners.append(f"{aruco_id}:({pixel_x},{pixel_y})")
 
     for node, aruco_id in tracked_robots:
@@ -142,7 +144,7 @@ while supervisor.step(timestep) != -1:
         orientation = camera_orientation_degrees(node)
         status = led_status(node)
         payload = format_position_payload(aruco_id, pixel_x, pixel_y, orientation, status)
-        client.publish(TOPIC_DATA_POSITIONS, payload)
+        client.publish(TOPIC_DATA_POSITIONS_SIMULATION, payload)
         published_robots.append(f"{aruco_id}:({pixel_x},{pixel_y},{orientation},{status})")
 
     if now - last_log >= LOG_INTERVAL_MS:

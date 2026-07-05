@@ -17,6 +17,12 @@ MQTT_PASS = os.getenv("MQTT_PASS", "FormingFormsAS")
 TOPIC_CONTROL_CONNECTING = "Robots/Control/Connecting"
 TOPIC_CONTROL_STATUS = "Robots/Control/{mac}/Status"
 TOPIC_DATA_POSITIONS = "Robots/Data/Positions"
+TOPIC_DATA_POSITIONS_PHYSICAL = "Robots/Data/Positions/Physical"
+TOPIC_DATA_POSITIONS_SIMULATION = "Robots/Data/Positions/Simulation"
+TOPIC_DATA_POSITIONS_WILD = "Robots/Data/Positions/#"
+
+POSITION_SOURCE_PHYSICAL = "physical"
+POSITION_SOURCE_SIMULATION = "simulation"
 TOPIC_DATA_COMMANDS = "Robots/Data/{mac}/Commands"
 TOPIC_DATA_GOALS = "Robots/Data/{mac}/Goals"
 TOPIC_DATA_CONFIG = "Robots/Data/{mac}/Config"
@@ -35,9 +41,16 @@ GOAL_ACTION_CLEAR = "clear"
 
 DEFAULT_GOAL_TOLERANCE = 12.0
 
-# Webots uses 15-18 (robots 11-14); physical field uses 5-8
-CORNER_ARUCO_FIRST = int(os.getenv("CORNER_ARUCO_FIRST", "15"))
-CORNER_ARUCO_LAST = int(os.getenv("CORNER_ARUCO_LAST", "18"))
+# Physical field (overhead camera): robots 1-4, corners 5-8
+PHYSICAL_ROBOT_ARUCO_FIRST = int(os.getenv("PHYSICAL_ROBOT_ARUCO_FIRST", "1"))
+PHYSICAL_ROBOT_ARUCO_LAST = int(os.getenv("PHYSICAL_ROBOT_ARUCO_LAST", "4"))
+PHYSICAL_CORNER_ARUCO_FIRST = int(os.getenv("PHYSICAL_CORNER_ARUCO_FIRST", "5"))
+PHYSICAL_CORNER_ARUCO_LAST = int(os.getenv("PHYSICAL_CORNER_ARUCO_LAST", "8"))
+# Webots simulation: robots 11-14, corners 15-18
+WEBOTS_ROBOT_ARUCO_FIRST = int(os.getenv("WEBOTS_ROBOT_ARUCO_FIRST", "11"))
+WEBOTS_ROBOT_ARUCO_LAST = int(os.getenv("WEBOTS_ROBOT_ARUCO_LAST", "14"))
+CORNER_ARUCO_FIRST = int(os.getenv("WEBOTS_CORNER_ARUCO_FIRST", "15"))
+CORNER_ARUCO_LAST = int(os.getenv("WEBOTS_CORNER_ARUCO_LAST", "18"))
 MARKER_TYPE_CORNER = "corner"
 MARKER_TYPE_ROBOT = "robot"
 
@@ -81,6 +94,21 @@ def data_config_topic(mac):
 
 def data_report_topic(mac):
     return TOPIC_DATA_REPORT.format(mac=mac)
+
+
+def is_physical_robot_aruco(aruco_id):
+    aid = int(aruco_id)
+    return PHYSICAL_ROBOT_ARUCO_FIRST <= aid <= PHYSICAL_ROBOT_ARUCO_LAST
+
+
+def is_physical_corner_aruco(aruco_id):
+    aid = int(aruco_id)
+    return PHYSICAL_CORNER_ARUCO_FIRST <= aid <= PHYSICAL_CORNER_ARUCO_LAST
+
+
+def is_webots_robot_aruco(aruco_id):
+    aid = int(aruco_id)
+    return WEBOTS_ROBOT_ARUCO_FIRST <= aid <= WEBOTS_ROBOT_ARUCO_LAST
 
 
 def is_corner_aruco(aruco_id, first=CORNER_ARUCO_FIRST, last=CORNER_ARUCO_LAST):
@@ -178,7 +206,8 @@ def _parse_position_json(payload):
     if aruco_id is None or x is None or y is None:
         return None
 
-    if is_corner_aruco(int(aruco_id)):
+    marker_type = str(data.get("marker_type", "")).lower()
+    if marker_type == MARKER_TYPE_CORNER or is_corner_aruco(int(aruco_id)) or is_physical_corner_aruco(int(aruco_id)):
         return {
             "kind": MARKER_TYPE_CORNER,
             "aruco_id": int(aruco_id),

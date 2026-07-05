@@ -1,10 +1,18 @@
 """Overhead camera: ArUco tracking, LED linking, MQTT position publish."""
 import cv2
+import json
 import math
+import sys
 import numpy as np
 from paho.mqtt import client as mqtt_client
-import json
 
+# USB webcam (Logitech HD 1080p). Set explicitly if auto-detect picks the wrong device.
+# For IP Webcam on a phone, set USE_USB_WEBCAM = False and cameraSource to e.g.
+# "http://<phone-ip>:8880/video"
+USE_USB_WEBCAM = True
+CAMERA_DEVICE_INDEX = 1  # None = auto-detect 1080p USB camera; or set 0, 1, ...
+CAMERA_WIDTH = 1920
+CAMERA_HEIGHT = 1080
 cameraSource = "http://145.137.61.30:8880/video"
 debugType = "linking"
 """
@@ -19,8 +27,15 @@ LastChariotMarkerID = 4
 FirstCornerMarkerID = 5
 LastCornerMarkerID = 8
 
-dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
-detector = cv2.aruco.ArucoDetector(dictionary)
+# Printed robot markers use DICT_6X6_50 (not 4x4). Set to cv2.aruco.DICT_4X4_50 if needed.
+ARUCO_DICTIONARY = cv2.aruco.DICT_4X4_50
+# Phone IP webcam used 90° rotation; USB overhead mount usually needs none.
+FRAME_ROTATION = None  # e.g. cv2.ROTATE_90_CLOCKWISE
+
+dictionary = cv2.aruco.getPredefinedDictionary(ARUCO_DICTIONARY)
+arucoParams = cv2.aruco.DetectorParameters()
+arucoParams.cornerRefinementMethod = cv2.aruco.CORNER_REFINE_SUBPIX
+detector = cv2.aruco.ArucoDetector(dictionary, arucoParams)
 
 maxAllowedDistanceMarkerToLed = 100 #65
 ledSearchAngle = 120
@@ -35,54 +50,57 @@ def on_connect(client, userdata, flags, rc) -> None:
 mqttClientId = "Camera"
 mqttPort = 8883
 mqttBroker = "145.24.237.88"
-mqttTopic = "Robots/Data/Positions"
+mqttTopic = "Robots/Data/Positions/Physical"
 client = mqtt_client.Client(client_id=mqttClientId)
 client.username_pw_set(username="myuser", password="FormingFormsAS")
 client.on_connect = on_connect
 
 def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    display = frame.copy()
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    corners, markerIDs, rejected = detector.detectMarkers(frame)
+    corners, markerIDs, _rejected = detector.detectMarkers(gray)
+    if markerIDs is not None:
+        cv2.aruco.drawDetectedMarkers(display, corners, markerIDs)
 
     chariotArucoInformation = []
     cornerArucoInformation = []
 
     if markerIDs is not None:
         for corner, markerID in zip(corners, markerIDs):
-            corner = corner.reshape(4, 2)
-            corner = corner.astype(int)
+            marker_id = int(markerID[0])
+            corner = corner.reshape(4, 2).astype(int)
 
             topLeft, topRight, bottomRight, bottomLeft = corner
 
-            cv2.putText(frame, f"id: {markerID[0]}", tuple(topLeft), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)
+            cv2.putText(display, f"id: {marker_id}", tuple(topLeft), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)
 
             centerX = (topLeft[0] + bottomRight[0]) // 2
             centerY = (topLeft[1] + bottomRight[1]) // 2
 
             center = (centerX, centerY)
             
-            if markerID >= FirstChariotMarkerID and markerID <= LastChariotMarkerID:
-                cv2.circle(frame, center, 5, (0, 0, 255), -1)
+            if FirstChariotMarkerID <= marker_id <= LastChariotMarkerID:
+                cv2.circle(display, center, 5, (0, 0, 255), -1)
 
                 topMiddleX = (topLeft[0] + topRight[0]) // 2
                 topMiddleY = (topLeft[1] + topRight[1]) // 2
 
                 direction = math.degrees(math.atan2(topMiddleY - centerY, topMiddleX - centerX))
-                cv2.putText(frame, f"dir: {direction}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
+                cv2.putText(display, f"dir: {direction:.0f}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
                 
-                chariotArucoInformation.append([int(markerID[0]), center, direction])
-            elif markerID >= FirstCornerMarkerID and markerID <= LastCornerMarkerID:
-                cornerArucoInformation.append([int(markerID[0]), center])
-                cv2.line(frame, topLeft, bottomLeft, (0, 255, 0), 2)
-                cv2.line(frame, bottomLeft, bottomRight, (0, 255, 0), 2)
-                cv2.line(frame, bottomRight, topRight, (0, 255, 0), 2)
-                cv2.line(frame, topLeft, topRight, (0, 255, 0), 2)
+                chariotArucoInformation.append([marker_id, center, direction])
+            elif FirstCornerMarkerID <= marker_id <= LastCornerMarkerID:
+                cornerArucoInformation.append([marker_id, center])
+                cv2.line(display, topLeft, bottomLeft, (0, 255, 0), 2)
+                cv2.line(display, bottomLeft, bottomRight, (0, 255, 0), 2)
+                cv2.line(display, bottomRight, topRight, (0, 255, 0), 2)
+                cv2.line(display, topLeft, topRight, (0, 255, 0), 2)
 
     for marker in chariotArucoInformation:
-        cv2.circle(frame, marker[1], maxAllowedDistanceMarkerToLed, (0, 0, 0), 2)
+        cv2.circle(display, marker[1], maxAllowedDistanceMarkerToLed, (0, 0, 0), 2)
 
-    return chariotArucoInformation, cornerArucoInformation, frame
+    return chariotArucoInformation, cornerArucoInformation, display
 
 def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method: int, minimumLedArea: int) -> tuple[list, np.ndarray]:
     """
@@ -195,28 +213,88 @@ def sendCornerInformation(cornerInformation: list) -> None:
         message_json = json.dumps(message)
         client.publish(mqttTopic, message_json)
 
-def videoProcessing(file: str, record: bool, camera: bool) -> None:
-    capture = cv2.VideoCapture(file)
+def find_webcam_device(max_devices: int = 6) -> int | None:
+    """Pick the camera that reaches the target resolution (USB 1080p over built-in)."""
+    api = cv2.CAP_DSHOW if sys.platform == "win32" else cv2.CAP_ANY
+    best_index: int | None = None
+    best_pixels = 0
+
+    for index in range(max_devices):
+        capture = cv2.VideoCapture(index, api)
+        if not capture.isOpened():
+            continue
+
+        capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+        capture.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+        capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
+
+        width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        pixels = width * height
+
+        if pixels > best_pixels:
+            best_pixels = pixels
+            best_index = index
+
+        capture.release()
+
+    return best_index
+
+
+def resolve_camera_source() -> str | int:
+    if not USE_USB_WEBCAM:
+        return cameraSource
+
+    if CAMERA_DEVICE_INDEX is not None:
+        return CAMERA_DEVICE_INDEX
+
+    detected = find_webcam_device()
+    if detected is None:
+        raise RuntimeError("No USB webcam found. Check the connection or set CAMERA_DEVICE_INDEX manually.")
+
+    print(f"Auto-selected webcam device {detected} ({CAMERA_WIDTH}x{CAMERA_HEIGHT} target)")
+    return detected
+
+
+def open_capture(source: str | int) -> cv2.VideoCapture:
+    if isinstance(source, int):
+        api = cv2.CAP_DSHOW if sys.platform == "win32" else cv2.CAP_ANY
+        capture = cv2.VideoCapture(source, api)
+        # MJPEG is required on many Logitech webcams to reach 1080p over USB.
+        capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+        capture.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+        capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
+        capture.set(cv2.CAP_PROP_FPS, 30)
+    else:
+        capture = cv2.VideoCapture(source)
+
     capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    return capture
+
+
+def videoProcessing(source: str | int, record: bool) -> None:
+    capture = open_capture(source)
 
     if not capture.isOpened():
-        print("Error: Could not open video")
+        print("Error: Could not open video source:", source)
         return
+
+    if isinstance(source, int):
+        width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        print(f"Webcam opened: device {source}, resolution {width}x{height}")
 
     if record:
         width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-        if camera:
+        if FRAME_ROTATION in (cv2.ROTATE_90_CLOCKWISE, cv2.ROTATE_90_COUNTERCLOCKWISE):
             width, height = height, width
 
         fps = capture.get(cv2.CAP_PROP_FPS)
 
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        if debugType == "arucos":
-            out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height), isColor=False)
-        else:
-            out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height))
+        out = cv2.VideoWriter('output.mp4', fourcc, fps, (width, height))
 
     while True:
         try:
@@ -226,8 +304,8 @@ def videoProcessing(file: str, record: bool, camera: bool) -> None:
                 print("End of video")
                 break
 
-            if camera:
-                frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+            if FRAME_ROTATION is not None:
+                frame = cv2.rotate(frame, FRAME_ROTATION)
 
             arUcoInformation, cornerInformation, arUcoFrame = arUcoDetection(frame)
             ledPositions, ledFrame = ledDetection(frame)
@@ -280,8 +358,6 @@ if __name__ == "__main__":
     - record: do you want to save the shown frames to output.mp4
         - Yes: True
         - No: False
-    - camera: are the inputted frames coming form a camera
-        - Yes: True
-        - No: False (e.g. .mp4 file)
     """
-    videoProcessing(cameraSource, record=True, camera=True)
+    source = resolve_camera_source()
+    videoProcessing(source, record=True)
