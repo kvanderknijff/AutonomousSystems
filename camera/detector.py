@@ -254,12 +254,6 @@ def videoProcessing(file: str, record: bool, camera: bool) -> None:
                 cv2.imshow("Frames", linkingFrame)
                 if record:
                     out.write(linkingFrame)
-            else:
-                #cv2.circle(frame, (340, 1200), 5, (0, 0, 255), -1)
-                #cv2.circle(frame, (300, 1200), 5, (0, 0, 255), -1)
-                cv2.imshow("Frames", frame)
-                if record:
-                    out.write(frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
