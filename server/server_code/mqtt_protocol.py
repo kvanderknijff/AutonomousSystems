@@ -7,6 +7,8 @@ from config import (
     CORNER_ARUCO_FIRST,
     CORNER_ARUCO_LAST,
     PHYSICAL_GOAL_TOLERANCE,
+    PHYSICAL_ROBOT_ARUCO_FIRST,
+    PHYSICAL_ROBOT_ARUCO_LAST,
     WEBOTS_CORNER_ARUCO_FIRST,
     WEBOTS_CORNER_ARUCO_LAST,
     WEBOTS_GOAL_TOLERANCE,
@@ -17,6 +19,13 @@ from config import (
 TOPIC_CONTROL_CONNECTING = "Robots/Control/Connecting"
 TOPIC_CONTROL_STATUS = "Robots/Control/{mac}/Status"
 TOPIC_DATA_POSITIONS = "Robots/Data/Positions"
+TOPIC_DATA_POSITIONS_PHYSICAL = "Robots/Data/Positions/Physical"
+TOPIC_DATA_POSITIONS_SIMULATION = "Robots/Data/Positions/Simulation"
+TOPIC_DATA_POSITIONS_WILD = "Robots/Data/Positions/#"
+
+POSITION_SOURCE_PHYSICAL = "physical"
+POSITION_SOURCE_SIMULATION = "simulation"
+POSITION_SOURCE_LEGACY = "legacy"
 TOPIC_DATA_COMMANDS = "Robots/Data/{mac}/Commands"
 TOPIC_DATA_GOALS = "Robots/Data/{mac}/Goals"
 TOPIC_DATA_CONFIG = "Robots/Data/{mac}/Config"
@@ -245,9 +254,22 @@ def is_corner_aruco(aruco_id: int) -> bool:
     return WEBOTS_CORNER_ARUCO_FIRST <= aid <= WEBOTS_CORNER_ARUCO_LAST
 
 
+def is_physical_robot_aruco(aruco_id: int) -> bool:
+    aid = int(aruco_id)
+    return PHYSICAL_ROBOT_ARUCO_FIRST <= aid <= PHYSICAL_ROBOT_ARUCO_LAST
+
+
 def is_webots_robot_aruco(aruco_id: int) -> bool:
     aid = int(aruco_id)
     return WEBOTS_ROBOT_ARUCO_FIRST <= aid <= WEBOTS_ROBOT_ARUCO_LAST
+
+
+def position_source_for_topic(topic: str) -> str:
+    if topic == TOPIC_DATA_POSITIONS_PHYSICAL:
+        return POSITION_SOURCE_PHYSICAL
+    if topic == TOPIC_DATA_POSITIONS_SIMULATION:
+        return POSITION_SOURCE_SIMULATION
+    return POSITION_SOURCE_LEGACY
 
 
 def goal_tolerance_for_aruco(aruco_id: int | None) -> float:

@@ -4,6 +4,7 @@ import re
 
 CORNER_NAME_RE = re.compile(r"corner_marker_(\d+)$", re.IGNORECASE)
 ROBOT_NAME_RE = re.compile(r"formation_bot_(\d+)$", re.IGNORECASE)
+PHYSICAL_PROXY_RE = re.compile(r"physical_proxy_(\d+)$", re.IGNORECASE)
 
 
 def parse_custom_data(raw):
@@ -14,6 +15,26 @@ def parse_custom_data(raw):
         key, value = part.split("=", 1)
         values[key.strip()] = value.strip()
     return values
+
+
+def is_disabled_robot(node) -> bool:
+    custom_field = node.getField("customData")
+    if custom_field is None:
+        return False
+    return parse_custom_data(custom_field.getSFString()).get("role") == "disabled"
+
+
+def is_physical_proxy(node) -> bool:
+    name_field = node.getField("name")
+    if name_field is not None:
+        name = name_field.getSFString()
+        if PHYSICAL_PROXY_RE.match(name):
+            return True
+
+    custom_field = node.getField("customData")
+    if custom_field is None:
+        return False
+    return parse_custom_data(custom_field.getSFString()).get("role") == "physical_proxy"
 
 
 def resolve_aruco_id(node):
@@ -27,6 +48,9 @@ def resolve_aruco_id(node):
         robot_match = ROBOT_NAME_RE.match(name)
         if robot_match:
             return int(robot_match.group(1))
+        proxy_match = PHYSICAL_PROXY_RE.match(name)
+        if proxy_match:
+            return int(proxy_match.group(1))
 
     custom_field = node.getField("customData")
     if custom_field is None:

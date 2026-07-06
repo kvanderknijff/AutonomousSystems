@@ -7,4 +7,4 @@ centralWidgetVisible: 1
 orthographicViewHeight: 1
 textFiles: 1 "controllers/mqtt_protocol.py" "controllers/formation_camera/formation_camera.py"
 consoles: Console:All:All
-renderingDevicePerspectives: formation_camera:overhead_camera;1;0.658333;0;0
+renderingDevicePerspectives: formation_camera:overhead_camera;1;0.451562;0;0

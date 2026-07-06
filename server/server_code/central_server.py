@@ -6,6 +6,7 @@ from typing import Callable, Dict
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import CallbackAPIVersion
 
+from coordinate_mapper import CoordinateMapper
 from config import (
     MQTT_BROKER,
     MQTT_PORT,
@@ -19,7 +20,13 @@ from field_bounds import FieldBounds
 from mqtt_protocol import (
     TOPIC_CONTROL_CONNECTING,
     TOPIC_DATA_POSITIONS,
+    TOPIC_DATA_POSITIONS_PHYSICAL,
+    TOPIC_DATA_POSITIONS_SIMULATION,
+    TOPIC_DATA_POSITIONS_WILD,
     TOPIC_DATA_REPORT_WILD,
+    POSITION_SOURCE_LEGACY,
+    POSITION_SOURCE_PHYSICAL,
+    POSITION_SOURCE_SIMULATION,
     STATUS_CHECKING,
     STATUS_CONNECTED,
     STATUS_DISCONNECTED,
@@ -33,6 +40,8 @@ from mqtt_protocol import (
     parse_connecting_payload,
     parse_position_payload,
     parse_report_payload,
+    position_source_for_topic,
+    is_physical_robot_aruco,
     control_status_topic,
     data_commands_topic,
     data_config_topic,
@@ -54,6 +63,8 @@ class CentralServer:
         self.registry = RobotRegistry(db=self.db)
         self.registry.load_from_database()
         self.field_bounds = FieldBounds()
+        self.coordinate_mapper = CoordinateMapper()
+        self._last_physical_update: dict[int, float] = {}
 
         self._last_history_time: Dict[str, float] = {}
         self._client = mqtt.Client(
@@ -154,9 +165,19 @@ class CentralServer:
         if action == GOAL_ACTION_CLEAR:
             mqtt_payload = format_goal_payload(0, 0, action=GOAL_ACTION_CLEAR, seq=int(goal.get("seq", 0)))
         else:
+            target_x = float(goal["target_x"])
+            target_y = float(goal["target_y"])
+            with self._lock:
+                aruco_id = record.aruco_id
+            if aruco_id is not None:
+                target_x, target_y = self.coordinate_mapper.to_native_for_aruco(
+                    target_x,
+                    target_y,
+                    aruco_id,
+                )
             mqtt_payload = format_goal_payload(
-                float(goal["target_x"]),
-                float(goal["target_y"]),
+                target_x,
+                target_y,
                 tolerance=float(goal.get("tolerance", 12)),
                 seq=int(goal.get("seq", 0)),
             )
@@ -223,7 +244,7 @@ class CentralServer:
             return
         logger.info("MQTT connected (%s)", reason_code)
         client.subscribe(TOPIC_CONTROL_CONNECTING)
-        client.subscribe(TOPIC_DATA_POSITIONS)
+        client.subscribe(TOPIC_DATA_POSITIONS_WILD)
         client.subscribe(TOPIC_DATA_REPORT_WILD)
 
     def _mac_from_report_topic(self, topic: str) -> str | None:
@@ -234,12 +255,32 @@ class CentralServer:
         mac = topic[len(prefix) : -len(suffix)]
         return mac or None
 
+    def _is_position_topic(self, topic: str) -> bool:
+        return (
+            topic == TOPIC_DATA_POSITIONS
+            or topic == TOPIC_DATA_POSITIONS_PHYSICAL
+            or topic == TOPIC_DATA_POSITIONS_SIMULATION
+        )
+
+    def _should_ignore_simulation_robot(
+        self,
+        aruco_id: int,
+        source: str,
+    ) -> bool:
+        """Prefer the physical camera for robots that exist on the real field."""
+        if source != POSITION_SOURCE_SIMULATION:
+            return False
+        if not is_physical_robot_aruco(aruco_id):
+            return False
+        last_physical = self._last_physical_update.get(aruco_id, 0.0)
+        return time.time() - last_physical < 1.0
+
     def _on_message(self, client, userdata, msg):
         payload = msg.payload.decode().strip()
         if msg.topic == TOPIC_CONTROL_CONNECTING:
             self._handle_connecting(payload)
-        elif msg.topic == TOPIC_DATA_POSITIONS:
-            self._handle_position(payload)
+        elif self._is_position_topic(msg.topic):
+            self._handle_position(payload, msg.topic)
         elif msg.topic.endswith("/Report"):
             self._handle_report(msg.topic, payload)
 
@@ -279,33 +320,54 @@ class CentralServer:
             logger.info("ArUco %s <-> %s -> [connected] (handshake)", fixed_aruco_id, mac)
             self.publish_robot_config(mac, fixed_aruco_id)
 
-    def _handle_position(self, payload: str) -> None:
+    def _handle_position(self, payload: str, topic: str) -> None:
         position = parse_position_payload(payload)
         if position is None:
             logger.debug("Ignored unparseable position payload: %s", payload[:200])
             return
 
+        source = position_source_for_topic(topic)
+
         if position.get("kind") == MARKER_TYPE_CORNER:
             with self._lock:
-                self.field_bounds.update_corner(
+                self.coordinate_mapper.update_corner(
                     position["aruco_id"],
                     position["x"],
                     position["y"],
                 )
+                if source in (POSITION_SOURCE_PHYSICAL, POSITION_SOURCE_LEGACY):
+                    self.field_bounds.update_corner(
+                        position["aruco_id"],
+                        position["x"],
+                        position["y"],
+                    )
             logger.debug(
-                "Field corner %s @ (%s, %s)",
+                "Field corner %s @ (%s, %s) [%s]",
                 position["aruco_id"],
                 position["x"],
                 position["y"],
+                source,
             )
             self._notify_field_bounds_listener()
             return
 
         aruco_id = position["aruco_id"]
+        if self._should_ignore_simulation_robot(aruco_id, source):
+            return
+
         led_status = position["led_status"]
-        x = float(position["x"])
-        y = float(position["y"])
+        with self._lock:
+            canonical_x, canonical_y = self.coordinate_mapper.to_canonical(
+                position["x"],
+                position["y"],
+                source=source,
+            )
+        x = float(canonical_x)
+        y = float(canonical_y)
         orientation = float(position["orientation"])
+
+        if source == POSITION_SOURCE_PHYSICAL and is_physical_robot_aruco(aruco_id):
+            self._last_physical_update[aruco_id] = time.time()
         notify_mac: str | None = None
         notify_pose: tuple[float, float, float] | None = None
         publish_connected_mac: str | None = None
@@ -316,8 +378,8 @@ class CentralServer:
             if mac is not None:
                 record, went_offline = self.registry.update_position(
                     aruco_id,
-                    position["x"],
-                    position["y"],
+                    int(round(canonical_x)),
+                    int(round(canonical_y)),
                     position["orientation"],
                     led_status,
                 )
@@ -335,8 +397,8 @@ class CentralServer:
                 if pending_mac is not None and self.registry.complete_handshake(pending_mac, aruco_id):
                     self.registry.update_position(
                         aruco_id,
-                        position["x"],
-                        position["y"],
+                        int(round(canonical_x)),
+                        int(round(canonical_y)),
                         position["orientation"],
                         led_status,
                     )

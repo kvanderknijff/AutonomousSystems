@@ -32,10 +32,16 @@ OFFLINE_LED_STREAK = int(os.getenv("OFFLINE_LED_STREAK", "5"))
 # Keep planner state while camera telemetry is fresh, even if MQTT state flaps
 PLANNER_DISCONNECT_GRACE = float(os.getenv("PLANNER_DISCONNECT_GRACE", "3.0"))
 
+# Camera resolutions (physical overhead camera is the planner's canonical space)
+PHYSICAL_CAMERA_WIDTH = int(os.getenv("PHYSICAL_CAMERA_WIDTH", "1920"))
+PHYSICAL_CAMERA_HEIGHT = int(os.getenv("PHYSICAL_CAMERA_HEIGHT", "1080"))
+WEBOTS_CAMERA_WIDTH = int(os.getenv("WEBOTS_CAMERA_WIDTH", "640"))
+WEBOTS_CAMERA_HEIGHT = int(os.getenv("WEBOTS_CAMERA_HEIGHT", "480"))
+
 # Optional startup formation: line, plus, square, y, or empty to wait for web UI
 FORMATION = os.getenv("FORMATION", "")
-FORMATION_CENTER_X = float(os.getenv("FORMATION_CENTER_X", "320"))
-FORMATION_CENTER_Y = float(os.getenv("FORMATION_CENTER_Y", "240"))
+FORMATION_CENTER_X = float(os.getenv("FORMATION_CENTER_X", str(PHYSICAL_CAMERA_WIDTH / 2)))
+FORMATION_CENTER_Y = float(os.getenv("FORMATION_CENTER_Y", str(PHYSICAL_CAMERA_HEIGHT / 2)))
 FORMATION_SPACING = float(os.getenv("FORMATION_SPACING", "40"))
 FORMATION_MIN_ROBOTS = int(os.getenv("FORMATION_MIN_ROBOTS", "1"))
 FORMATION_AUTO_CENTER = os.getenv("FORMATION_AUTO_CENTER", "false").lower() in ("1", "true", "yes")

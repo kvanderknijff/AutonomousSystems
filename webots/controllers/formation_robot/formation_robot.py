@@ -11,6 +11,7 @@ from controller import Supervisor
 from paho.mqtt.client import CallbackAPIVersion
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from coordinate_mapper import PhysicalFieldMapper  # noqa: E402
 from mqtt_protocol import (  # noqa: E402
     BROKER,
     COMMANDS,
@@ -24,7 +25,8 @@ from mqtt_protocol import (  # noqa: E402
     STATUS_CONNECTED,
     STATUS_DISCONNECTED,
     TOPIC_CONTROL_CONNECTING,
-    TOPIC_DATA_POSITIONS,
+    TOPIC_DATA_POSITIONS_PHYSICAL,
+    TOPIC_DATA_POSITIONS_SIMULATION,
     bracket_payload,
     control_status_topic,
     data_commands_topic,
@@ -33,13 +35,15 @@ from mqtt_protocol import (  # noqa: E402
     data_report_topic,
     format_report_payload,
     is_corner_aruco,
+    is_physical_corner_aruco,
+    is_physical_robot_aruco,
     parse_bracket_payload,
     parse_config_payload,
     parse_goal_payload,
     parse_position_payload,
 )
 from nav_goal import GoalNavigator  # noqa: E402
-from webots_nodes import parse_custom_data, resolve_aruco_id  # noqa: E402
+from webots_nodes import is_disabled_robot, parse_custom_data, resolve_aruco_id  # noqa: E402
 
 
 robot = Supervisor()
@@ -109,11 +113,16 @@ FIELD_SIZE_M = float(os.getenv("WEBOTS_FIELD_SIZE_M", "10.0"))
 CAMERA_WIDTH = int(os.getenv("WEBOTS_CAMERA_WIDTH", "640"))
 CAMERA_HEIGHT = int(os.getenv("WEBOTS_CAMERA_HEIGHT", "480"))
 HALF_FIELD = FIELD_SIZE_M / 2.0
+CORNER_INSET_M = float(os.getenv("WEBOTS_CORNER_INSET_M", "0.35"))
+WORLD_MIN = -HALF_FIELD + CORNER_INSET_M
+WORLD_MAX = HALF_FIELD - CORNER_INSET_M
 USE_SUPERVISOR_FLEET = os.getenv("WEBOTS_SUPERVISOR_FLEET", "true").lower() in (
     "1",
     "true",
     "yes",
 )
+physical_field_mapper = PhysicalFieldMapper()
+physical_field_ready_logged = False
 state_lock = threading.Lock()
 last_applied_command = None
 
@@ -256,11 +265,20 @@ def handle_position_payload(raw_payload):
         return
     with state_lock:
         if position.get("kind") == MARKER_TYPE_CORNER:
-            navigator.update_field_corner(
-                position["aruco_id"],
-                position["x"],
-                position["y"],
-            )
+            if is_physical_corner_aruco(position["aruco_id"]):
+                _apply_physical_corner(
+                    position["aruco_id"],
+                    position["x"],
+                    position["y"],
+                )
+            else:
+                navigator.update_field_corner(
+                    position["aruco_id"],
+                    position["x"],
+                    position["y"],
+                )
+            return
+        if USE_SUPERVISOR_FLEET and is_physical_robot_aruco(position["aruco_id"]):
             return
         if not USE_SUPERVISOR_FLEET:
             navigator.update_fleet_position(
@@ -287,6 +305,26 @@ def _world_to_camera_pixels(world_x, world_y):
     return _clamp(x, 0, CAMERA_WIDTH), _clamp(y, 0, CAMERA_HEIGHT)
 
 
+def _physical_pixel_to_sim_pixel(px, py):
+    world_x, world_y = physical_field_mapper.pixel_to_world(
+        px,
+        py,
+        world_min=WORLD_MIN,
+        world_max=WORLD_MAX,
+    )
+    return _world_to_camera_pixels(world_x, world_y)
+
+
+def _apply_physical_corner(aruco_id, pixel_x, pixel_y):
+    global physical_field_ready_logged
+    physical_field_mapper.update_corner(aruco_id, pixel_x, pixel_y)
+    sim_x, sim_y = _physical_pixel_to_sim_pixel(pixel_x, pixel_y)
+    navigator.update_field_corner(aruco_id, sim_x, sim_y)
+    if physical_field_mapper.ready and not physical_field_ready_logged:
+        physical_field_ready_logged = True
+        print(f"[Robot] Physical field corners loaded for {ROBOT_MAC}")
+
+
 def _camera_orientation_degrees(node):
     orientation = node.getOrientation()
     forward_x = orientation[0]
@@ -300,6 +338,8 @@ def sync_fleet_from_supervisor():
     children = robot.getRoot().getField("children")
     for index in range(children.getCount()):
         node = children.getMFNode(index)
+        if is_disabled_robot(node):
+            continue
         aruco_id = resolve_aruco_id(node)
         if aruco_id is None:
             continue
@@ -308,6 +348,8 @@ def sync_fleet_from_supervisor():
         pixel_x, pixel_y = _world_to_camera_pixels(world_x, world_y)
 
         if is_corner_aruco(aruco_id):
+            if physical_field_mapper.ready:
+                continue
             navigator.update_field_corner(aruco_id, pixel_x, pixel_y)
             continue
 
@@ -337,11 +379,13 @@ def publish_report(status, seq=0):
 
 
 def subscribe_navigation_topics():
-    client.subscribe(TOPIC_DATA_POSITIONS)
+    client.subscribe(TOPIC_DATA_POSITIONS_SIMULATION)
+    client.subscribe(TOPIC_DATA_POSITIONS_PHYSICAL)
     client.subscribe(goals_topic)
     client.subscribe(config_topic)
     print(
-        f"[MQTT] Subscribed to {TOPIC_DATA_POSITIONS}, {goals_topic}, {config_topic}"
+        f"[MQTT] Subscribed to {TOPIC_DATA_POSITIONS_SIMULATION}, "
+        f"{TOPIC_DATA_POSITIONS_PHYSICAL}, {goals_topic}, {config_topic}"
     )
 
 
@@ -396,7 +440,8 @@ def on_message(client, userdata, msg):
             client.unsubscribe(commands_topic)
             client.unsubscribe(goals_topic)
             client.unsubscribe(config_topic)
-            client.unsubscribe(TOPIC_DATA_POSITIONS)
+            client.unsubscribe(TOPIC_DATA_POSITIONS_SIMULATION)
+            client.unsubscribe(TOPIC_DATA_POSITIONS_PHYSICAL)
         return
 
     if connection_state != "connected":
@@ -408,7 +453,7 @@ def on_message(client, userdata, msg):
         handle_goal_payload(payload)
     elif msg.topic == config_topic:
         handle_config_payload(payload)
-    elif msg.topic == TOPIC_DATA_POSITIONS:
+    elif msg.topic in (TOPIC_DATA_POSITIONS_SIMULATION, TOPIC_DATA_POSITIONS_PHYSICAL):
         handle_position_payload(payload)
 
 
