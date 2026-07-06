@@ -1,0 +1,36 @@
+%%{init: {"flowchart": {"defaultRenderer": "elk"}}}%%
+flowchart TD
+    subgraph CameraSystem["Overhead Camera System"]
+        A["Video Input (cameraSource)"]
+        B["videoProcessing()"]
+    end
+
+    subgraph Detection["Detection Pipeline"]
+        C["arUcoDetection(frame)"]
+        D["ledDetection(frame)"]
+        E["linkLedToChariot(arUcoInfo, ledPositions, frame)"]
+    end
+
+    subgraph Communication["MQTT Communication"]
+        F["sendChariotInformation(chariotInfo)"]
+        G["sendCornerInformation(cornerInfo)"]
+        H["MQTT Broker"]
+    end
+
+    A --> B
+    B --> C
+    B --> D
+    C --> E
+    D --> E
+    E --> F
+    C --> G
+    F --> H
+    G --> H
+
+    classDef camera stroke:#818cf8,fill:#eef2ff;
+    classDef detect stroke:#2dd4bf,fill:#f0fdfa;
+    classDef comms stroke:#a78bfa,fill:#f5f3ff;
+
+    class A,B camera;
+    class C,D,E detect;
+    class F,G,H comms;
