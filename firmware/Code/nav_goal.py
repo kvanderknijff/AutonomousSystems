@@ -25,8 +25,8 @@ TURN_COMMANDS = frozenset(("TL", "TR", "RL", "RR"))
 # Pulse steering: brief turn, stop, wait for fresh camera frame (0 = continuous turns).
 # DEFAULT_TURN_PULSE_SEC = 0.15
 # DEFAULT_TURN_SETTLE_SEC = 0.35
-DEFAULT_TURN_PULSE_SEC = 10.0
-DEFAULT_TURN_SETTLE_SEC = 10.0
+DEFAULT_TURN_PULSE_SEC = 1.0
+DEFAULT_TURN_SETTLE_SEC = 1.0
 
 
 class FieldBounds:
