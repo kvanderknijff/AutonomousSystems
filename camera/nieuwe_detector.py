@@ -15,7 +15,7 @@ CAMERA_DEVICE_INDEX = 1  # None = auto-detect 1080p USB camera; or set 0, 1, ...
 CAMERA_WIDTH = 1920
 CAMERA_HEIGHT = 1080
 cameraSource = "http://145.137.56.195:8880/video"
-debugType = "leds"
+debugType = "arucos" 
 """
 debugType: which video do you want to see
     - "arucos": Show the detection of ArUco markers along with its information, orientation and area for LED linking
@@ -140,10 +140,10 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_EXTERNAL, 150)
     ledPositions.append(blueLedPositions)
 
-    lowerGreen = np.array([35, 40, 40])
+    lowerGreen = np.array([45, 50, 50])
     upperGreen = np.array([95, 255, 255])
     maskG = cv2.inRange(frameHSV, lowerGreen, upperGreen)
-    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL, 40)
+    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL, 60)
     ledPositions.append(greenLedPositions)
 
     outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
