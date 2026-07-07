@@ -216,7 +216,7 @@ def check_server_status():
 
 
 def moveMotor(motor, speed):
-    print("Moving motor: ",motor," with speed: ",speed);
+    # print("Moving motor: ",motor," with speed: ",speed);
     if motor == "right":
         RightMotor.duty_u16(speed)
     elif motor == "left":
@@ -243,6 +243,8 @@ def move(command):
     if command not in MOTOR_CFG:
         print("Unknown command:", command)
         return
+    
+    print("Moving with command:", command)
 
     left_pwm, right_pwm = MOTOR_CFG[command]
     last_applied_command = command
@@ -273,7 +275,6 @@ def subscribe_navigation_topics(client):
     global navigation_topics_ready
     topics = [
         f"Robots/Data/{mac_str}/Goals",
-        f"Robots/Data/{mac_str}/Config",
         "Robots/Data/Positions/Physical",
         "Robots/Data/Positions",
     ]
@@ -284,6 +285,7 @@ def subscribe_navigation_topics(client):
 
 
 def handle_goal_message(msg):
+    print("Received goal message:", msg)
     goal = parse_goal_payload(msg)
     if goal is None:
         print("Ignored invalid goal:", msg)
@@ -319,6 +321,8 @@ def handle_config_message(msg):
 
 def handle_position_message(msg):
     position = parse_position_payload(msg)
+    # print("----------------")
+    # print(position)
     if position is None:
         return
     if position.get("kind") == "corner":
@@ -333,6 +337,7 @@ def handle_position_message(msg):
         position["x"],
         position["y"],
     )
+
     if robot_aruco_id is not None and position["aruco_id"] != robot_aruco_id:
         return
     navigator.update_position(
@@ -340,6 +345,7 @@ def handle_position_message(msg):
         position["y"],
         position["orientation"],
     )
+    # print("updated position for aruco_id", position["aruco_id"], "to x:", position["x"], "y:", position["y"], "orientation:", position["orientation"])
 
 
 def run_navigation_tick():
@@ -357,7 +363,6 @@ def run_navigation_tick():
         kind, value = result
         seq = navigator.seq
 
-    print("value:", value, "kind:", kind, "seq:", seq)
 
     if kind == "command":
         if value != last_applied_command or value == "SS":
@@ -435,11 +440,6 @@ def mqtt_callback(topic, msg):
         moveMotor("right", 6550)
     elif topic == "chariot/stop":
         stopMotors()
-    elif topic == "chariot/test":
-        print("Left")
-        print(pwm_to_rps_map("left", step=50))
-        print("Right")
-        print(pwm_to_rps_map("right", step=50))
     else:
         print("Received message on unknown topic:", topic)
 
@@ -474,6 +474,8 @@ def mqtt_connect_and_subscribe(
             client.subscribe(topic)
             print("Subscribed to:", topic)
 
+        # subscribe_navigation_topics(client)
+
         mqtt_connected = True
         return client
 
@@ -507,6 +509,7 @@ topics = [
     "chariot/#",
     f"Robots/Control/{mac_str}/Status",
     f"Robots/Data/{mac_str}/Commands",
+    f"Robots/Data/{mac_str}/Config"
 ]
 
 mqtt_client = mqtt_connect_and_subscribe( # Connect to MQTT broker and subscribe to topics

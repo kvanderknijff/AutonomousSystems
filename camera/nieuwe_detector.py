@@ -15,7 +15,7 @@ CAMERA_DEVICE_INDEX = 1  # None = auto-detect 1080p USB camera; or set 0, 1, ...
 CAMERA_WIDTH = 1920
 CAMERA_HEIGHT = 1080
 cameraSource = "http://145.137.56.195:8880/video"
-debugType = "arucos" 
+debugType = "leds" 
 """
 debugType: which video do you want to see
     - "arucos": Show the detection of ArUco markers along with its information, orientation and area for LED linking
@@ -385,7 +385,7 @@ def videoProcessing(source: str | int, record: bool) -> None:
                 if record:
                     out.write(linkingFrame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(100) & 0xFF == ord('q'):
                 break
 
         except Exception as e:
