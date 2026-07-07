@@ -75,7 +75,8 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
 
             topLeft, topRight, bottomRight, bottomLeft = corner
 
-            cv2.putText(display, f"id: {marker_id}", tuple(topLeft), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)
+            if debugType == "arucos":
+                cv2.putText(display, f"id: {marker_id}", tuple(topLeft), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)
 
             centerX = (topLeft[0] + bottomRight[0]) // 2
             centerY = (topLeft[1] + bottomRight[1]) // 2
@@ -83,24 +84,27 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
             center = (centerX, centerY)
             
             if FirstChariotMarkerID <= marker_id <= LastChariotMarkerID:
-                cv2.circle(display, center, 5, (0, 0, 255), -1)
+                if debugType == "arucos":
+                    cv2.circle(display, center, 5, (0, 0, 255), -1)
 
                 topMiddleX = (topLeft[0] + topRight[0]) // 2
                 topMiddleY = (topLeft[1] + topRight[1]) // 2
 
                 direction = math.degrees(math.atan2(topMiddleY - centerY, topMiddleX - centerX))
-                cv2.putText(display, f"dir: {direction:.0f}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
+                if debugType == "arucos":
+                    cv2.putText(display, f"dir: {direction:.0f}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
                 
                 chariotArucoInformation.append([marker_id, center, direction])
             elif FirstCornerMarkerID <= marker_id <= LastCornerMarkerID:
                 cornerArucoInformation.append([marker_id, center])
-                cv2.line(display, topLeft, bottomLeft, (0, 255, 0), 2)
-                cv2.line(display, bottomLeft, bottomRight, (0, 255, 0), 2)
-                cv2.line(display, bottomRight, topRight, (0, 255, 0), 2)
-                cv2.line(display, topLeft, topRight, (0, 255, 0), 2)
-
-    for marker in chariotArucoInformation:
-        cv2.circle(display, marker[1], maxAllowedDistanceMarkerToLed, (0, 0, 0), 2)
+                if debugType == "arucos":
+                    cv2.line(display, topLeft, bottomLeft, (0, 255, 0), 2)
+                    cv2.line(display, bottomLeft, bottomRight, (0, 255, 0), 2)
+                    cv2.line(display, bottomRight, topRight, (0, 255, 0), 2)
+                    cv2.line(display, topLeft, topRight, (0, 255, 0), 2)
+    if debugType == "arucos":
+        for marker in chariotArucoInformation:
+            cv2.circle(display, marker[1], maxAllowedDistanceMarkerToLed, (0, 0, 0), 2)
 
     return chariotArucoInformation, cornerArucoInformation, display
 
@@ -117,7 +121,8 @@ def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method
         if area > minimumLedArea:
             x, y, w, h = cv2.boundingRect(contour)
             ledPositions.append([x + 0.5 * w, y + 0.5 * h])
-            cv2.rectangle(frameRGB, (x, y), (x + w, y + h), colorCode, 2)
+            if debugType == "leds":
+                cv2.rectangle(frameRGB, (x, y), (x + w, y + h), colorCode, 2)
 
     if not ledPositions:
         ledPositions.append([-1,-1])
@@ -163,13 +168,14 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frameForLinking
         
         chariotDirection = ((chariot[2] - 90 + 180) % 360) - 180
 
-        x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection + ledSearchAngle)))
-        y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection + ledSearchAngle)))
-        cv2.line(frameForLinking, chariot[1], (x, y), (0, 255, 255), 2)
-        x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection - ledSearchAngle)))
-        y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection - ledSearchAngle)))
-        cv2.line(frameForLinking, chariot[1], (x, y), (0, 255, 255), 2)
-        cv2.circle(frameForLinking, chariot[1], maxAllowedDistanceMarkerToLed, (0, 255, 255), 2)
+        if debugType == "linking":
+            x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection + ledSearchAngle)))
+            y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection + ledSearchAngle)))
+            cv2.line(frameForLinking, chariot[1], (x, y), (0, 255, 255), 2)
+            x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection - ledSearchAngle)))
+            y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection - ledSearchAngle)))
+            cv2.line(frameForLinking, chariot[1], (x, y), (0, 255, 255), 2)
+            cv2.circle(frameForLinking, chariot[1], maxAllowedDistanceMarkerToLed, (0, 255, 255), 2)
 
         for colorIndex, ledColor in enumerate(ledPositions):
             for led in ledColor:
@@ -188,7 +194,8 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frameForLinking
                     bestDistance = distance
 
         chariotInformation.append([chariot[0], chariot[1], chariot[2], status])
-        cv2.putText(frameForLinking, f"Chariot {chariot[0]}: {status}", (40, textHeight), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+        if debugType == "linking":
+            cv2.putText(frameForLinking, f"Chariot {chariot[0]}: {status}", (40, textHeight), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
     return chariotInformation, frameForLinking
 
