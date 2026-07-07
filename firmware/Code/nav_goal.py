@@ -10,7 +10,7 @@ GOAL_ACTION_CLEAR = "clear"
 DEFAULT_GOAL_TOLERANCE = 12.0
 DEFAULT_HEADING_TOLERANCE = 12.0
 DEFAULT_ROTATE_HEADING_THRESHOLD = 45.0
-DEFAULT_POSITION_TIMEOUT = 2.0
+DEFAULT_POSITION_TIMEOUT = 20.0
 DEFAULT_APF_INFLUENCE_RADIUS = 50.0
 DEFAULT_APF_K_ATTRACT = 1.0
 DEFAULT_APF_K_REPEL = 100.0
@@ -23,8 +23,10 @@ CORNER_ARUCO_FIRST = 5
 CORNER_ARUCO_LAST = 8
 TURN_COMMANDS = frozenset(("TL", "TR", "RL", "RR"))
 # Pulse steering: brief turn, stop, wait for fresh camera frame (0 = continuous turns).
-DEFAULT_TURN_PULSE_SEC = 0.15
-DEFAULT_TURN_SETTLE_SEC = 0.35
+# DEFAULT_TURN_PULSE_SEC = 0.15
+# DEFAULT_TURN_SETTLE_SEC = 0.35
+DEFAULT_TURN_PULSE_SEC = 10.0
+DEFAULT_TURN_SETTLE_SEC = 10.0
 
 
 class FieldBounds:
@@ -459,11 +461,13 @@ class GoalNavigator:
             else:
                 self._pulse_phase = "settle"
                 self._pulse_settle_until = now + self.turn_settle_sec
+                print("4444444444")
                 return "SS"
 
         if self._pulse_phase == "settle":
             fresh_position = self.last_position_time > self._pulse_position_stamp
             if not fresh_position and now < self._pulse_settle_until:
+                print("33333333333")
                 return "SS"
             self._clear_turn_pulse()
 
@@ -474,7 +478,8 @@ class GoalNavigator:
         return command
 
     def _movement_command(self, command, now):
-        return ("command", self._apply_turn_pulse(command, now))
+        return ("command", command, now)
+        # return ("command", self._apply_turn_pulse(command, now))
 
     def tick(self, now=None):
         if not self.autonomous or not self.has_goal:
@@ -486,6 +491,7 @@ class GoalNavigator:
 
         if now - self.last_position_time > self.position_timeout:
             self._clear_turn_pulse()
+            print("11111111111")
             return ("command", "SS")
 
         goal_x, goal_y = self._effective_goal()
@@ -502,6 +508,7 @@ class GoalNavigator:
                 seq = self.seq
                 self.clear_goal()
                 return ("report", "arrived", seq)
+            print("22222222222")
             return ("command", "SS")
 
         neighbors, closest, nearest = self._neighbor_positions(now)

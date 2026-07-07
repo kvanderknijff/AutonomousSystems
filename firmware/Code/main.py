@@ -223,7 +223,7 @@ def moveMotor(motor, speed):
         LeftMotor.duty_u16(speed)
 
 def stopMotors():
-    # print("Stopping motors")
+    print("Stopping motors")
     LeftMotor.duty_u16(4900)
     RightMotor.duty_u16(4900)
 
@@ -235,6 +235,7 @@ def move(command):
         return
 
     if command == "SS":
+        print("SS received")
         stopMotors()
         last_applied_command = "SS"
         return
@@ -356,6 +357,8 @@ def run_navigation_tick():
         kind, value = result
         seq = navigator.seq
 
+    print("value:", value, "kind:", kind, "seq:", seq)
+
     if kind == "command":
         if value != last_applied_command or value == "SS":
             move(value)
@@ -374,19 +377,19 @@ def mqtt_callback(topic, msg):
     topic = topic.decode()
     msg = msg.decode()
     global state, navigation_topics_ready
-    print("MQTT:", topic, "->", msg)
+    # print("MQTT:", topic, "->", msg)
 
     if topic == f"Robots/Control/{mac_str}/Status":
         if msg == "[checking]":
             if state != 1: return
-            print("Request received... waiting for connection to MQTT broker")
+            print("Request received... waiting for connection to server")
             blue_led.value(True)
             state = 2 # connecting
             time.sleep(0.1)
 
         elif msg == "[connected]":
             if state != 2: return
-            print("Connection to MQTT broker established")
+            print("Connection to server established")
             blue_led.value(False)
             green_led.value(True)
             state = 3 # connected
@@ -395,7 +398,7 @@ def mqtt_callback(topic, msg):
             time.sleep(0.1)
 
         elif msg == "[disconnected]":
-            print("Connection to MQTT broker lost")
+            print("Connection to server lost")
             stopMotors()
             navigator.clear_goal()
             navigation_topics_ready = False
@@ -542,7 +545,7 @@ while True:
         if time.ticks_diff(now, last_connect_request) >= 10000:
             check_server_status()
             mqtt_client.publish("Robots/Control/Connecting", mac_str)
-            print("Requested connection to MQTT broker with client ID:", mac_str)
+            print("Requested connection to server with client ID:", mac_str)
             last_connect_request = now
             bled.value(True)
             time.sleep_ms(200)

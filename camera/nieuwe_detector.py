@@ -14,7 +14,7 @@ USE_USB_WEBCAM = False
 CAMERA_DEVICE_INDEX = 1  # None = auto-detect 1080p USB camera; or set 0, 1, ...
 CAMERA_WIDTH = 1920
 CAMERA_HEIGHT = 1080
-cameraSource = "http://192.168.2.1:8880/video"
+cameraSource = "http://145.137.56.195:8880/video"
 debugType = "leds"
 """
 debugType: which video do you want to see
@@ -69,7 +69,8 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
 
     if markerIDs is not None:
         for corner, markerID in zip(corners, markerIDs):
-            marker_id = int(markerID[0])
+            # marker_id = int(markerID[0])
+            marker_id = int(np.asarray(markerID).flatten()[0])
             corner = corner.reshape(4, 2).astype(int)
 
             topLeft, topRight, bottomRight, bottomLeft = corner
