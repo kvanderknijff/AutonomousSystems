@@ -149,7 +149,7 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
     return ledPositions, outputFrame
 
-def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarray) -> tuple[list, np.ndarray]:
+def linkLedToChariot(arUcoInformation: list, ledPositions: list, frameForLinking: np.ndarray) -> tuple[list, np.ndarray]:
     """
     Assuming two ArUco's are not directly next to eachother
     """
@@ -165,11 +165,11 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
 
         x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection + ledSearchAngle)))
         y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection + ledSearchAngle)))
-        cv2.line(frame, chariot[1], (x, y), (0, 255, 255), 2)
+        cv2.line(frameForLinking, chariot[1], (x, y), (0, 255, 255), 2)
         x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection - ledSearchAngle)))
         y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection - ledSearchAngle)))
-        cv2.line(frame, chariot[1], (x, y), (0, 255, 255), 2)
-        cv2.circle(frame, chariot[1], maxAllowedDistanceMarkerToLed, (0, 255, 255), 2)
+        cv2.line(frameForLinking, chariot[1], (x, y), (0, 255, 255), 2)
+        cv2.circle(frameForLinking, chariot[1], maxAllowedDistanceMarkerToLed, (0, 255, 255), 2)
 
         for colorIndex, ledColor in enumerate(ledPositions):
             for led in ledColor:
@@ -188,9 +188,9 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
                     bestDistance = distance
 
         chariotInformation.append([chariot[0], chariot[1], chariot[2], status])
-        cv2.putText(frame, f"Chariot {chariot[0]}: {status}", (40, textHeight), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+        cv2.putText(frameForLinking, f"Chariot {chariot[0]}: {status}", (40, textHeight), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
-    return chariotInformation, frame
+    return chariotInformation, frameForLinking
 
 def sendChariotInformation(chariotInformation: list) -> None:
     for chariot in chariotInformation:
