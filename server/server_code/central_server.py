@@ -389,8 +389,8 @@ class CentralServer:
                         notify_mac = mac
                         notify_pose = (x, y, orientation)
                 if went_offline and record is not None:
-                    self._publish_status_unlocked(mac, STATUS_DISCONNECTED)
-                    self._publish_command_unlocked(mac, "SS")
+                    # self._publish_status_unlocked(mac, STATUS_DISCONNECTED)
+                    # self._publish_command_unlocked(mac, "SS")
                     logger.warning("%s offline - disconnected status and stop sent", mac)
             elif led_status in (LED_CONNECTING, LED_CONNECTED):
                 pending_mac = self.registry.next_pending_mac()
