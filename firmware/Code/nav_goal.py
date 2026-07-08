@@ -9,7 +9,7 @@ GOAL_ACTION_CLEAR = "clear"
 
 DEFAULT_GOAL_TOLERANCE = 12.0
 DEFAULT_HEADING_TOLERANCE = 12.0
-DEFAULT_ROTATE_HEADING_THRESHOLD = 45.0
+DEFAULT_ROTATE_HEADING_THRESHOLD = 12.0
 DEFAULT_POSITION_TIMEOUT = 20.0
 DEFAULT_APF_INFLUENCE_RADIUS = 50.0
 DEFAULT_APF_K_ATTRACT = 1.0
@@ -99,8 +99,11 @@ def _hypot(x, y):
     return math.sqrt(x * x + y * y)
 
 
+# def bearing_degrees(dx, dy):
+#     return math.degrees(math.atan2(dy, dx))
+
 def bearing_degrees(dx, dy):
-    return math.degrees(math.atan2(dy, dx))
+    return math.degrees(math.atan2(dx, -dy))
 
 
 def steer_command_code(
@@ -511,48 +514,56 @@ class GoalNavigator:
 
         neighbors, closest, nearest = self._neighbor_positions(now)
 
-        if nearest is not None and closest is not None and closest < self.min_separation:
-            return self._movement_command(
-                self._turn_away_command(nearest[0], nearest[1]), now
-            )
+        # if nearest is not None and closest is not None and closest < self.min_separation:
+        #     return self._movement_command(
+        #         self._turn_away_command(nearest[0], nearest[1]), now
+        #     )
 
         escape_heading = self._field_bounds.escape_heading(
             self.x, self.y, self.field_margin
         )
         if escape_heading is not None:
             target_heading = escape_heading
-        elif neighbors:
-            target_heading = calculate_apf_heading(
-                self.x,
-                self.y,
-                goal_x,
-                goal_y,
-                neighbors,
-                influence_radius=self.apf_influence_radius,
-                k_attract=self.apf_k_attract,
-                k_repel=self.apf_k_repel,
-            )
+        # elif neighbors:
+        #     print("BUUUUUUREN")
+        #     target_heading = calculate_apf_heading(
+        #         self.x,
+        #         self.y,
+        #         goal_x,
+        #         goal_y,
+        #         neighbors,
+        #         influence_radius=self.apf_influence_radius,
+        #         k_attract=self.apf_k_attract,
+        #         k_repel=self.apf_k_repel,
+        #     )
         else:
             target_heading = bearing_degrees(dx, dy)
 
-        heading_error = normalize_angle(target_heading - self.orientation)
+        #flip target heading 180 degrees
+        # target_heading += 180
+
+        # if target_heading > 180:
+        #     target_heading -= 360
+        # elif target_heading <= -180:
+        #     target_heading += 360
+
+        heading_error = normalize_angle(self.orientation - target_heading)
         command = steer_command_code(heading_error, self.heading_tolerance)
 
-        print("11111111 command:", command)
+        print("----------------------------")
+        print("target_heading:", target_heading)
+        print("orientation:", self.orientation)
+        print("Heading_error:", heading_error)
+        print("command:", command)
+
 
         blocker = self._neighbor_blocking_forward(neighbors)
         if command == "FW" and blocker is not None:
             command = self._turn_away_command(blocker[0], blocker[1])
-            print("22222222222 command:", command)
         elif command == "FW" and closest is not None and closest < self.forward_block_distance:
             if nearest is not None:
                 command = self._turn_away_command(nearest[0], nearest[1])
-                print("33333333333 command:", command)
             else:
                 command = "SS"
-                print("44444444 command:", command)
-
-
-        print("55555555 command:", command)
 
         return self._movement_command(command, now)
