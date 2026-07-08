@@ -55,7 +55,7 @@ WEBOTS_ROBOT_ARUCO_LAST = int(os.getenv("WEBOTS_ROBOT_ARUCO_LAST", "14"))
 
 # Goal arrival tolerance in camera pixels (sent to each robot via MQTT goals)
 WEBOTS_GOAL_TOLERANCE = float(os.getenv("WEBOTS_GOAL_TOLERANCE", "2.0"))
-PHYSICAL_GOAL_TOLERANCE = float(os.getenv("PHYSICAL_GOAL_TOLERANCE", "60.0"))
+PHYSICAL_GOAL_TOLERANCE = float(os.getenv("PHYSICAL_GOAL_TOLERANCE", "20.0"))
 
 # Corner ArUco markers defining the playfield (camera pixels)
 # Physical setup: IDs 5-8 on the real field
