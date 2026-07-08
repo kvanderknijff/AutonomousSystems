@@ -491,7 +491,6 @@ class GoalNavigator:
 
         if now - self.last_position_time > self.position_timeout:
             self._clear_turn_pulse()
-            print("11111111111")
             return ("command", "SS")
 
         goal_x, goal_y = self._effective_goal()
@@ -508,7 +507,6 @@ class GoalNavigator:
                 seq = self.seq
                 self.clear_goal()
                 return ("report", "arrived", seq)
-            print("22222222222")
             return ("command", "SS")
 
         neighbors, closest, nearest = self._neighbor_positions(now)
@@ -540,13 +538,21 @@ class GoalNavigator:
         heading_error = normalize_angle(target_heading - self.orientation)
         command = steer_command_code(heading_error, self.heading_tolerance)
 
+        print("11111111 command:", command)
+
         blocker = self._neighbor_blocking_forward(neighbors)
         if command == "FW" and blocker is not None:
             command = self._turn_away_command(blocker[0], blocker[1])
+            print("22222222222 command:", command)
         elif command == "FW" and closest is not None and closest < self.forward_block_distance:
             if nearest is not None:
                 command = self._turn_away_command(nearest[0], nearest[1])
+                print("33333333333 command:", command)
             else:
                 command = "SS"
+                print("44444444 command:", command)
+
+
+        print("55555555 command:", command)
 
         return self._movement_command(command, now)
