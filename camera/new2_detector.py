@@ -45,20 +45,49 @@ detector = cv2.aruco.ArucoDetector(dictionary, arucoParams)
 maxAllowedDistanceMarkerToLed = 100 #65
 ledSearchAngle = 120
 
+mqttPort = 8883
+mqttBroker = "145.24.237.88"
+mqttClientId = "Camera"
+
+mqttTopicPos = "Robots/Data/Positions/Physical"
+mqttTopicGoals = "Robots/Data/+/Goals"  # Wildcard check for universal data
+chariotTargets = []
+
+
 def on_connect(client, userdata, flags, rc) -> None:
     if rc == 0:
-        client.subscribe(mqttTopic)
-        print("Subscribed to mqtt topic: " + mqttTopic)
+        client.subscribe(mqttTopicGoals)
+        print("Subscribed to mqtt topic: " + mqttTopicGoals)
     else:
         print("Couldn't connect to mqtt topic")
 
-mqttClientId = "Camera"
-mqttPort = 8883
-mqttBroker = "145.24.237.88"
-mqttTopic = "Robots/Data/Positions/Physical"
+def on_message(client, userdata, msg):
+    global chariotTargets
+
+    payload = json.loads(msg.payload.decode().strip())  
+    topicLines = msg.topic.split("/")
+    chariotMAC = topicLines[2] 
+
+    if payload.get("action") == "set":       
+
+        for target in chariotTargets:
+            if target[0] == chariotMAC:
+                target[1] = [payload.get("target_x"), payload.get("target_y")]
+                print("payload is; set ",  chariotTargets)
+                return
+        chariotTargets.append([chariotMAC, [payload.get("target_x"), payload.get("target_y")]])
+        print("payload is; set ",  chariotTargets)
+
+    ## Uncomment, if a 'clear' action has been send to goal
+    # elif payload.get("action") == "clear":
+    #     chariotTargets = [target for target in chariotTargets if target[0] != chariotMAC]
+    #     print("payload is; set ",  chariotTargets)
+
+
 client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, client_id=mqttClientId)
 client.username_pw_set(username="myuser", password="FormingFormsAS")
 client.on_connect = on_connect
+client.on_message = on_message
 
 def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
     display = frame.copy()
@@ -213,7 +242,7 @@ def sendChariotInformation(chariotInformation: list) -> None:
             "led_status": str(chariot[3])
         }
         message_json = json.dumps(message)
-        client.publish(mqttTopic, message_json)
+        client.publish(mqttTopicPos, message_json)
 
 def sendCornerInformation(cornerInformation: list) -> None:
     for corner in cornerInformation:
@@ -224,7 +253,7 @@ def sendCornerInformation(cornerInformation: list) -> None:
             "marker_type": "corner",
         }
         message_json = json.dumps(message)
-        client.publish(mqttTopic, message_json)
+        client.publish(mqttTopicPos, message_json)
 
 def find_webcam_device(max_devices: int = 6) -> int | None:
     """Pick the camera that reaches the target resolution (USB 1080p over built-in)."""
@@ -368,12 +397,12 @@ def videoProcessing(source: str | int, record: bool) -> None:
             
             if chariotInformation:
                 sendChariotInformation(chariotInformation)
-            else:
-                print("No chariot information to send")
+            # else:
+                # print("No chariot information to send")
             if cornerInformation:
                 sendCornerInformation(cornerInformation)
-            else:
-                print("No corner information to send")
+            # else:
+                # print("No corner information to send")
 
             if debugType == "arucos":
                 cv2.imshow("Frames", arUcoFrame)
@@ -384,6 +413,8 @@ def videoProcessing(source: str | int, record: bool) -> None:
                 if record:
                     out.write(ledFrame)
             elif debugType == "linking":
+                for target in chariotTargets:
+                    cv2.circle(linkingFrame, (int(target[1][0]), int(target[1][1])), 5, (0, 0, 255), -1)
                 cv2.imshow("Frames", linkingFrame)
                 if record:
                     out.write(linkingFrame)
