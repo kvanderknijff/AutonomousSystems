@@ -557,13 +557,13 @@ class GoalNavigator:
         print("command:", command)
 
 
-        blocker = self._neighbor_blocking_forward(neighbors)
-        if command == "FW" and blocker is not None:
-            command = self._turn_away_command(blocker[0], blocker[1])
-        elif command == "FW" and closest is not None and closest < self.forward_block_distance:
-            if nearest is not None:
-                command = self._turn_away_command(nearest[0], nearest[1])
-            else:
-                command = "SS"
+        # blocker = self._neighbor_blocking_forward(neighbors)
+        # if command == "FW" and blocker is not None:
+        #     command = self._turn_away_command(blocker[0], blocker[1])
+        # elif command == "FW" and closest is not None and closest < self.forward_block_distance:
+        #     if nearest is not None:
+        #         command = self._turn_away_command(nearest[0], nearest[1])
+        #     else:
+        #         command = "SS"
 
         return self._movement_command(command, now)
