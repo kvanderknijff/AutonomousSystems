@@ -15,8 +15,8 @@ USE_USB_WEBCAM = False
 CAMERA_DEVICE_INDEX = 1  # None = auto-detect 1080p USB camera; or set 0, 1, ...
 CAMERA_WIDTH = 1920
 CAMERA_HEIGHT = 1080
-cameraSource = "http://192.168.2.1:8880/video"
-debugType = "leds" 
+cameraSource = "http://145.137.57.22:8880/video"
+debugType = "linking" 
 """
 debugType: which video do you want to see
     - "arucos": Show the detection of ArUco markers along with its information, orientation and area for LED linking
@@ -168,7 +168,7 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frameForLinking
     for chariot in arUcoInformation:
         status = "Off"
         bestDistance = maxAllowedDistanceMarkerToLed + 1
-        textHeight += 40
+        textHeight = 40 + (chariot[0] - FirstChariotMarkerID + 1) * 40
         
         chariotDirection = ((chariot[2] - 90 + 180) % 360) - 180
 
