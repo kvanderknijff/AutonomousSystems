@@ -19,6 +19,7 @@ from mqtt_protocol import (  # noqa: E402
     format_corner_payload,
     format_position_payload,
     is_corner_aruco,
+    is_physical_corner_aruco,
 )
 from webots_nodes import is_disabled_robot, is_physical_proxy, parse_custom_data, resolve_aruco_id  # noqa: E402
 
@@ -69,6 +70,9 @@ def tracked_nodes():
         if aruco_id is None:
             continue
         if is_physical_proxy(node) or is_disabled_robot(node):
+            continue
+
+        if is_physical_corner_aruco(aruco_id):
             continue
 
         if is_corner_aruco(aruco_id):

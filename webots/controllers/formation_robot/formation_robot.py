@@ -344,6 +344,9 @@ def sync_fleet_from_supervisor():
         if aruco_id is None:
             continue
 
+        if is_physical_corner_aruco(aruco_id):
+            continue
+
         world_x, world_y, _ = node.getPosition()
         pixel_x, pixel_y = _world_to_camera_pixels(world_x, world_y)
 
