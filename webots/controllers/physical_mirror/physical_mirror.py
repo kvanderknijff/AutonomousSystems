@@ -30,19 +30,19 @@ from webots_nodes import is_physical_proxy, resolve_aruco_id  # noqa: E402
 supervisor = Supervisor()
 timestep = int(supervisor.getBasicTimeStep())
 
-FIELD_SIZE_M = float(os.getenv("WEBOTS_FIELD_SIZE_M", "10.0"))
-CORNER_INSET_M = float(os.getenv("WEBOTS_CORNER_INSET_M", "0.35"))
+FIELD_SIZE_M = float(os.getenv("WEBOTS_FIELD_SIZE_M", "1.0"))
+CORNER_INSET_M = float(os.getenv("WEBOTS_CORNER_INSET_M", "0.035"))
 HALF_FIELD = FIELD_SIZE_M / 2.0
 WORLD_MIN = -HALF_FIELD + CORNER_INSET_M
 WORLD_MAX = HALF_FIELD - CORNER_INSET_M
 STALE_MS = int(os.getenv("WEBOTS_MIRROR_STALE_MS", "1500"))
-HIDDEN_Y = float(os.getenv("WEBOTS_PROXY_HIDDEN_Y", "15.0"))
+HIDDEN_Y = float(os.getenv("WEBOTS_PROXY_HIDDEN_Y", "1.5"))
 HIDDEN_Z = float(os.getenv("WEBOTS_PROXY_HIDDEN_Z", "-0.2"))
-HIDDEN_SPACING = float(os.getenv("WEBOTS_PROXY_HIDDEN_SPACING", "0.8"))
-PROXY_VISIBLE_Z = float(os.getenv("WEBOTS_PROXY_Z", "0.105"))
+HIDDEN_SPACING = float(os.getenv("WEBOTS_PROXY_HIDDEN_SPACING", "0.08"))
+PROXY_VISIBLE_Z = float(os.getenv("WEBOTS_PROXY_Z", "0.037"))
 
 SHOW_CORNERS = os.getenv("WEBOTS_SHOW_CORNERS", "true").lower() not in ("0", "false", "no")
-CORNER_MARKER_RADIUS = float(os.getenv("WEBOTS_CORNER_MARKER_RADIUS", "0.15"))
+CORNER_MARKER_RADIUS = float(os.getenv("WEBOTS_CORNER_MARKER_RADIUS", "0.04"))
 CORNER_MARKER_DIR = os.getenv("WEBOTS_MARKER_DIR", "../markers")
 CORNER_MARKER_Z = float(os.getenv("WEBOTS_CORNER_MARKER_Z", "0.02"))
 

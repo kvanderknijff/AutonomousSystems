@@ -9,20 +9,20 @@ WorldInfo {
 }
 Viewpoint {
   orientation 0.0074996804842661574 0.9999386486309859 -0.008151917975035157 1.4875611406872615
-  position -2.921304348800516 -0.007838023750510147 35.69202321693433
+  position -0.2921304348800516 -0.0007838023750510147 3.569202321693433
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 RectangleArena {
-  floorSize 10 10
-  floorTileSize 1 1
-  wallThickness 0.04
+  floorSize 2 2
+  floorTileSize 0.1 0.1
+  wallThickness 0.02
   wallHeight 0.08
 }
 DEF FORMATION_CAMERA Robot {
-  translation 0 0 7
+  translation 0 0 1
   rotation 0 1 0 3.14159
   children [
     Camera {
@@ -38,7 +38,7 @@ DEF FORMATION_CAMERA Robot {
         roughness 0.5
       }
       geometry Box {
-        size 0.25 0.25 0.08
+        size 0.03 0.03 0.015
       }
     }
   ]
@@ -47,30 +47,30 @@ DEF FORMATION_CAMERA Robot {
   supervisor TRUE
 }
 DEF ROBOT_11 FormationBot {
-  translation -3 -2 0.105
+  translation -0.3 -0.2 0.037
   name "formation_bot_11"
   controllerArgs [
     "00:B0:D0:63:C2:21"
   ]
-  customData "aruco=11;status=connecting"
+  customData "aruco=11;status=connected"
   markerUrl [
     "../markers/marker11.png"
   ]
 }
 DEF ROBOT_12 FormationBot {
-  translation -1.5 1.8 0.105
+  translation -0.15 0.18 0.037
   rotation 0 0 1 1.5708
   name "formation_bot_12"
   controllerArgs [
     "00:B0:D0:63:C2:22"
   ]
-  customData "aruco=12;status=connecting"
+  customData "aruco=12;status=connected"
   markerUrl [
     "../markers/marker12.png"
   ]
 }
 DEF ROBOT_13 FormationBot {
-  translation -6 15 -0.2
+  translation -0.6 1.5 -0.2
   name "formation_bot_13"
   controller "<none>"
   customData "aruco=13;status=inactive;role=disabled"
@@ -80,7 +80,7 @@ DEF ROBOT_13 FormationBot {
   supervisor FALSE
 }
 DEF ROBOT_14 FormationBot {
-  translation 6 15 -0.2
+  translation 0.6 1.5 -0.2
   name "formation_bot_14"
   controller "<none>"
   customData "aruco=14;status=inactive;role=disabled"
@@ -90,7 +90,7 @@ DEF ROBOT_14 FormationBot {
   supervisor FALSE
 }
 DEF PHYSICAL_MIRROR Robot {
-  translation 0 0 7.5
+  translation 0 0 1.1
   children [
     Shape {
       appearance PBRAppearance {
@@ -98,7 +98,7 @@ DEF PHYSICAL_MIRROR Robot {
         roughness 0.5
       }
       geometry Box {
-        size 0.2 0.2 0.06
+        size 0.03 0.03 0.015
       }
     }
   ]
@@ -107,7 +107,7 @@ DEF PHYSICAL_MIRROR Robot {
   supervisor TRUE
 }
 DEF PROXY_1 FormationBot {
-  translation -1.2 15 -0.2
+  translation -0.12 1.5 -0.2
   name "physical_proxy_1"
   controller "<none>"
   customData "aruco=1;role=physical_proxy"
@@ -117,7 +117,7 @@ DEF PROXY_1 FormationBot {
   supervisor FALSE
 }
 DEF PROXY_2 FormationBot {
-  translation -0.4 15 -0.2
+  translation -0.04 1.5 -0.2
   name "physical_proxy_2"
   controller "<none>"
   customData "aruco=2;role=physical_proxy"
@@ -127,7 +127,7 @@ DEF PROXY_2 FormationBot {
   supervisor FALSE
 }
 DEF PROXY_3 FormationBot {
-  translation 0.4 15 -0.2
+  translation 0.04 1.5 -0.2
   name "physical_proxy_3"
   controller "<none>"
   customData "aruco=3;role=physical_proxy"
@@ -137,7 +137,7 @@ DEF PROXY_3 FormationBot {
   supervisor FALSE
 }
 DEF PROXY_4 FormationBot {
-  translation 1.2 15 -0.2
+  translation 0.12 1.5 -0.2
   name "physical_proxy_4"
   controller "<none>"
   customData "aruco=4;role=physical_proxy"

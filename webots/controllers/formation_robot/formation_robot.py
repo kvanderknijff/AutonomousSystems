@@ -100,20 +100,20 @@ DRIVE_SPEED = float(os.getenv("WEBOTS_DRIVE_SPEED", "3.0"))
 TURN_SPEED = float(os.getenv("WEBOTS_TURN_SPEED", "1.2"))
 
 navigator = GoalNavigator(
-    apf_influence_radius=float(os.getenv("WEBOTS_APF_RADIUS", "50")),
+    apf_influence_radius=float(os.getenv("WEBOTS_APF_RADIUS", "80")),
     apf_k_repel=float(os.getenv("WEBOTS_APF_REPEL", "100")),
-    min_separation=float(os.getenv("WEBOTS_MIN_SEPARATION", "28")),
-    forward_block_distance=float(os.getenv("WEBOTS_FORWARD_BLOCK", "45")),
-    field_margin=float(os.getenv("WEBOTS_FIELD_MARGIN", "20")),
+    min_separation=float(os.getenv("WEBOTS_MIN_SEPARATION", "55")),
+    forward_block_distance=float(os.getenv("WEBOTS_FORWARD_BLOCK", "75")),
+    field_margin=float(os.getenv("WEBOTS_FIELD_MARGIN", "35")),
 )
 if ROBOT_ARUCO_ID is not None:
     navigator.set_aruco_id(ROBOT_ARUCO_ID)
 
-FIELD_SIZE_M = float(os.getenv("WEBOTS_FIELD_SIZE_M", "10.0"))
+FIELD_SIZE_M = float(os.getenv("WEBOTS_FIELD_SIZE_M", "1.0"))
 CAMERA_WIDTH = int(os.getenv("WEBOTS_CAMERA_WIDTH", "640"))
 CAMERA_HEIGHT = int(os.getenv("WEBOTS_CAMERA_HEIGHT", "480"))
 HALF_FIELD = FIELD_SIZE_M / 2.0
-CORNER_INSET_M = float(os.getenv("WEBOTS_CORNER_INSET_M", "0.35"))
+CORNER_INSET_M = float(os.getenv("WEBOTS_CORNER_INSET_M", "0.035"))
 WORLD_MIN = -HALF_FIELD + CORNER_INSET_M
 WORLD_MAX = HALF_FIELD - CORNER_INSET_M
 USE_SUPERVISOR_FLEET = os.getenv("WEBOTS_SUPERVISOR_FLEET", "true").lower() in (

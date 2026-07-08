@@ -30,13 +30,13 @@ camera = supervisor.getDevice("overhead_camera")
 if camera is not None:
     camera.enable(timestep)
 
-FIELD_SIZE_M = float(os.getenv("WEBOTS_FIELD_SIZE_M", "10.0"))
+FIELD_SIZE_M = float(os.getenv("WEBOTS_FIELD_SIZE_M", "1.0"))
 CAMERA_WIDTH = int(os.getenv("WEBOTS_CAMERA_WIDTH", "640"))
 CAMERA_HEIGHT = int(os.getenv("WEBOTS_CAMERA_HEIGHT", "480"))
 PUBLISH_INTERVAL_MS = int(os.getenv("WEBOTS_POSITION_INTERVAL_MS", "250"))
 LOG_INTERVAL_MS = int(os.getenv("WEBOTS_CAMERA_LOG_INTERVAL_MS", "1000"))
 HALF_FIELD = FIELD_SIZE_M / 2.0
-CORNER_INSET_M = float(os.getenv("WEBOTS_CORNER_INSET_M", "0.35"))
+CORNER_INSET_M = float(os.getenv("WEBOTS_CORNER_INSET_M", "0.035"))
 
 client = mqtt.Client(
     protocol=mqtt.MQTTv311,

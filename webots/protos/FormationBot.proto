@@ -1,7 +1,7 @@
 #VRML_SIM R2023b utf8
 
 PROTO FormationBot [
-  field SFVec3f translation 0 0 0.105
+  field SFVec3f translation 0 0 0.037
   field SFRotation rotation 0 0 1 0
   field SFString name "formation_bot"
   field SFString controller "formation_robot"
@@ -27,11 +27,11 @@ PROTO FormationBot [
           metalness 0
         }
         geometry Box {
-          size 0.34 0.24 0.08
+          size 0.119 0.084 0.028
         }
       }
       Transform {
-        translation 0 0 0.055
+        translation 0 0 0.019
         children [
           Shape {
             appearance PBRAppearance {
@@ -43,13 +43,13 @@ PROTO FormationBot [
               metalness 0
             }
             geometry Box {
-              size 0.20 0.20 0.01
+              size 0.07 0.07 0.004
             }
           }
         ]
       }
       LED {
-        translation -0.08 0.08 0.07
+        translation -0.028 0.028 0.025
         name "led_connecting"
         color [
           0 0.25 1
@@ -61,13 +61,13 @@ PROTO FormationBot [
               emissiveColor 0 0.25 1
             }
             geometry Sphere {
-              radius 0.025
+              radius 0.009
             }
           }
         ]
       }
       LED {
-        translation 0.08 0.08 0.07
+        translation 0.028 0.028 0.025
         name "led_connected"
         color [
           0 1 0
@@ -79,7 +79,7 @@ PROTO FormationBot [
               emissiveColor 0 1 0
             }
             geometry Sphere {
-              radius 0.025
+              radius 0.009
             }
           }
         ]
@@ -87,7 +87,7 @@ PROTO FormationBot [
       DEF LEFT_WHEEL HingeJoint {
         jointParameters HingeJointParameters {
           axis 0 1 0
-          anchor 0 0.14 -0.04
+          anchor 0 0.049 -0.014
         }
         device [
           RotationalMotor {
@@ -97,7 +97,7 @@ PROTO FormationBot [
           }
         ]
         endPoint Solid {
-          translation 0 0.14 -0.04
+          translation 0 0.049 -0.014
           rotation 1 0 0 1.5708
           children [
             DEF WHEEL Shape {
@@ -106,8 +106,8 @@ PROTO FormationBot [
                 roughness 0.8
               }
               geometry Cylinder {
-                radius 0.055
-                height 0.035
+                radius 0.019
+                height 0.012
                 subdivision 32
               }
             }
@@ -116,14 +116,14 @@ PROTO FormationBot [
           boundingObject USE WHEEL
           physics Physics {
             density -1
-            mass 0.05
+            mass 0.005
           }
         }
       }
       DEF RIGHT_WHEEL HingeJoint {
         jointParameters HingeJointParameters {
           axis 0 1 0
-          anchor 0 -0.14 -0.04
+          anchor 0 -0.049 -0.014
         }
         device [
           RotationalMotor {
@@ -133,7 +133,7 @@ PROTO FormationBot [
           }
         ]
         endPoint Solid {
-          translation 0 -0.14 -0.04
+          translation 0 -0.049 -0.014
           rotation 1 0 0 1.5708
           children [
             USE WHEEL
@@ -142,12 +142,12 @@ PROTO FormationBot [
           boundingObject USE WHEEL
           physics Physics {
             density -1
-            mass 0.05
+            mass 0.005
           }
         }
       }
       Solid {
-        translation -0.14 0 -0.055
+        translation -0.049 0 -0.019
         children [
           Shape {
             appearance PBRAppearance {
@@ -155,24 +155,24 @@ PROTO FormationBot [
               roughness 0.8
             }
             geometry Sphere {
-              radius 0.025
+              radius 0.009
             }
           }
         ]
         name "rear_caster"
         boundingObject Sphere {
-          radius 0.025
+          radius 0.009
         }
         physics Physics {
           density -1
-          mass 0.03
+          mass 0.003
         }
       }
     ]
     boundingObject USE BODY
     physics Physics {
       density -1
-      mass 0.8
+      mass 0.08
     }
   }
 }
