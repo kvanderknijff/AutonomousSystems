@@ -253,7 +253,6 @@ def find_webcam_device(max_devices: int = 6) -> int | None:
 
     return best_index
 
-
 def resolve_camera_source() -> str | int:
     if not USE_USB_WEBCAM:
         return cameraSource
@@ -267,7 +266,6 @@ def resolve_camera_source() -> str | int:
 
     print(f"Auto-selected webcam device {detected} ({CAMERA_WIDTH}x{CAMERA_HEIGHT} target)")
     return detected
-
 
 def open_capture(source: str | int) -> cv2.VideoCapture:
     if isinstance(source, int):
@@ -283,8 +281,6 @@ def open_capture(source: str | int) -> cv2.VideoCapture:
 
     capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     return capture
-
-##########
 
 class FreshestFrameReader:
     def __init__(self, source, first_frame_timeout=10.0):
@@ -330,8 +326,6 @@ class FreshestFrameReader:
         self.running = False
         self.thread.join(timeout=1)
         self.capture.release()
-
-##########
 
 def videoProcessing(source: str | int, record: bool) -> None:
     capture = FreshestFrameReader(source)
