@@ -217,5 +217,9 @@ class Database:
     def clear_all_robots(self) -> int:
         """Drop all robots on server restart so every unit must handshake again."""
         with self._lock, self._connection() as conn:
-            cursor = conn.execute("DELETE FROM robots")
-            return cursor.rowcount
+            tables = ["robots", "events", "position_history", "sqlite_sequence"]
+            for table in tables:
+                result = conn.execute(f"DELETE FROM {table}")
+                if table == "robots":
+                    db_robots = result
+            return db_robots.rowcount
