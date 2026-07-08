@@ -149,10 +149,10 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_EXTERNAL, 150)
     ledPositions.append(blueLedPositions)
 
-    lowerGreen = np.array([45, 50, 50])
+    lowerGreen = np.array([50, 55, 55])
     upperGreen = np.array([95, 255, 255])
     maskG = cv2.inRange(frameHSV, lowerGreen, upperGreen)
-    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL, 60)
+    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL, 100)
     ledPositions.append(greenLedPositions)
 
     outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
