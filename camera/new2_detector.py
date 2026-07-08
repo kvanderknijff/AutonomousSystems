@@ -16,7 +16,7 @@ CAMERA_DEVICE_INDEX = 1  # None = auto-detect 1080p USB camera; or set 0, 1, ...
 CAMERA_WIDTH = 1920
 CAMERA_HEIGHT = 1080
 cameraSource = "http://145.137.57.22:8880/video"
-debugType = "arucos" 
+debugType = "linking" 
 """
 debugType: which video do you want to see
     - "arucos": Show the detection of ArUco markers along with its information, orientation and area for LED linking
@@ -48,10 +48,11 @@ ledSearchAngle = 120
 mqttPort = 8883
 mqttBroker = "145.24.237.88"
 mqttClientId = "Camera"
+PHYSICAL_CHARIOT_MACS = {"2C:CF:67:C1:92:3F", "28:CD:C1:09:0B:E6"}
 
 mqttTopicPos = "Robots/Data/Positions/Physical"
 mqttTopicGoals = "Robots/Data/+/Goals"  # Wildcard check for universal data
-chariotTargets = []
+
 
 
 def on_connect(client, userdata, flags, rc) -> None:
@@ -61,33 +62,47 @@ def on_connect(client, userdata, flags, rc) -> None:
     else:
         print("Couldn't connect to mqtt topic")
 
+
+chariotTargets = []
+chariotTargetsLock = threading.Lock()
+
+
 def on_message(client, userdata, msg):
-    global chariotTargets
-
-    payload = json.loads(msg.payload.decode().strip())  
+    payload = json.loads(msg.payload.decode().strip())
     topicLines = msg.topic.split("/")
-    chariotMAC = topicLines[2] 
+    chariotMAC = topicLines[2]
 
-    if payload.get("action") == "set":       
+    if chariotMAC not in PHYSICAL_CHARIOT_MACS:
+        return  # Ignore Webots-bots
 
-        for target in chariotTargets:
-            if target[0] == chariotMAC:
-                target[1] = [payload.get("target_x"), payload.get("target_y")]
-                print("payload is; set ",  chariotTargets)
-                return
-        chariotTargets.append([chariotMAC, [payload.get("target_x"), payload.get("target_y")]])
-        print("payload is; set ",  chariotTargets)
+    if payload.get("action") == "set":
+        target_x = payload.get("target_x")
+        target_y = payload.get("target_y")
+        if target_x is None or target_y is None:
+            print(f"Ongeldige goal payload van {chariotMAC}: {payload}")
+            return
+
+        with chariotTargetsLock:
+            for target in chariotTargets:
+                if target[0] == chariotMAC:
+                    target[1] = [target_x, target_y]
+                    print("payload is; set ", chariotTargets)
+                    return
+            chariotTargets.append([chariotMAC, [target_x, target_y]])
+            print("payload is; set ", chariotTargets)
 
     ## Uncomment, if a 'clear' action has been send to goal
     # elif payload.get("action") == "clear":
-    #     chariotTargets = [target for target in chariotTargets if target[0] != chariotMAC]
-    #     print("payload is; set ",  chariotTargets)
+    #     with chariotTargetsLock:
+    #         chariotTargets[:] = [target for target in chariotTargets if target[0] != chariotMAC]
+    #         print("payload is; set ", chariotTargets)
 
 
 client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, client_id=mqttClientId)
 client.username_pw_set(username="myuser", password="FormingFormsAS")
 client.on_connect = on_connect
 client.on_message = on_message
+
 
 def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
     display = frame.copy()
@@ -141,6 +156,7 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
 
     return chariotArucoInformation, cornerArucoInformation, display
 
+
 def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method: int, minimumLedArea: int) -> tuple[list, np.ndarray]:
     """
     Function's base made by: Soufiane Lemkaddem, Hogeschool Rotterdam for course TINLAS03-2025-VT-JAAR
@@ -161,6 +177,7 @@ def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method
         ledPositions.append([-1,-1])
 
     return ledPositions, frameRGB
+
 
 def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     """
@@ -186,6 +203,7 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
 
     outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
     return ledPositions, outputFrame
+
 
 def linkLedToChariot(arUcoInformation: list, ledPositions: list, frameForLinking: np.ndarray) -> tuple[list, np.ndarray]:
     """
@@ -232,6 +250,7 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frameForLinking
 
     return chariotInformation, frameForLinking
 
+
 def sendChariotInformation(chariotInformation: list) -> None:
     for chariot in chariotInformation:
         message = {
@@ -244,6 +263,7 @@ def sendChariotInformation(chariotInformation: list) -> None:
         message_json = json.dumps(message)
         client.publish(mqttTopicPos, message_json)
 
+
 def sendCornerInformation(cornerInformation: list) -> None:
     for corner in cornerInformation:
         message = {
@@ -254,6 +274,7 @@ def sendCornerInformation(cornerInformation: list) -> None:
         }
         message_json = json.dumps(message)
         client.publish(mqttTopicPos, message_json)
+
 
 def find_webcam_device(max_devices: int = 6) -> int | None:
     """Pick the camera that reaches the target resolution (USB 1080p over built-in)."""
@@ -282,6 +303,7 @@ def find_webcam_device(max_devices: int = 6) -> int | None:
 
     return best_index
 
+
 def resolve_camera_source() -> str | int:
     if not USE_USB_WEBCAM:
         return cameraSource
@@ -295,6 +317,7 @@ def resolve_camera_source() -> str | int:
 
     print(f"Auto-selected webcam device {detected} ({CAMERA_WIDTH}x{CAMERA_HEIGHT} target)")
     return detected
+
 
 def open_capture(source: str | int) -> cv2.VideoCapture:
     if isinstance(source, int):
@@ -310,6 +333,7 @@ def open_capture(source: str | int) -> cv2.VideoCapture:
 
     capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     return capture
+
 
 class FreshestFrameReader:
     def __init__(self, source, first_frame_timeout=10.0):
@@ -355,6 +379,7 @@ class FreshestFrameReader:
         self.running = False
         self.thread.join(timeout=1)
         self.capture.release()
+
 
 def videoProcessing(source: str | int, record: bool) -> None:
     capture = FreshestFrameReader(source)
@@ -413,7 +438,9 @@ def videoProcessing(source: str | int, record: bool) -> None:
                 if record:
                     out.write(ledFrame)
             elif debugType == "linking":
-                for target in chariotTargets:
+                with chariotTargetsLock:
+                    targetsSnapshot = list(chariotTargets)
+                for target in targetsSnapshot:
                     cv2.circle(linkingFrame, (int(target[1][0]), int(target[1][1])), 5, (0, 0, 255), -1)
                 cv2.imshow("Frames", linkingFrame)
                 if record:
@@ -429,6 +456,7 @@ def videoProcessing(source: str | int, record: bool) -> None:
     if record:
         out.release()
     cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     client.connect(mqttBroker, mqttPort)
