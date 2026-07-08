@@ -49,8 +49,16 @@ CORNER_MARKER_Z = float(os.getenv("WEBOTS_CORNER_MARKER_Z", "0.02"))
 mapper = PhysicalFieldMapper()
 proxy_nodes: dict[int, object] = {}
 corner_nodes: dict[int, object] = {}
-last_pose: dict[int, tuple[float, float, float, int]] = {}
+proxy_led_fields: dict[int, dict] = {}
+last_pose: dict[int, tuple[float, float, float, str, int]] = {}
 field_ready_logged = False
+
+# Colours used to reflect the physical robot's LED status on the Webots proxy.
+LED_ON_COLOR = {
+    "led_connecting": [0.0, 0.25, 1.0],
+    "led_connected": [0.0, 1.0, 0.0],
+}
+LED_OFF_COLOR = [0.02, 0.02, 0.02]
 
 
 def discover_proxy_nodes() -> dict[int, object]:
@@ -90,6 +98,34 @@ def hide_proxy(node, aruco_id: int) -> None:
         hidden_x = (index - 1.5) * HIDDEN_SPACING
         translation.setSFVec3f([hidden_x, HIDDEN_Y, HIDDEN_Z])
         node.resetPhysics()
+    apply_led_status(aruco_id, node, "off")
+
+
+def _resolve_led_fields(node) -> dict:
+    """Grab the proxy's exposed LED colour fields (writable per instance)."""
+    return {
+        "led_connecting": node.getField("ledConnectingColor"),
+        "led_connected": node.getField("ledConnectedColor"),
+    }
+
+
+def apply_led_status(aruco_id: int, node, status: str) -> None:
+    """Reflect the physical robot's LED status on the Webots proxy LEDs."""
+    fields = proxy_led_fields.get(aruco_id)
+    if fields is None:
+        fields = _resolve_led_fields(node)
+        proxy_led_fields[aruco_id] = fields
+    if not fields:
+        return
+
+    for key, field in fields.items():
+        if field is None:
+            continue
+        lit = (
+            (key == "led_connecting" and status == "connecting")
+            or (key == "led_connected" and status == "connected")
+        )
+        field.setSFColor(LED_ON_COLOR[key] if lit else LED_OFF_COLOR)
 
 
 def spawn_corner_node(aruco_id: int):
@@ -177,6 +213,7 @@ def on_message(client, userdata, msg):
         float(position["x"]),
         float(position["y"]),
         float(position["orientation"]),
+        str(position.get("led_status", "off")),
         now_ms,
     )
 
@@ -220,7 +257,7 @@ while supervisor.step(timestep) != -1:
         if pose is None:
             hide_proxy(node, aruco_id)
             continue
-        pixel_x, pixel_y, orientation, updated_ms = pose
+        pixel_x, pixel_y, orientation, led_status, updated_ms = pose
         if now_ms - updated_ms > STALE_MS or not mapper.ready:
             hide_proxy(node, aruco_id)
             continue
@@ -232,6 +269,7 @@ while supervisor.step(timestep) != -1:
             world_max=WORLD_MAX,
         )
         apply_pose(node, world_x, world_y, orientation)
+        apply_led_status(aruco_id, node, led_status)
 
 client.loop_stop()
 client.disconnect()
