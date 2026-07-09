@@ -5,32 +5,30 @@ import math
 import sys
 import numpy as np
 from paho.mqtt import client as mqtt_client
+import threading
+import time
 
-# USB webcam (Logitech HD 1080p). Set explicitly if auto-detect picks the wrong device.
-# For IP Webcam on a phone, set USE_USB_WEBCAM = False and cameraSource to e.g.
-# "http://<phone-ip>:8880/video"
-USE_USB_WEBCAM = True
-CAMERA_DEVICE_INDEX = 1  # None = auto-detect 1080p USB camera; or set 0, 1, ...
+USE_USB_WEBCAM = False
+CAMERA_DEVICE_INDEX = 1
 CAMERA_WIDTH = 1920
 CAMERA_HEIGHT = 1080
-cameraSource = "http://145.137.61.30:8880/video"
-debugType = "linking"
+cameraSource = "http://145.137.57.22:8880/video"
+debugType = "linking" 
 """
 debugType: which video do you want to see
     - "arucos": Show the detection of ArUco markers along with its information, orientation and area for LED linking
     - "leds": Show the detection of leds
     - "linking": Show which ArUco markers are linked to which leds
 """
+WAITKEY_DELAY_MS = 100 if sys.platform == "darwin" else 1
 
 FirstChariotMarkerID = 1
 LastChariotMarkerID = 4
 FirstCornerMarkerID = 5
 LastCornerMarkerID = 8
 
-# Printed robot markers use DICT_6X6_50 (not 4x4). Set to cv2.aruco.DICT_4X4_50 if needed.
 ARUCO_DICTIONARY = cv2.aruco.DICT_4X4_50
-# Phone IP webcam used 90° rotation; USB overhead mount usually needs none.
-FRAME_ROTATION = None  # e.g. cv2.ROTATE_90_CLOCKWISE
+FRAME_ROTATION = None
 
 dictionary = cv2.aruco.getPredefinedDictionary(ARUCO_DICTIONARY)
 arucoParams = cv2.aruco.DetectorParameters()
@@ -40,20 +38,64 @@ detector = cv2.aruco.ArucoDetector(dictionary, arucoParams)
 maxAllowedDistanceMarkerToLed = 100 #65
 ledSearchAngle = 120
 
+mqttPort = 8883
+mqttBroker = "145.24.237.88"
+mqttClientId = "Camera"
+PHYSICAL_CHARIOT_MACS = {"2C:CF:67:C1:92:3F", "28:CD:C1:09:0B:E6"}
+
+mqttTopicPos = "Robots/Data/Positions/Physical"
+mqttTopicGoals = "Robots/Data/+/Goals"  # Wildcard check for universal data
+
+
+
 def on_connect(client, userdata, flags, rc) -> None:
     if rc == 0:
-        client.subscribe(mqttTopic)
-        print("Subscribed to mqtt topic: " + mqttTopic)
+        client.subscribe(mqttTopicGoals)
+        print("Subscribed to mqtt topic: " + mqttTopicGoals)
     else:
         print("Couldn't connect to mqtt topic")
 
-mqttClientId = "Camera"
-mqttPort = 8883
-mqttBroker = "145.24.237.88"
-mqttTopic = "Robots/Data/Positions/Physical"
-client = mqtt_client.Client(client_id=mqttClientId)
+
+chariotTargets = []
+chariotTargetsLock = threading.Lock()
+
+
+def on_message(client, userdata, msg):
+    payload = json.loads(msg.payload.decode().strip())
+    topicLines = msg.topic.split("/")
+    chariotMAC = topicLines[2]
+
+    if chariotMAC not in PHYSICAL_CHARIOT_MACS:
+        return
+
+    if payload.get("action") == "set":
+        target_x = payload.get("target_x")
+        target_y = payload.get("target_y")
+        if target_x is None or target_y is None:
+            print(f"Ongeldige goal payload van {chariotMAC}: {payload}")
+            return
+
+        with chariotTargetsLock:
+            for target in chariotTargets:
+                if target[0] == chariotMAC:
+                    target[1] = [target_x, target_y]
+                    print("payload is; set ", chariotTargets)
+                    return
+            chariotTargets.append([chariotMAC, [target_x, target_y]])
+            print("payload is; set ", chariotTargets)
+
+    ## Uncomment, if a 'clear' action has been send to goal
+    # elif payload.get("action") == "clear":
+    #     with chariotTargetsLock:
+    #         chariotTargets[:] = [target for target in chariotTargets if target[0] != chariotMAC]
+    #         print("payload is; set ", chariotTargets)
+
+
+client = mqtt_client.Client(mqtt_client.CallbackAPIVersion.VERSION1, client_id=mqttClientId)
 client.username_pw_set(username="myuser", password="FormingFormsAS")
 client.on_connect = on_connect
+client.on_message = on_message
+
 
 def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
     display = frame.copy()
@@ -68,12 +110,14 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
 
     if markerIDs is not None:
         for corner, markerID in zip(corners, markerIDs):
-            marker_id = int(markerID[0])
+            # marker_id = int(markerID[0])
+            marker_id = int(np.asarray(markerID).flatten()[0])
             corner = corner.reshape(4, 2).astype(int)
 
             topLeft, topRight, bottomRight, bottomLeft = corner
 
-            cv2.putText(display, f"id: {marker_id}", tuple(topLeft), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)
+            if debugType == "arucos":
+                cv2.putText(display, f"id: {marker_id}", tuple(topLeft), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)
 
             centerX = (topLeft[0] + bottomRight[0]) // 2
             centerY = (topLeft[1] + bottomRight[1]) // 2
@@ -81,26 +125,30 @@ def arUcoDetection(frame: np.ndarray) -> tuple[list, list, np.ndarray]:
             center = (centerX, centerY)
             
             if FirstChariotMarkerID <= marker_id <= LastChariotMarkerID:
-                cv2.circle(display, center, 5, (0, 0, 255), -1)
+                if debugType == "arucos":
+                    cv2.circle(display, center, 5, (0, 0, 255), -1)
 
                 topMiddleX = (topLeft[0] + topRight[0]) // 2
                 topMiddleY = (topLeft[1] + topRight[1]) // 2
 
                 direction = math.degrees(math.atan2(topMiddleY - centerY, topMiddleX - centerX))
-                cv2.putText(display, f"dir: {direction:.0f}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
+                if debugType == "arucos":
+                    cv2.putText(display, f"dir: {direction:.0f}", tuple(topRight), cv2.FONT_HERSHEY_PLAIN, 1.3, (255, 0, 255), 2)            
                 
                 chariotArucoInformation.append([marker_id, center, direction])
             elif FirstCornerMarkerID <= marker_id <= LastCornerMarkerID:
                 cornerArucoInformation.append([marker_id, center])
-                cv2.line(display, topLeft, bottomLeft, (0, 255, 0), 2)
-                cv2.line(display, bottomLeft, bottomRight, (0, 255, 0), 2)
-                cv2.line(display, bottomRight, topRight, (0, 255, 0), 2)
-                cv2.line(display, topLeft, topRight, (0, 255, 0), 2)
-
-    for marker in chariotArucoInformation:
-        cv2.circle(display, marker[1], maxAllowedDistanceMarkerToLed, (0, 0, 0), 2)
+                if debugType == "arucos":
+                    cv2.line(display, topLeft, bottomLeft, (0, 255, 0), 2)
+                    cv2.line(display, bottomLeft, bottomRight, (0, 255, 0), 2)
+                    cv2.line(display, bottomRight, topRight, (0, 255, 0), 2)
+                    cv2.line(display, topLeft, topRight, (0, 255, 0), 2)
+    if debugType == "arucos":
+        for marker in chariotArucoInformation:
+            cv2.circle(display, marker[1], maxAllowedDistanceMarkerToLed, (0, 0, 0), 2)
 
     return chariotArucoInformation, cornerArucoInformation, display
+
 
 def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method: int, minimumLedArea: int) -> tuple[list, np.ndarray]:
     """
@@ -115,12 +163,14 @@ def detect_pix(frame: np.ndarray, frameRGB: np.ndarray, colorCode: tuple, method
         if area > minimumLedArea:
             x, y, w, h = cv2.boundingRect(contour)
             ledPositions.append([x + 0.5 * w, y + 0.5 * h])
-            cv2.rectangle(frameRGB, (x, y), (x + w, y + h), colorCode, 2)
+            if debugType == "leds":
+                cv2.rectangle(frameRGB, (x, y), (x + w, y + h), colorCode, 2)
 
     if not ledPositions:
         ledPositions.append([-1,-1])
 
     return ledPositions, frameRGB
+
 
 def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     """
@@ -135,19 +185,20 @@ def ledDetection(frameBGR: np.ndarray) -> tuple[list, np.ndarray]:
     frameBG = cv2.subtract(frameB, frameG)
 
     ret, frameBG = cv2.threshold(frameBG, 40, 255, cv2.THRESH_BINARY)
-    blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_TREE, 150)
+    blueLedPositions, frameRGB = detect_pix(frameBG, frameRGB, (0, 0, 255), cv2.RETR_EXTERNAL, 150)
     ledPositions.append(blueLedPositions)
 
-    lowerGreen = np.array([35, 40, 40])
+    lowerGreen = np.array([50, 55, 55])
     upperGreen = np.array([95, 255, 255])
     maskG = cv2.inRange(frameHSV, lowerGreen, upperGreen)
-    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL, 40)
+    greenLedPositions, frameRGB = detect_pix(maskG, frameRGB, (0, 255, 0), cv2.RETR_EXTERNAL, 100)
     ledPositions.append(greenLedPositions)
 
     outputFrame = cv2.cvtColor(frameRGB, cv2.COLOR_RGB2BGR)
     return ledPositions, outputFrame
 
-def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarray) -> tuple[list, np.ndarray]:
+
+def linkLedToChariot(arUcoInformation: list, ledPositions: list, frameForLinking: np.ndarray) -> tuple[list, np.ndarray]:
     """
     Assuming two ArUco's are not directly next to eachother
     """
@@ -157,21 +208,22 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
     for chariot in arUcoInformation:
         status = "Off"
         bestDistance = maxAllowedDistanceMarkerToLed + 1
-        textHeight += 40
+        textHeight = 40 + (chariot[0] - FirstChariotMarkerID + 1) * 40
         
         chariotDirection = ((chariot[2] - 90 + 180) % 360) - 180
 
-        x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection + ledSearchAngle)))
-        y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection + ledSearchAngle)))
-        cv2.line(frame, chariot[1], (x, y), (0, 255, 255), 2)
-        x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection - ledSearchAngle)))
-        y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection - ledSearchAngle)))
-        cv2.line(frame, chariot[1], (x, y), (0, 255, 255), 2)
-        cv2.circle(frame, chariot[1], maxAllowedDistanceMarkerToLed, (0, 255, 255), 2)
+        if debugType == "linking":
+            x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection + ledSearchAngle)))
+            y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection + ledSearchAngle)))
+            cv2.line(frameForLinking, chariot[1], (x, y), (0, 255, 255), 2)
+            x = int(chariot[1][0] + maxAllowedDistanceMarkerToLed * math.cos(math.radians(chariotDirection - ledSearchAngle)))
+            y = int(chariot[1][1] + maxAllowedDistanceMarkerToLed * math.sin(math.radians(chariotDirection - ledSearchAngle)))
+            cv2.line(frameForLinking, chariot[1], (x, y), (0, 255, 255), 2)
+            cv2.circle(frameForLinking, chariot[1], maxAllowedDistanceMarkerToLed, (0, 255, 255), 2)
 
         for colorIndex, ledColor in enumerate(ledPositions):
             for led in ledColor:
-                if led == (-1,-1):
+                if led[0] == -1 and led[1] == -1:
                     continue
 
                 distance = math.dist(chariot[1], led)
@@ -186,9 +238,11 @@ def linkLedToChariot(arUcoInformation: list, ledPositions: list, frame: np.ndarr
                     bestDistance = distance
 
         chariotInformation.append([chariot[0], chariot[1], chariot[2], status])
-        cv2.putText(frame, f"Chariot {chariot[0]}: {status}", (40, textHeight), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+        if debugType == "linking":
+            cv2.putText(frameForLinking, f"Chariot {chariot[0]}: {status}", (40, textHeight), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
-    return chariotInformation, frame
+    return chariotInformation, frameForLinking
+
 
 def sendChariotInformation(chariotInformation: list) -> None:
     for chariot in chariotInformation:
@@ -200,7 +254,8 @@ def sendChariotInformation(chariotInformation: list) -> None:
             "led_status": str(chariot[3])
         }
         message_json = json.dumps(message)
-        client.publish(mqttTopic, message_json)
+        client.publish(mqttTopicPos, message_json)
+
 
 def sendCornerInformation(cornerInformation: list) -> None:
     for corner in cornerInformation:
@@ -211,7 +266,8 @@ def sendCornerInformation(cornerInformation: list) -> None:
             "marker_type": "corner",
         }
         message_json = json.dumps(message)
-        client.publish(mqttTopic, message_json)
+        client.publish(mqttTopicPos, message_json)
+
 
 def find_webcam_device(max_devices: int = 6) -> int | None:
     """Pick the camera that reaches the target resolution (USB 1080p over built-in)."""
@@ -260,7 +316,6 @@ def open_capture(source: str | int) -> cv2.VideoCapture:
     if isinstance(source, int):
         api = cv2.CAP_DSHOW if sys.platform == "win32" else cv2.CAP_ANY
         capture = cv2.VideoCapture(source, api)
-        # MJPEG is required on many Logitech webcams to reach 1080p over USB.
         capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
         capture.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
         capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
@@ -272,8 +327,54 @@ def open_capture(source: str | int) -> cv2.VideoCapture:
     return capture
 
 
+class FreshestFrameReader:
+    def __init__(self, source, first_frame_timeout=10.0):
+        self.capture = open_capture(source)
+        self.lock = threading.Lock()
+        self.frame = None
+        self.running = True
+        self.first_frame_event = threading.Event()
+        self.thread = threading.Thread(target=self._reader, daemon=True)
+        self.thread.start()
+        # Wacht tot de eerste frame binnen is (of geef op na timeout)
+        if not self.first_frame_event.wait(timeout=first_frame_timeout):
+            print(f"Warning: no frame received within {first_frame_timeout}s")
+
+    def _reader(self):
+        while self.running:
+            try:
+                ret, frame = self.capture.read()
+            except Exception as e:
+                print(f"Frame read error: {e}")
+                continue
+            if not ret:
+                time.sleep(0.01)
+                continue
+            with self.lock:
+                self.frame = frame
+            self.first_frame_event.set()
+
+    def read(self):
+        with self.lock:
+            return self.frame is not None, self.frame
+
+    def isOpened(self):
+        return self.capture.isOpened()
+
+    def get(self, propId):
+        return self.capture.get(propId)
+
+    def set(self, propId, value):
+        return self.capture.set(propId, value)
+
+    def release(self):
+        self.running = False
+        self.thread.join(timeout=1)
+        self.capture.release()
+
+
 def videoProcessing(source: str | int, record: bool) -> None:
-    capture = open_capture(source)
+    capture = FreshestFrameReader(source)
 
     if not capture.isOpened():
         print("Error: Could not open video source:", source)
@@ -313,12 +414,8 @@ def videoProcessing(source: str | int, record: bool) -> None:
             
             if chariotInformation:
                 sendChariotInformation(chariotInformation)
-            else:
-                print("No chariot information to send")
             if cornerInformation:
                 sendCornerInformation(cornerInformation)
-            else:
-                print("No corner information to send")
 
             if debugType == "arucos":
                 cv2.imshow("Frames", arUcoFrame)
@@ -329,11 +426,15 @@ def videoProcessing(source: str | int, record: bool) -> None:
                 if record:
                     out.write(ledFrame)
             elif debugType == "linking":
+                with chariotTargetsLock:
+                    targetsSnapshot = list(chariotTargets)
+                for target in targetsSnapshot:
+                    cv2.circle(linkingFrame, (int(target[1][0]), int(target[1][1])), 5, (0, 0, 255), -1)
                 cv2.imshow("Frames", linkingFrame)
                 if record:
                     out.write(linkingFrame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(WAITKEY_DELAY_MS) & 0xFF == ord('q'):
                 break
 
         except Exception as e:
@@ -343,6 +444,7 @@ def videoProcessing(source: str | int, record: bool) -> None:
     if record:
         out.release()
     cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     client.connect(mqttBroker, mqttPort)
@@ -354,4 +456,4 @@ if __name__ == "__main__":
         - No: False
     """
     source = resolve_camera_source()
-    videoProcessing(source, record=True)
+    videoProcessing(source, record=False)
