@@ -214,7 +214,7 @@ class Database:
         """Restore robots from DB on server startup."""
         return self.get_all_robots()
 
-    def clear_all_robots(self) -> int:
+    def clear_all(self) -> int:
         """Drop all robots on server restart so every unit must handshake again."""
         with self._lock, self._connection() as conn:
             tables = ["robots", "events", "position_history", "sqlite_sequence"]

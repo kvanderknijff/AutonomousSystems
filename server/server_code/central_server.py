@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 class CentralServer:
     def __init__(self, client_id: str = MQTT_CLIENT_ID):
         self.db = Database()
-        cleared = self.db.clear_all_robots()
+        cleared = self.db.clear_all()
         if cleared:
             logger.info("Server restart: cleared %d robot(s) from database", cleared)
 
