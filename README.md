@@ -9,25 +9,26 @@ This repository contains all hardware designs, embedded firmware, computer visio
 
 To keep the project modular, the repository is organized into the following directories:
 
-*   `📁 server/` — The central fleet "brain" containing the core coordination modules.
-    *   `gateway_bridge.py` — Async MQTT client handling network I/O, rover connection/heartbeat states, and camera telemetry ingestion.
-    *   `path_planner.py` — High-frequency execution loop that maps current telemetry to target formation coordinates.
-    *   `formations.py` — Geometric shape node generator (Line, Plus, Square) scaled to field boundaries.
-    *   `assignment.py` — Hungarian task-allocation engine for global travel distance minimization.
-    *   `avoidance.py` — Reactive local obstacle avoidance vector logic (Artificial Potential Fields).
+*   `📁 ./server/` — The central fleet "brain" containing the core coordination modules.
+    *   `📁 /server_code/` — Contains code of the main server handling: Robot connections, MQTT communication & database.
+        *   `📁 /web/` — Frontend web interface displaying live camera feeds and hosting user formation controls.
+    *   `📁 /pathPlanning/` — Program that devides the formation into different tasks for the robots
+
 
 *   `📁 camera/` — Computer vision scripts utilizing OpenCV for real-time ArUco marker tracking and LED flash detection.
     *   `detector.py`
 
-*   `📁 firmware/` — Embedded Python code running locally on the rovers for hardware interface and MQTT telemetry.
-    *   `main.py` — ?????????
-    *   `wheels_calibration.py` — ?????????
+*   `📁 firmware/` — Embedded Python code running locally on the chariots for hardware interface and MQTT telemetry.
+    *   `main.py` — Main code controlling the chariot
+    *   `credentials.py` — Contains credentials for WiFi etc.
+    *   `nav_goal.py` — Calculates the shortest path to a target given by the server
+    *   `robot_config.py` — A map of PWM signals per chariot
   
 *   `📁 hardware/` — 3D-printing STL models (custom rover top brackets) and schematic references.
-    * `is dit nodig??` — ????????? 
 
-*   `📁 web/` — Frontend web interface displaying live camera feeds and hosting user formation controls.
-    *   `webpage.html` — ?????????
+*   `📁 webots/` — Contains a WeBots world which is a simulation of the physical system.
+
+
 
 ---
 
