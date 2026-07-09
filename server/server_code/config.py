@@ -47,29 +47,21 @@ FORMATION_MIN_ROBOTS = int(os.getenv("FORMATION_MIN_ROBOTS", "1"))
 FORMATION_AUTO_CENTER = os.getenv("FORMATION_AUTO_CENTER", "false").lower() in ("1", "true", "yes")
 COMMAND_RESEND_INTERVAL = int(os.getenv("COMMAND_RESEND_INTERVAL", "1"))
 
-# Robot ArUco IDs (camera-tracked rovers)
 PHYSICAL_ROBOT_ARUCO_FIRST = int(os.getenv("PHYSICAL_ROBOT_ARUCO_FIRST", "1"))
 PHYSICAL_ROBOT_ARUCO_LAST = int(os.getenv("PHYSICAL_ROBOT_ARUCO_LAST", "4"))
 WEBOTS_ROBOT_ARUCO_FIRST = int(os.getenv("WEBOTS_ROBOT_ARUCO_FIRST", "11"))
 WEBOTS_ROBOT_ARUCO_LAST = int(os.getenv("WEBOTS_ROBOT_ARUCO_LAST", "14"))
 
-# Goal arrival tolerance in camera pixels (sent to each robot via MQTT goals)
 WEBOTS_GOAL_TOLERANCE = float(os.getenv("WEBOTS_GOAL_TOLERANCE", "2.0"))
 PHYSICAL_GOAL_TOLERANCE = float(os.getenv("PHYSICAL_GOAL_TOLERANCE", "20.0"))
 
-# Corner ArUco markers defining the playfield (camera pixels)
-# Physical setup: IDs 5-8 on the real field
 CORNER_ARUCO_FIRST = int(os.getenv("CORNER_ARUCO_FIRST", "5"))
 CORNER_ARUCO_LAST = int(os.getenv("CORNER_ARUCO_LAST", "8"))
-# Webots simulation: IDs 15-18 (robots use 11-14)
 WEBOTS_CORNER_ARUCO_FIRST = int(os.getenv("WEBOTS_CORNER_ARUCO_FIRST", "15"))
 WEBOTS_CORNER_ARUCO_LAST = int(os.getenv("WEBOTS_CORNER_ARUCO_LAST", "18"))
-# Keep formation goals and robots inside the field by this many camera pixels
 FIELD_MARGIN = float(os.getenv("FIELD_MARGIN", "20"))
 
-# Formation web UI
 WEB_ENABLED = os.getenv("WEB_ENABLED", "true").lower() in ("1", "true", "yes")
 WEB_HOST = os.getenv("WEB_HOST", "0.0.0.0")
 WEB_PORT = int(os.getenv("WEB_PORT", "8080"))
-# Log each HTTP request from the formation web UI (noisy when /api/status polls every second)
 WEB_ACCESS_LOG = os.getenv("WEB_ACCESS_LOG", "false").lower() in ("1", "true", "yes")

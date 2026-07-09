@@ -53,7 +53,6 @@ proxy_led_fields: dict[int, dict] = {}
 last_pose: dict[int, tuple[float, float, float, str, int]] = {}
 field_ready_logged = False
 
-# Colours used to reflect the physical robot's LED status on the Webots proxy.
 LED_ON_COLOR = {
     "led_connecting": [0.0, 0.25, 1.0],
     "led_connected": [0.0, 1.0, 0.0],

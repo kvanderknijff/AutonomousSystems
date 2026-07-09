@@ -8,11 +8,8 @@ from paho.mqtt import client as mqtt_client
 import threading
 import time
 
-# USB webcam (Logitech HD 1080p). Set explicitly if auto-detect picks the wrong device.
-# For IP Webcam on a phone, set USE_USB_WEBCAM = False and cameraSource to e.g.
-# "http://<phone-ip>:8880/video"
 USE_USB_WEBCAM = False
-CAMERA_DEVICE_INDEX = 1  # None = auto-detect 1080p USB camera; or set 0, 1, ...
+CAMERA_DEVICE_INDEX = 1
 CAMERA_WIDTH = 1920
 CAMERA_HEIGHT = 1080
 cameraSource = "http://145.137.57.22:8880/video"
@@ -23,19 +20,15 @@ debugType: which video do you want to see
     - "leds": Show the detection of leds
     - "linking": Show which ArUco markers are linked to which leds
 """
-
-# macOS' cv2.imshow needs a longer waitKey to render/respond reliably; Windows/Linux stay fast (low delay).
-WAITKEY_DELAY_MS = 100 if sys.platform == "darwin" else 1   # platform-dependent, see above
+WAITKEY_DELAY_MS = 100 if sys.platform == "darwin" else 1
 
 FirstChariotMarkerID = 1
 LastChariotMarkerID = 4
 FirstCornerMarkerID = 5
 LastCornerMarkerID = 8
 
-# Printed robot markers use DICT_6X6_50 (not 4x4). Set to cv2.aruco.DICT_4X4_50 if needed.
 ARUCO_DICTIONARY = cv2.aruco.DICT_4X4_50
-# Phone IP webcam used 90° rotation; USB overhead mount usually needs none.
-FRAME_ROTATION = None  # e.g. cv2.ROTATE_90_CLOCKWISE
+FRAME_ROTATION = None
 
 dictionary = cv2.aruco.getPredefinedDictionary(ARUCO_DICTIONARY)
 arucoParams = cv2.aruco.DetectorParameters()
@@ -73,7 +66,7 @@ def on_message(client, userdata, msg):
     chariotMAC = topicLines[2]
 
     if chariotMAC not in PHYSICAL_CHARIOT_MACS:
-        return  # Ignore Webots-bots
+        return
 
     if payload.get("action") == "set":
         target_x = payload.get("target_x")
@@ -323,7 +316,6 @@ def open_capture(source: str | int) -> cv2.VideoCapture:
     if isinstance(source, int):
         api = cv2.CAP_DSHOW if sys.platform == "win32" else cv2.CAP_ANY
         capture = cv2.VideoCapture(source, api)
-        # MJPEG is required on many Logitech webcams to reach 1080p over USB.
         capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
         capture.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
         capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
@@ -422,12 +414,8 @@ def videoProcessing(source: str | int, record: bool) -> None:
             
             if chariotInformation:
                 sendChariotInformation(chariotInformation)
-            # else:
-                # print("No chariot information to send")
             if cornerInformation:
                 sendCornerInformation(cornerInformation)
-            # else:
-                # print("No corner information to send")
 
             if debugType == "arucos":
                 cv2.imshow("Frames", arUcoFrame)
